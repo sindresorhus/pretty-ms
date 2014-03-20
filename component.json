@@ -4,14 +4,10 @@
   "description": "Convert milliseconds to a human readable string: 1337000000 ➔ 15d 11h 23m 20s",
   "license": "MIT",
   "repo": "sindresorhus/pretty-ms",
-  "main": "pretty-ms.js",
   "scripts": [
-    "pretty-ms.js"
+    "index.js"
   ],
   "keywords": [
-    "cli",
-    "bin",
-    "browser",
     "pretty",
     "human",
     "humanized",

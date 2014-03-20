@@ -7,28 +7,24 @@
 
 Download [manually](https://github.com/sindresorhus/pretty-ms/releases) or with a package-manager.
 
-#### [npm](https://npmjs.org/package/pretty-ms)
-
 ```bash
 $ npm install --save pretty-ms
 ```
 
-#### [Bower](http://bower.io)
-
 ```bash
 $ bower install --save pretty-ms
 ```
-
-#### [Component](https://github.com/component/component)
 
 ```bash
 $ component install sindresorhus/pretty-ms
 ```
 
 
-## Example
+## Usage
 
 ```js
+var prettyMs = require('pretty-ms');
+
 prettyMs(1337000000);
 //=> '15d 11h 23m 20s'
 
@@ -46,6 +42,8 @@ prettyMs(1337, {compact: true});
 prettyMs(new Date(2014, 0, 1, 10, 40) - new Date(2014, 0, 1, 10, 5))
 //=> '35m'
 ```
+
+Can be used with require, global and AMD in the browser.
 
 
 ## API

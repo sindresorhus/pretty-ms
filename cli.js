@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 var pkg = require('./package.json');
-var prettyMs = require('./pretty-ms');
+var prettyMs = require('./index');
 var input = process.argv[2];
 
 function stdin(cb) {

@@ -4,7 +4,6 @@
   "description": "Convert milliseconds to a human readable string: 1337000000 ➔ 15d 11h 23m 20s",
   "license": "MIT",
   "repository": "sindresorhus/pretty-ms",
-  "main": "pretty-ms.js",
   "bin": {
     "pretty-ms": "cli.js"
   },
@@ -17,10 +16,11 @@
     "node": ">=0.10.0"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "browser": "a=$npm_package_name; browserify -r ./index:$a -s $a index.js -o browser.js"
   },
   "files": [
-    "pretty-ms.js",
+    "index.js",
     "cli.js"
   ],
   "keywords": [
@@ -38,7 +38,11 @@
     "period",
     "range"
   ],
+  "dependencies": {
+    "parse-ms": "^0.1.0"
+  },
   "devDependencies": {
-    "mocha": "*"
+    "mocha": "*",
+    "browserify": "^3.0.0"
   }
 }
