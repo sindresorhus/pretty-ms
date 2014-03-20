@@ -1,4 +1,4 @@
-# pretty-ms [![Build Status](https://travis-ci.org/sindresorhus/pretty-ms.png?branch=master)](https://travis-ci.org/sindresorhus/pretty-ms)
+# pretty-ms [![Build Status](https://travis-ci.org/sindresorhus/pretty-ms.svg?branch=master)](https://travis-ci.org/sindresorhus/pretty-ms)
 
 > Convert milliseconds to a human readable string: `1337000000` ➔ `15d 11h 23m 20s`
 
