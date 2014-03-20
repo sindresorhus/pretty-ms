@@ -61,7 +61,7 @@ Type: `number`
 
 Type: `boolean`
 
-Only show the first unit: `995ms` ➔ `~1s`.
+Only show the first unit: `1h 10m` ➔ `~1h`.
 
 
 ## CLI
