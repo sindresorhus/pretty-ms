@@ -17,7 +17,7 @@
   },
   "scripts": {
     "test": "mocha",
-    "browser": "a=$npm_package_name; browserify -r ./index:$a -s $a index.js -o browser.js"
+    "browser": "browserify -s $npm_package_name -o browser.js ."
   },
   "files": [
     "index.js",
