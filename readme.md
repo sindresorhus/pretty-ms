@@ -5,15 +5,15 @@
 
 ## Install
 
-```bash
+```sh
 $ npm install --save pretty-ms
 ```
 
-```bash
+```sh
 $ bower install --save pretty-ms
 ```
 
-```bash
+```sh
 $ component install sindresorhus/pretty-ms
 ```
 
