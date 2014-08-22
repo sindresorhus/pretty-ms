@@ -1,23 +1,22 @@
 {
   "name": "pretty-ms",
   "version": "0.2.2",
-  "description": "Convert milliseconds to a human readable string: 1337000000 ➔ 15d 11h 23m 20s",
+  "description": "Convert milliseconds to a human readable string: 1337000000 → 15d 11h 23m 20s",
   "license": "MIT",
   "repository": "sindresorhus/pretty-ms",
-  "bin": {
-    "pretty-ms": "cli.js"
-  },
   "author": {
     "name": "Sindre Sorhus",
     "email": "sindresorhus@gmail.com",
     "url": "http://sindresorhus.com"
   },
+  "bin": {
+    "pretty-ms": "cli.js"
+  },
   "engines": {
     "node": ">=0.10.0"
   },
   "scripts": {
-    "test": "mocha",
-    "browser": "browserify -s $npm_package_name -o browser.js ."
+    "test": "mocha"
   },
   "files": [
     "index.js",
@@ -39,10 +38,10 @@
     "range"
   ],
   "dependencies": {
-    "parse-ms": "^0.1.0"
+    "get-stdin": "^3.0.0",
+    "parse-ms": "^1.0.0"
   },
   "devDependencies": {
-    "mocha": "*",
-    "browserify": "^3.0.0"
+    "mocha": "*"
   }
 }

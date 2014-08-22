@@ -1,6 +1,6 @@
 'use strict';
 var assert = require('assert');
-var prettyMs = require('./index');
+var prettyMs = require('./');
 
 it('should prettify milliseconds', function () {
 	assert.strictEqual(prettyMs(0), '0ms');

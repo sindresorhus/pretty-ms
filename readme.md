@@ -3,24 +3,15 @@
 > Convert milliseconds to a human readable string: `1337000000` → `15d 11h 23m 20s`
 
 
-## Install
+## Usage
 
 ```sh
 $ npm install --save pretty-ms
 ```
 
-```sh
-$ bower install --save pretty-ms
-```
-
-```sh
-$ component install sindresorhus/pretty-ms
-```
-
-
-## Usage
-
 ```js
+var prettyMs = require('pretty-ms');
+
 prettyMs(1337000000);
 //=> '15d 11h 23m 20s'
 
@@ -58,23 +49,23 @@ Only show the first unit: `1h 10m` ➔ `~1h`.
 
 ## CLI
 
-```bash
+```sh
 $ npm install --global pretty-ms
 ```
 
-```bash
+```
 $ pretty-ms --help
 
-Usage
-  $ pretty-ms <milliseconds> [--compact]
-  $ echo <milliseconds> | pretty-ms
+  Usage
+    pretty-ms <milliseconds> [--compact]
+    echo <milliseconds> | pretty-ms
 
-Example
-  $ pretty-ms 1337
-  1.3s
+  Example
+    pretty-ms 1337
+    1s 337ms
 ```
 
 
 ## License
 
-[MIT](http://opensource.org/licenses/MIT) © [Sindre Sorhus](http://sindresorhus.com)
+MIT © [Sindre Sorhus](http://sindresorhus.com)
