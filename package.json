@@ -38,7 +38,7 @@
     "range"
   ],
   "dependencies": {
-    "get-stdin": "^3.0.0",
+    "get-stdin": "^4.0.1",
     "parse-ms": "^1.0.0"
   },
   "devDependencies": {
