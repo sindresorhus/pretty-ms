@@ -5,7 +5,7 @@
 
 ## Usage
 
-```sh
+```
 $ npm install --save pretty-ms
 ```
 
@@ -40,7 +40,16 @@ prettyMs(new Date(2014, 0, 1, 10, 40) - new Date(2014, 0, 1, 10, 5))
 *Required*  
 Type: `number`
 
-#### options.compact
+#### options
+
+##### secDecimalDigits
+
+Type: `number`  
+Default: `1`
+
+Number of digits to appear after the seconds decimal point.
+
+##### compact
 
 Type: `boolean`
 
@@ -49,7 +58,7 @@ Only show the first unit: `1h 10m` ➔ `~1h`.
 
 ## CLI
 
-```sh
+```
 $ npm install --global pretty-ms
 ```
 
