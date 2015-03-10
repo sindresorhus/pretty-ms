@@ -21,3 +21,9 @@ it('should have a compact option', function () {
 	assert.strictEqual(prettyMs(1000 + 4, {compact: true}), '~1s');
 	assert.strictEqual(prettyMs(1000 * 60 * 60 * 999, {compact: true}), '~41d');
 });
+
+it('should have a secDecimalDigits option', function () {
+	assert.strictEqual(prettyMs(33333), '33.3s');
+	assert.strictEqual(prettyMs(33333, {secDecimalDigits: 0}), '33s');
+	assert.strictEqual(prettyMs(33333, {secDecimalDigits: 4}), '33.3330s');
+});

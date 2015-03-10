@@ -20,6 +20,7 @@ module.exports = function (ms, opts) {
 
 	opts = opts || {};
 
+	var secDecimalDigits = typeof opts.secDecimalDigits === 'number' ? opts.secDecimalDigits : 1;
 	var ret = [];
 	var parsed = parseMs(ms);
 
@@ -32,7 +33,7 @@ module.exports = function (ms, opts) {
 		return '~' + ret[0];
 	}
 
-	ret = add(ret, (ms / 1000 % 60).toFixed(1).replace(/\.0$/, ''), 's');
+	ret = add(ret, (ms / 1000 % 60).toFixed(secDecimalDigits).replace(/\.0$/, ''), 's');
 
 	return ret.join(' ');
 };
