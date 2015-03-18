@@ -1,49 +1,37 @@
 #!/usr/bin/env node
 'use strict';
-var stdin = require('get-stdin');
-var pkg = require('./package.json');
+var getStdin = require('get-stdin');
+var meow = require('meow');
 var prettyMs = require('./');
-var argv = process.argv.slice(2);
-var input = argv[0];
 
-function help() {
-	console.log([
+var cli = meow({
+	help: [
+		'Usage',
+		'  pretty-ms <milliseconds> [--compact]',
+		'  echo <milliseconds> | pretty-ms',
 		'',
-		'  ' + pkg.description,
+		'Example',
+		'  pretty-ms 1337',
+		'  1s 337ms',
 		'',
-		'  Usage',
-		'    pretty-ms <milliseconds> [--compact]',
-		'    echo <milliseconds> | pretty-ms',
-		'',
-		'  Example',
-		'    pretty-ms 1337',
-		'    1s 337ms'
-	].join('\n'));
-}
+		'Options',
+		'  --compact    Only show the first unit'
+	].join('\n')
+});
 
 function init(data) {
 	console.log(prettyMs(Number(data), {
-		compact: argv.indexOf('--compact') !== -1
+		compact: cli.flags.compact
 	}));
 }
 
-if (argv.indexOf('--help') !== -1) {
-	help();
-	return;
-}
-
-if (argv.indexOf('--version') !== -1) {
-	console.log(pkg.version);
-	return;
-}
-
 if (process.stdin.isTTY) {
-	if (!input) {
-		help();
-		return;
+	if (!cli.input[0]) {
+		console.error('`milliseconds` required');
+		process.exit(1);
 	}
 
-	init(input);
+	init(cli.input[0]);
 } else {
-	stdin(init);
+	getStdin(init);
 }

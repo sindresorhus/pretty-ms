@@ -72,6 +72,10 @@ $ pretty-ms --help
   Example
     pretty-ms 1337
     1s 337ms
+
+  Options
+    --compact    Only show the first unit
+
 ```
 
 
