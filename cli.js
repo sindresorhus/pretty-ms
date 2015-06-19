@@ -16,7 +16,7 @@ var cli = meow({
 		'',
 		'Options',
 		'  --compact    Only show the first unit'
-	].join('\n')
+	]
 });
 
 function init(data) {
