@@ -14,12 +14,10 @@ module.exports = function (ms, opts) {
 		throw new TypeError('Expected a number');
 	}
 
-	var verbose = opts ? opts.verbose : false;
-
 	if (ms < 1000) {
-		if(verbose && Math.ceil(ms) == 1.0)
+		if(opts.verbose && Math.ceil(ms) == 1.0)
 			return Math.ceil(ms) + ' millisecond';
-		if(verbose)
+		if(opts.verbose)
 			return Math.ceil(ms) + ' milliseconds';
 		return Math.ceil(ms) + 'ms';
 	}
@@ -30,7 +28,7 @@ module.exports = function (ms, opts) {
 	var ret = [];
 	var parsed = parseMs(ms);
 
-	if(verbose){
+	if(opts.verbose){
 		ret = add(ret, parsed.days, parsed.days == 1 ? ' day' : ' days');
 		ret = add(ret, parsed.hours, parsed.hours == 1 ? ' hour' : ' hours');
 		ret = add(ret, parsed.minutes, parsed.minutes == 1 ? ' minute' : ' minutes');
@@ -42,7 +40,7 @@ module.exports = function (ms, opts) {
 	}
 
 	if (opts.compact) {
-		if(verbose)
+		if(opts.verbose)
 			ret = add(ret, parsed.seconds, parsed.seconds === 1 ? ' second' : ' seconds');
 		else
 			ret = add(ret, parsed.seconds, 's');
