@@ -55,6 +55,12 @@ Type: `boolean`
 
 Only show the first unit: `1h 10m` ➔ `~1h`.
 
+##### verbose
+
+Type: `boolean`
+
+Show a detailed string: `5h 1m 45s` => `5 hours 1 minute 45 seconds`
+
 
 ## CLI
 
