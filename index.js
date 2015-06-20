@@ -49,12 +49,12 @@ module.exports = function (ms, opts) {
 		return '~' + ret[0];
 	}
 
-	var seconds_fixed = (ms / 1000 % 60).toFixed(secDecimalDigits);
+	var secondsFixed = (ms / 1000 % 60).toFixed(secDecimalDigits);
 	
-	if(verbose)
-		ret = add(ret, seconds_fixed.replace(/\.0$/, ''), seconds_fixed === (1).toFixed(secDecimalDigits) ? ' second' : ' seconds');
+	if(opts.verbose)
+		ret = add(ret, secondsFixed.replace(/\.0$/, ''), secondsFixed === (1).toFixed(secDecimalDigits) ? ' second' : ' seconds');
 	else
-		ret = add(ret, seconds_fixed.replace(/\.0$/, ''), 's');
+		ret = add(ret, secondsFixed.replace(/\.0$/, ''), 's');
 
 	return ret.join(' ');
 };
