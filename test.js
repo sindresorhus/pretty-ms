@@ -50,3 +50,23 @@ it('should have a verbose option', function(){
 	assert.strictEqual(use_verbose(1000 * 60 * 60 * 999), '41 days 15 hours');
 
 });
+
+it('should work with verbose and compact options', function(){
+
+	use_verbose_compact = function(ms){
+		return prettyMs(ms, { verbose: true, compact: true });
+	}
+
+	assert.strictEqual(use_verbose_compact(1000), '~1 second');
+	assert.strictEqual(use_verbose_compact(1000 + 400), '~1 second');
+	assert.strictEqual(use_verbose_compact(1000 * 2 + 400), '~2 seconds');
+	assert.strictEqual(use_verbose_compact(1000 * 5), '~5 seconds');
+	assert.strictEqual(use_verbose_compact(1000 * 55), '~55 seconds');
+	assert.strictEqual(use_verbose_compact(1000 * 67), '~1 minute');
+	assert.strictEqual(use_verbose_compact(1000 * 60 * 5), '~5 minutes');
+	assert.strictEqual(use_verbose_compact(1000 * 60 * 67), '~1 hour');
+	assert.strictEqual(use_verbose_compact(1000 * 60 * 60 * 12), '~12 hours');
+	assert.strictEqual(use_verbose_compact(1000 * 60 * 60 * 40), '~1 day');
+	assert.strictEqual(use_verbose_compact(1000 * 60 * 60 * 999), '~41 days');
+
+});
