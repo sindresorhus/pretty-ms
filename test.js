@@ -30,56 +30,56 @@ it('should have a secDecimalDigits option', function () {
 
 it('should have a verbose option', function(){
 
-	var use_verbose = function(ms){
+	function prettyMsVerbose(ms){
 		return prettyMs(ms, {verbose: true});
 	}
 
-	assert.strictEqual(use_verbose(0), '0 milliseconds');
-	assert.strictEqual(use_verbose(0.1), '1 millisecond');
-	assert.strictEqual(use_verbose(1), '1 millisecond');
-	assert.strictEqual(use_verbose(1000), '1 second');
-	assert.strictEqual(use_verbose(1000 + 400), '1.4 seconds');
-	assert.strictEqual(use_verbose(1000 * 2 + 400), '2.4 seconds');
-	assert.strictEqual(use_verbose(1000 * 5), '5 seconds');
-	assert.strictEqual(use_verbose(1000 * 55), '55 seconds');
-	assert.strictEqual(use_verbose(1000 * 67), '1 minute 7 seconds');
-	assert.strictEqual(use_verbose(1000 * 60 * 5), '5 minutes');
-	assert.strictEqual(use_verbose(1000 * 60 * 67), '1 hour 7 minutes');
-	assert.strictEqual(use_verbose(1000 * 60 * 60 * 12), '12 hours');
-	assert.strictEqual(use_verbose(1000 * 60 * 60 * 40), '1 day 16 hours');
-	assert.strictEqual(use_verbose(1000 * 60 * 60 * 999), '41 days 15 hours');
+	assert.strictEqual(prettyMsVerbose(0), '0 milliseconds');
+	assert.strictEqual(prettyMsVerbose(0.1), '1 millisecond');
+	assert.strictEqual(prettyMsVerbose(1), '1 millisecond');
+	assert.strictEqual(prettyMsVerbose(1000), '1 second');
+	assert.strictEqual(prettyMsVerbose(1000 + 400), '1.4 seconds');
+	assert.strictEqual(prettyMsVerbose(1000 * 2 + 400), '2.4 seconds');
+	assert.strictEqual(prettyMsVerbose(1000 * 5), '5 seconds');
+	assert.strictEqual(prettyMsVerbose(1000 * 55), '55 seconds');
+	assert.strictEqual(prettyMsVerbose(1000 * 67), '1 minute 7 seconds');
+	assert.strictEqual(prettyMsVerbose(1000 * 60 * 5), '5 minutes');
+	assert.strictEqual(prettyMsVerbose(1000 * 60 * 67), '1 hour 7 minutes');
+	assert.strictEqual(prettyMsVerbose(1000 * 60 * 60 * 12), '12 hours');
+	assert.strictEqual(prettyMsVerbose(1000 * 60 * 60 * 40), '1 day 16 hours');
+	assert.strictEqual(prettyMsVerbose(1000 * 60 * 60 * 999), '41 days 15 hours');
 
 });
 
 it('should work with verbose and compact options', function(){
 
-	var use_verbose_compact = function(ms){
+	function prettyMsVerboseCompact(ms){
 		return prettyMs(ms, {verbose: true, compact: true});
 	}
 
-	assert.strictEqual(use_verbose_compact(1000), '~1 second');
-	assert.strictEqual(use_verbose_compact(1000 + 400), '~1 second');
-	assert.strictEqual(use_verbose_compact(1000 * 2 + 400), '~2 seconds');
-	assert.strictEqual(use_verbose_compact(1000 * 5), '~5 seconds');
-	assert.strictEqual(use_verbose_compact(1000 * 55), '~55 seconds');
-	assert.strictEqual(use_verbose_compact(1000 * 67), '~1 minute');
-	assert.strictEqual(use_verbose_compact(1000 * 60 * 5), '~5 minutes');
-	assert.strictEqual(use_verbose_compact(1000 * 60 * 67), '~1 hour');
-	assert.strictEqual(use_verbose_compact(1000 * 60 * 60 * 12), '~12 hours');
-	assert.strictEqual(use_verbose_compact(1000 * 60 * 60 * 40), '~1 day');
-	assert.strictEqual(use_verbose_compact(1000 * 60 * 60 * 999), '~41 days');
+	assert.strictEqual(prettyMsVerboseCompact(1000), '~1 second');
+	assert.strictEqual(prettyMsVerboseCompact(1000 + 400), '~1 second');
+	assert.strictEqual(prettyMsVerboseCompact(1000 * 2 + 400), '~2 seconds');
+	assert.strictEqual(prettyMsVerboseCompact(1000 * 5), '~5 seconds');
+	assert.strictEqual(prettyMsVerboseCompact(1000 * 55), '~55 seconds');
+	assert.strictEqual(prettyMsVerboseCompact(1000 * 67), '~1 minute');
+	assert.strictEqual(prettyMsVerboseCompact(1000 * 60 * 5), '~5 minutes');
+	assert.strictEqual(prettyMsVerboseCompact(1000 * 60 * 67), '~1 hour');
+	assert.strictEqual(prettyMsVerboseCompact(1000 * 60 * 60 * 12), '~12 hours');
+	assert.strictEqual(prettyMsVerboseCompact(1000 * 60 * 60 * 40), '~1 day');
+	assert.strictEqual(prettyMsVerboseCompact(1000 * 60 * 60 * 999), '~41 days');
 
 });
 
 it('should work with verbose and secDecimalDigits options', function(){
 
-	var use_decimal_digits = function(ms){
+	function prettyMsVerboseDecimalDigits(ms){
 		return prettyMs(ms, { verbose: true, secDecimalDigits: 4 });
 	}
 
-	assert.strictEqual(use_decimal_digits(1000), '1.0000 second');
-	assert.strictEqual(use_decimal_digits(1000 + 400), '1.4000 seconds');
-	assert.strictEqual(use_decimal_digits(1000 * 2 + 400), '2.4000 seconds');
-	assert.strictEqual(use_decimal_digits(1000 * 5 + 254), '5.2540 seconds');
-	assert.strictEqual(use_decimal_digits(33333), '33.3330 seconds');
+	assert.strictEqual(prettyMsVerboseDecimalDigits(1000), '1.0000 second');
+	assert.strictEqual(prettyMsVerboseDecimalDigits(1000 + 400), '1.4000 seconds');
+	assert.strictEqual(prettyMsVerboseDecimalDigits(1000 * 2 + 400), '2.4000 seconds');
+	assert.strictEqual(prettyMsVerboseDecimalDigits(1000 * 5 + 254), '5.2540 seconds');
+	assert.strictEqual(prettyMsVerboseDecimalDigits(33333), '33.3330 seconds');
 });
