@@ -14,7 +14,7 @@ module.exports = function (ms, opts) {
 		throw new TypeError('Expected a number');
 	}
 
-	var verbose = opts.verbose;
+	var verbose = opts ? opts.verbose : false;
 
 	if (ms < 1000) {
 		if(verbose && Math.ceil(ms) == 1.0)
@@ -29,15 +29,6 @@ module.exports = function (ms, opts) {
 	var secDecimalDigits = typeof opts.secDecimalDigits === 'number' ? opts.secDecimalDigits : 1;
 	var ret = [];
 	var parsed = parseMs(ms);
-	/*
-	console.log(parsed.days);
-	console.log(parsed.hours);
-	console.log(parsed.minutes);
-	console.log(typeof parsed.days);
-	console.log(typeof parsed.hours);
-	console.log(typeof parsed.minutes);
-	console.log(parsed.days == 1);
-	*/
 
 	if(verbose){
 		ret = add(ret, parsed.days, parsed.days == 1 ? ' day' : ' days');
