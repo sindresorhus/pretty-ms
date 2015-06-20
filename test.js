@@ -30,13 +30,13 @@ it('should have a secDecimalDigits option', function () {
 
 it('should have a verbose option', function(){
 
-	use_verbose = function(ms){
-		return prettyMs(ms, { verbose: true });
+	var use_verbose = function(ms){
+		return prettyMs(ms, {verbose: true});
 	}
 
-	assert.strictEqual(use_verbose(0, opt_obj), '0 milliseconds');
-	assert.strictEqual(use_verbose(0.1, opt_obj), '1 millisecond');
-	assert.strictEqual(use_verbose(1, opt_obj), '1 millisecond');
+	assert.strictEqual(use_verbose(0), '0 milliseconds');
+	assert.strictEqual(use_verbose(0.1), '1 millisecond');
+	assert.strictEqual(use_verbose(1), '1 millisecond');
 	assert.strictEqual(use_verbose(1000), '1 second');
 	assert.strictEqual(use_verbose(1000 + 400), '1.4 seconds');
 	assert.strictEqual(use_verbose(1000 * 2 + 400), '2.4 seconds');
@@ -53,8 +53,8 @@ it('should have a verbose option', function(){
 
 it('should work with verbose and compact options', function(){
 
-	use_verbose_compact = function(ms){
-		return prettyMs(ms, { verbose: true, compact: true });
+	var use_verbose_compact = function(ms){
+		return prettyMs(ms, {verbose: true, compact: true});
 	}
 
 	assert.strictEqual(use_verbose_compact(1000), '~1 second');
@@ -73,7 +73,7 @@ it('should work with verbose and compact options', function(){
 
 it('should work with verbose and secDecimalDigits options', function(){
 
-	use_decimal_digits = function(ms){
+	var use_decimal_digits = function(ms){
 		return prettyMs(ms, { verbose: true, secDecimalDigits: 4 });
 	}
 
