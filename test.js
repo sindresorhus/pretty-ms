@@ -28,9 +28,9 @@ it('should have a secDecimalDigits option', function () {
 	assert.strictEqual(prettyMs(33333, {secDecimalDigits: 4}), '33.3330s');
 });
 
-it('should have a verbose option', function(){
+it('should have a verbose option', function() {
 
-	function prettyMsVerbose(ms){
+	function prettyMsVerbose(ms) {
 		return prettyMs(ms, {verbose: true});
 	}
 
@@ -51,9 +51,9 @@ it('should have a verbose option', function(){
 
 });
 
-it('should work with verbose and compact options', function(){
+it('should work with verbose and compact options', function() {
 
-	function prettyMsVerboseCompact(ms){
+	function prettyMsVerboseCompact(ms) {
 		return prettyMs(ms, {verbose: true, compact: true});
 	}
 
@@ -71,9 +71,9 @@ it('should work with verbose and compact options', function(){
 
 });
 
-it('should work with verbose and secDecimalDigits options', function(){
+it('should work with verbose and secDecimalDigits options', function() {
 
-	function prettyMsVerboseDecimalDigits(ms){
+	function prettyMsVerboseDecimalDigits(ms) {
 		return prettyMs(ms, { verbose: true, secDecimalDigits: 4 });
 	}
 
