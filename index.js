@@ -14,45 +14,48 @@ module.exports = function (ms, opts) {
 		throw new TypeError('Expected a number');
 	}
 
+	opts = opts || {};
+
 	if (ms < 1000) {
-		if(opts.verbose && Math.ceil(ms) == 1.0)
+		if(opts.verbose && Math.ceil(ms) == 1.0) {
 			return Math.ceil(ms) + ' millisecond';
-		if(opts.verbose)
+		}
+		if(opts.verbose) {
 			return Math.ceil(ms) + ' milliseconds';
+		}
 		return Math.ceil(ms) + 'ms';
 	}
-
-	opts = opts || {};
 
 	var secDecimalDigits = typeof opts.secDecimalDigits === 'number' ? opts.secDecimalDigits : 1;
 	var ret = [];
 	var parsed = parseMs(ms);
 
-	if(opts.verbose){
+	if(opts.verbose) {
 		ret = add(ret, parsed.days, parsed.days == 1 ? ' day' : ' days');
 		ret = add(ret, parsed.hours, parsed.hours == 1 ? ' hour' : ' hours');
 		ret = add(ret, parsed.minutes, parsed.minutes == 1 ? ' minute' : ' minutes');
-	}
-	else{
+	} else {
 		ret = add(ret, parsed.days, 'd');
 		ret = add(ret, parsed.hours, 'h');
 		ret = add(ret, parsed.minutes, 'm');
 	}
 
 	if (opts.compact) {
-		if(opts.verbose)
+		if(opts.verbose) {
 			ret = add(ret, parsed.seconds, parsed.seconds === 1 ? ' second' : ' seconds');
-		else
+		} else {
 			ret = add(ret, parsed.seconds, 's');
+		}
 		return '~' + ret[0];
 	}
 
 	var secondsFixed = (ms / 1000 % 60).toFixed(secDecimalDigits);
 	
-	if(opts.verbose)
+	if(opts.verbose) {
 		ret = add(ret, secondsFixed.replace(/\.0$/, ''), secondsFixed === (1).toFixed(secDecimalDigits) ? ' second' : ' seconds');
-	else
+	} else {
 		ret = add(ret, secondsFixed.replace(/\.0$/, ''), 's');
-
+	}
+	
 	return ret.join(' ');
 };
