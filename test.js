@@ -70,3 +70,16 @@ it('should work with verbose and compact options', function(){
 	assert.strictEqual(use_verbose_compact(1000 * 60 * 60 * 999), '~41 days');
 
 });
+
+it('should work with verbose and secDecimalDigits options', function(){
+
+	use_decimal_digits = function(ms){
+		return prettyMs(ms, { verbose: true, secDecimalDigits: 4 });
+	}
+
+	assert.strictEqual(use_decimal_digits(1000), '1.0000 second');
+	assert.strictEqual(use_decimal_digits(1000 + 400), '1.4000 seconds');
+	assert.strictEqual(use_decimal_digits(1000 * 2 + 400), '2.4000 seconds');
+	assert.strictEqual(use_decimal_digits(1000 * 5 + 254), '5.2540 seconds');
+	assert.strictEqual(use_decimal_digits(33333), '33.3330 seconds');
+});
