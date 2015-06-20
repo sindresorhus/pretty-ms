@@ -17,7 +17,7 @@ module.exports = function (ms, opts) {
 	opts = opts || {};
 
 	if (ms < 1000) {
-		if(opts.verbose && Math.ceil(ms) == 1.0) {
+		if(opts.verbose && Math.ceil(ms) === 1.0) {
 			return Math.ceil(ms) + ' millisecond';
 		}
 		if(opts.verbose) {
@@ -31,9 +31,9 @@ module.exports = function (ms, opts) {
 	var parsed = parseMs(ms);
 
 	if(opts.verbose) {
-		ret = add(ret, parsed.days, parsed.days == 1 ? ' day' : ' days');
-		ret = add(ret, parsed.hours, parsed.hours == 1 ? ' hour' : ' hours');
-		ret = add(ret, parsed.minutes, parsed.minutes == 1 ? ' minute' : ' minutes');
+		ret = add(ret, parsed.days, parsed.days === 1 ? ' day' : ' days');
+		ret = add(ret, parsed.hours, parsed.hours === 1 ? ' hour' : ' hours');
+		ret = add(ret, parsed.minutes, parsed.minutes === 1 ? ' minute' : ' minutes');
 	} else {
 		ret = add(ret, parsed.days, 'd');
 		ret = add(ret, parsed.hours, 'h');
@@ -56,6 +56,6 @@ module.exports = function (ms, opts) {
 	} else {
 		ret = add(ret, secondsFixed.replace(/\.0$/, ''), 's');
 	}
-	
+
 	return ret.join(' ');
 };
