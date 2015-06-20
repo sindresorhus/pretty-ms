@@ -27,3 +27,26 @@ it('should have a secDecimalDigits option', function () {
 	assert.strictEqual(prettyMs(33333, {secDecimalDigits: 0}), '33s');
 	assert.strictEqual(prettyMs(33333, {secDecimalDigits: 4}), '33.3330s');
 });
+
+it('should have a verbose option', function(){
+
+	use_verbose = function(ms){
+		return prettyMs(ms, { verbose: true });
+	}
+
+	assert.strictEqual(use_verbose(0, opt_obj), '0 milliseconds');
+	assert.strictEqual(use_verbose(0.1, opt_obj), '1 millisecond');
+	assert.strictEqual(use_verbose(1, opt_obj), '1 millisecond');
+	assert.strictEqual(use_verbose(1000), '1 second');
+	assert.strictEqual(use_verbose(1000 + 400), '1.4 seconds');
+	assert.strictEqual(use_verbose(1000 * 2 + 400), '2.4 seconds');
+	assert.strictEqual(use_verbose(1000 * 5), '5 seconds');
+	assert.strictEqual(use_verbose(1000 * 55), '55 seconds');
+	assert.strictEqual(use_verbose(1000 * 67), '1 minute 7 seconds');
+	assert.strictEqual(use_verbose(1000 * 60 * 5), '5 minutes');
+	assert.strictEqual(use_verbose(1000 * 60 * 67), '1 hour 7 minutes');
+	assert.strictEqual(use_verbose(1000 * 60 * 60 * 12), '12 hours');
+	assert.strictEqual(use_verbose(1000 * 60 * 60 * 40), '1 day 16 hours');
+	assert.strictEqual(use_verbose(1000 * 60 * 60 * 999), '41 days 15 hours');
+
+});
