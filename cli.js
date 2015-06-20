@@ -21,7 +21,8 @@ var cli = meow({
 
 function init(data) {
 	console.log(prettyMs(Number(data), {
-		compact: cli.flags.compact
+		compact: cli.flags.compact,
+		verbose: cli.flags.verbose
 	}));
 }
 
