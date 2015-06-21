@@ -25,23 +25,19 @@ module.exports = function (ms, opts) {
 	var ret = [];
 	var parsed = parseMs(ms);
 
-	ret = add(ret, parsed.days, (opts.verbose ? plur(' day', parsed.days) : 'd'));
-	ret = add(ret, parsed.hours, (opts.verbose ? plur(' hour', parsed.hours) : 'h'));
-	ret = add(ret, parsed.minutes, (opts.verbose ? plur(' minute', parsed.minutes) : 'm'));
+	ret = add(ret, parsed.days, opts.verbose ? plur(' day', parsed.days) : 'd');
+	ret = add(ret, parsed.hours, opts.verbose ? plur(' hour', parsed.hours) : 'h');
+	ret = add(ret, parsed.minutes, opts.verbose ? plur(' minute', parsed.minutes) : 'm');
 
 	if (opts.compact) {
-		ret = add(ret, parsed.seconds, (opts.verbose ? plur(' second', parsed.seconds) : 's'));
-		
+		ret = add(ret, parsed.seconds, opts.verbose ? plur(' second', parsed.seconds) : 's');
 		return '~' + ret[0];
 	}
 
-	var secondsFixed = (ms / 1000 % 60).toFixed(secDecimalDigits);
-	
-	if (opts.verbose) {
-		ret = add(ret, secondsFixed.replace(/\.0$/, ''), secondsFixed === (1).toFixed(secDecimalDigits) ? ' second' : ' seconds');
-	} else {
-		ret = add(ret, secondsFixed.replace(/\.0$/, ''), 's');
-	}
+	var seconds = ms / 1000 % 60;
+	var secondsFixed = seconds.toFixed(secDecimalDigits);
+
+	ret = add(ret, secondsFixed.replace(/\.0$/, ''), opts.verbose ? plur(' second', seconds) : 's');
 
 	return ret.join(' ');
 };
