@@ -15,7 +15,9 @@ var cli = meow({
 		'  1s 337ms',
 		'',
 		'Options',
-		'  --compact    Only show the first unit'
+		'  --compact    Only show the first unit',
+		'  --verbose    Show a detailed string',
+		'               (seconds, days, hours instead of s, d, h)'
 	]
 });
 

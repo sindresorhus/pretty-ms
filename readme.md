@@ -83,6 +83,8 @@ $ pretty-ms --help
 
   Options
     --compact    Only show the first unit
+    --verbose    Show a detailed string
+		             (seconds, days, hours instead of s, d, h)
 
 ```
 
