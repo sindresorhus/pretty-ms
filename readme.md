@@ -25,6 +25,10 @@ prettyMs(133);
 prettyMs(1337, {compact: true});
 //=> '~1s'
 
+// verbose option
+prettyMs(1335669000);
+//=>15 days 11 hours 1 minute 9 seconds
+
 // can be useful for time durations
 prettyMs(new Date(2014, 0, 1, 10, 40) - new Date(2014, 0, 1, 10, 5))
 //=> '35m'
@@ -51,14 +55,14 @@ Number of digits to appear after the seconds decimal point.
 
 ##### compact
 
-Type: `boolean`
+Type: `boolean`  
 Default: `false`
 
 Only show the first unit: `1h 10m` ➔ `~1h`.
 
 ##### verbose
 
-Type: `boolean`
+Type: `boolean`  
 Default: `false`
 
 Show a detailed string: `5h 1m 45s` => `5 hours 1 minute 45 seconds`
