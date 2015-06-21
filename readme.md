@@ -26,7 +26,7 @@ prettyMs(1337, {compact: true});
 //=> '~1s'
 
 // verbose option
-prettyMs(1335669000);
+prettyMs(1335669000, {verbose: true});
 //=>15 days 11 hours 1 minute 9 seconds
 
 // can be useful for time durations

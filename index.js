@@ -1,5 +1,6 @@
 'use strict';
 var parseMs = require('parse-ms');
+var plur = require('plur');
 
 function add(ret, val, postfix) {
 	if (val > 0) {
@@ -15,7 +16,6 @@ module.exports = function (ms, opts) {
 	}
 
 	opts = opts || {};
-	var plur = require('plur');
 
 	if (ms < 1000) {
 		return Math.ceil(ms) + (opts.verbose ? plur(' millisecond', Math.ceil(ms)) : 'ms');

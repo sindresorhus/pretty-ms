@@ -44,7 +44,6 @@ it('should have a verbose option', function () {
 	assert.strictEqual(fn(1000 * 60 * 60 * 12), '12 hours');
 	assert.strictEqual(fn(1000 * 60 * 60 * 40), '1 day 16 hours');
 	assert.strictEqual(fn(1000 * 60 * 60 * 999), '41 days 15 hours');
-
 });
 it('should work with verbose and compact options', function () {
 	function fn(ms) {
@@ -62,7 +61,6 @@ it('should work with verbose and compact options', function () {
 	assert.strictEqual(fn(1000 * 60 * 60 * 12), '~12 hours');
 	assert.strictEqual(fn(1000 * 60 * 60 * 40), '~1 day');
 	assert.strictEqual(fn(1000 * 60 * 60 * 999), '~41 days');
-
 });
 it('should work with verbose and secDecimalDigits options', function () {
 	function fn(ms) {
