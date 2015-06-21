@@ -30,11 +30,8 @@ module.exports = function (ms, opts) {
 	ret = add(ret, parsed.minutes, (opts.verbose ? plur(' minute', parsed.minutes) : 'm'));
 
 	if (opts.compact) {
-		if (opts.verbose) {
-			ret = add(ret, parsed.seconds, parsed.seconds === 1 ? ' second' : ' seconds');
-		} else {
-			ret = add(ret, parsed.seconds, 's');
-		}
+		ret = add(ret, parsed.seconds, (opts.verbose ? plur(' second', parsed.seconds) : 's'));
+		
 		return '~' + ret[0];
 	}
 
