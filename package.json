@@ -39,7 +39,8 @@
   "dependencies": {
     "get-stdin": "^4.0.1",
     "meow": "^3.3.0",
-    "parse-ms": "^1.0.0"
+    "parse-ms": "^1.0.0",
+    "plur": "^1.0.0"
   },
   "devDependencies": {
     "mocha": "*"
