@@ -2,14 +2,6 @@
 var parseMs = require('parse-ms');
 var plur = require('plur');
 
-function add(ret, val, postfix) {
-	if (val > 0) {
-		ret.push(val + postfix);
-	}
-
-	return ret;
-}
-
 module.exports = function (ms, opts) {
 	if (typeof ms !== 'number') {
 		throw new TypeError('Expected a number');
@@ -18,26 +10,36 @@ module.exports = function (ms, opts) {
 	opts = opts || {};
 
 	if (ms < 1000) {
-		return Math.ceil(ms) + (opts.verbose ? plur(' millisecond', Math.ceil(ms)) : 'ms');
+		return Math.ceil(ms) + (opts.verbose ? ' ' + plur('millisecond', Math.ceil(ms)) : 'ms');
 	}
 
-	var secDecimalDigits = typeof opts.secDecimalDigits === 'number' ? opts.secDecimalDigits : 1;
 	var ret = [];
+
+	var add = function (val, long, short, valStr) {
+		if (val === 0) {
+			return;
+		}
+
+		var postfix = opts.verbose ? ' ' + plur(long, val) : short;
+
+		ret.push((valStr || val) + postfix);
+	};
+
 	var parsed = parseMs(ms);
 
-	ret = add(ret, parsed.days, opts.verbose ? plur(' day', parsed.days) : 'd');
-	ret = add(ret, parsed.hours, opts.verbose ? plur(' hour', parsed.hours) : 'h');
-	ret = add(ret, parsed.minutes, opts.verbose ? plur(' minute', parsed.minutes) : 'm');
+	add(parsed.days, 'day', 'd');
+	add(parsed.hours, 'hour', 'h');
+	add(parsed.minutes, 'minute', 'm');
 
 	if (opts.compact) {
-		ret = add(ret, parsed.seconds, opts.verbose ? plur(' second', parsed.seconds) : 's');
+		add(parsed.seconds, 'second', 's');
 		return '~' + ret[0];
 	}
 
-	var seconds = ms / 1000 % 60;
-	var secondsFixed = seconds.toFixed(secDecimalDigits);
-
-	ret = add(ret, secondsFixed.replace(/\.0$/, ''), opts.verbose ? plur(' second', seconds) : 's');
+	var sec = ms / 1000 % 60;
+	var secDecimalDigits = typeof opts.secDecimalDigits === 'number' ? opts.secDecimalDigits : 1;
+	var secStr = sec.toFixed(secDecimalDigits).replace(/\.0$/, '');
+	add(sec, 'second', 's', secStr);
 
 	return ret.join(' ');
 };

@@ -7,34 +7,35 @@ var prettyMs = require('./');
 var cli = meow({
 	help: [
 		'Usage',
-		'  pretty-ms <milliseconds> [--compact]',
+		'  $ pretty-ms <milliseconds> [--compact] [--verbose]',
 		'  echo <milliseconds> | pretty-ms',
 		'',
-		'Example',
-		'  pretty-ms 1337',
-		'  1s 337ms',
-		'',
 		'Options',
-		'  --compact    Only show the first unit',
-		'  --verbose    Show a detailed string',
-		'               (seconds, days, hours instead of s, d, h)'
+		'  --compact  Only show the first part',
+		'  --verbose  Use full-length units',
+		'',
+		'Examples',
+		'  $ pretty-ms 1337',
+		'  1.3s',
+		'  $ pretty-ms 1337 --verbose',
+		'  1.3 seconds',
+		'  $ ~1s'
 	]
 });
 
+var input = cli.input[0];
+
 function init(data) {
-	console.log(prettyMs(Number(data), {
-		compact: cli.flags.compact,
-		verbose: cli.flags.verbose
-	}));
+	console.log(prettyMs(Number(data), cli.flags));
 }
 
-if (process.stdin.isTTY) {
-	if (!cli.input[0]) {
-		console.error('`milliseconds` required');
-		process.exit(1);
-	}
+if (!input && process.stdin.isTTY) {
+	console.error('`milliseconds` required');
+	process.exit(1);
+}
 
-	init(cli.input[0]);
+if (input) {
+	init(input);
 } else {
 	getStdin(init);
 }

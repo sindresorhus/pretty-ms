@@ -23,10 +23,11 @@
   "keywords": [
     "cli-app",
     "cli",
-    "bin",
     "browser",
     "pretty",
+    "prettify",
     "human",
+    "humanize",
     "humanized",
     "readable",
     "time",
@@ -34,7 +35,11 @@
     "milliseconds",
     "duration",
     "period",
-    "range"
+    "range",
+    "text",
+    "string",
+    "str",
+    "number"
   ],
   "dependencies": {
     "get-stdin": "^4.0.1",
