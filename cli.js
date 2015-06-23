@@ -19,7 +19,8 @@ var cli = meow({
 		'  1.3s',
 		'  $ pretty-ms 1337 --verbose',
 		'  1.3 seconds',
-		'  $ ~1s'
+		'  $ pretty-ms 1337 --compact',
+		'  ~1s'
 	]
 });
 
