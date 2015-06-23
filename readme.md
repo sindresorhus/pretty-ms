@@ -88,7 +88,7 @@ $ pretty-ms --help
   Options
     --compact                      Only show the first part
     --verbose                      Use full-length units
-    --secDecimalDigits <number>    Use the specified number of digits after decimal
+    --secDecimalDigits <number>    Number of digits to appear after the seconds decimal point
 
   Examples
     $ pretty-ms 1337
