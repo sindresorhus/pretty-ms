@@ -7,13 +7,13 @@ var prettyMs = require('./');
 var cli = meow({
 	help: [
 		'Usage',
-		'  $ pretty-ms <milliseconds> [--compact] [--verbose] [--secDecimalDigits <number>]',
+		'  $ pretty-ms <milliseconds> [--compact] [--verbose] [--sec-decimal-digits <number>]',
 		'  echo <milliseconds> | pretty-ms',
 		'',
 		'Options',
-		'  --compact                      Only show the first part',
-		'  --verbose                      Use full-length units',
-		'  --secDecimalDigits <number>    Number of digits to appear after the seconds decimal point',
+		'  --compact              Only show the first part',
+		'  --verbose              Use full-length units',
+		'  --sec-decimal-digits   Number of digits to appear after the seconds decimal point',
 		'',
 		'Examples',
 		'  $ pretty-ms 1337',
@@ -22,7 +22,7 @@ var cli = meow({
 		'  1.3 seconds',
 		'  $ pretty-ms 1337 --compact',
 		'  ~1s',
-		'  $ pretty-ms 1337 --secDecimalDigits 4',
+		'  $ pretty-ms 1337 --sec-decimal-digits 4',
 		'  1.3370s'
 	]
 });
