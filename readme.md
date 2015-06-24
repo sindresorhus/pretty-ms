@@ -48,7 +48,7 @@ Milliseconds to humanize.
 
 #### options
 
-##### sec-decimal-digits
+##### secDecimalDigits
 
 Type: `number`  
 Default: `1`
@@ -80,23 +80,23 @@ $ npm install --global pretty-ms
 $ pretty-ms --help
 
   Usage
-    $ pretty-ms <milliseconds> [--compact] [--verbose] [--sec-decimal-digits <number>]
-    echo <milliseconds> | pretty-ms
+	$ pretty-ms <milliseconds> [--compact] [--verbose] [--sec-decimal-digits <number>]
+	echo <milliseconds> | pretty-ms
 
   Options
-    --compact              Only show the first part
-    --verbose              Use full-length units
-    --sec-decimal-digits   Number of digits to appear after the seconds decimal point
+	--compact              Only show the first part
+	--verbose              Use full-length units
+	--sec-decimal-digits   Number of digits to appear after the seconds decimal point
 
   Examples
-    $ pretty-ms 1337
-    1.3s
-    $ pretty-ms 1337 --verbose
-    1.3 seconds
-    $ pretty-ms 1337 --compact
-    ~1s
-    $ pretty-ms 1337 --sec-decimal-digits 4
-    1.3370s  
+	$ pretty-ms 1337
+	1.3s
+	$ pretty-ms 1337 --verbose
+	1.3 seconds
+	$ pretty-ms 1337 --compact
+	~1s
+	$ pretty-ms 1337 --sec-decimal-digits 4
+	1.3370s  
 ```
 
 
