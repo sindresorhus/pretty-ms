@@ -98,7 +98,7 @@ $ pretty-ms --help
 	$ pretty-ms 1337 -d 4
 	1.3370s
 	$ pretty-ms 1337 -vd 4
-	1.3370s
+	1.3370 seconds
 ```
 
 
