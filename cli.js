@@ -11,9 +11,9 @@ var cli = meow({
 		'  echo <milliseconds> | pretty-ms',
 		'',
 		'Options',
-		'  --compact              Only show the first part',
-		'  --verbose              Use full-length units',
-		'  --sec-decimal-digits   Number of digits to appear after the seconds decimal point',
+		'  -c, --compact              Only show the first part',
+		'  -v, --verbose              Use full-length units',
+		'  -d, --sec-decimal-digits   Number of digits to appear after the seconds decimal point',
 		'',
 		'Examples',
 		'  $ pretty-ms 1337',
@@ -25,6 +25,12 @@ var cli = meow({
 		'  $ pretty-ms 1337 --sec-decimal-digits 4',
 		'  1.3370s'
 	]
+}, {
+	alias: {
+		c: 'compact',
+		v: 'verbose',
+		d: 'sec-decimal-digits'
+	}
 });
 
 var input = cli.input[0];

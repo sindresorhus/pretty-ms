@@ -84,9 +84,9 @@ $ pretty-ms --help
     echo <milliseconds> | pretty-ms
 
   Options
-    --compact              Only show the first part
-    --verbose              Use full-length units
-    --sec-decimal-digits   Number of digits to appear after the seconds decimal point
+    -c, --compact              Only show the first part
+    -v, --verbose              Use full-length units
+    -d, --sec-decimal-digits   Number of digits to appear after the seconds decimal point
 
   Examples
     $ pretty-ms 1337
