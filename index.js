@@ -1,10 +1,11 @@
 'use strict';
 var parseMs = require('parse-ms');
 var plur = require('plur');
+var isFinitePonyfill = require('is-finite');
 
 module.exports = function (ms, opts) {
-	if (typeof ms !== 'number') {
-		throw new TypeError('Expected a number');
+	if (!isFinitePonyfill(ms)) {
+		throw new TypeError('Expected a finite number');
 	}
 
 	opts = opts || {};

@@ -84,3 +84,17 @@ it('should work with verbose and secDecimalDigits options', function () {
 	assert.strictEqual(fn(1000 * 5 + 254), '5.2540 seconds');
 	assert.strictEqual(fn(33333), '33.3330 seconds');
 });
+
+it('should throw on invalid', function () {
+	assert.throws(function () {
+		prettyMs('foo');
+	});
+
+	assert.throws(function () {
+		prettyMs(NaN);
+	});
+
+	assert.throws(function () {
+		prettyMs(Infinity);
+	});
+});
