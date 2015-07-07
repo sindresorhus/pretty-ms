@@ -1,10 +1,15 @@
 'use strict';
 var parseMs = require('parse-ms');
 var plur = require('plur');
+var numberIsNan = require('number-is-nan');
 
 module.exports = function (ms, opts) {
 	if (typeof ms !== 'number') {
 		throw new TypeError('Expected a number');
+	}
+
+	if (numberIsNan(ms)) {
+		return undefined;
 	}
 
 	opts = opts || {};
