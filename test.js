@@ -84,3 +84,7 @@ it('should work with verbose and secDecimalDigits options', function () {
 	assert.strictEqual(fn(1000 * 5 + 254), '5.2540 seconds');
 	assert.strictEqual(fn(33333), '33.3330 seconds');
 });
+
+it('should handle NaN input', function () {
+	assert.strictEqual(prettyMs(NaN), undefined);
+});
