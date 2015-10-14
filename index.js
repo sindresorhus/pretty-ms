@@ -12,7 +12,7 @@ module.exports = function (ms, opts) {
 
 	if (ms < 1000) {
 		var msDecimalDigits = typeof opts.msDecimalDigits === 'number' ? opts.msDecimalDigits : 0;
-		return ms.toFixed(msDecimalDigits) + (opts.verbose ? ' ' + plur('millisecond', Math.ceil(ms)) : 'ms');
+		return (msDecimalDigits ? ms.toFixed(msDecimalDigits) : Math.ceil(ms)) + (opts.verbose ? ' ' + plur('millisecond', Math.ceil(ms)) : 'ms');
 	}
 
 	var ret = [];

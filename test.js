@@ -29,8 +29,8 @@ it('should have a secDecimalDigits option', function () {
 });
 
 it('should have a msDecimalDigits option', function () {
-	assert.strictEqual(prettyMs(33.333), '33ms');
-	assert.strictEqual(prettyMs(33.333, {msDecimalDigits: 0}), '33ms');
+	assert.strictEqual(prettyMs(33.333), '34ms');
+	assert.strictEqual(prettyMs(33.333, {msDecimalDigits: 0}), '34ms');
 	assert.strictEqual(prettyMs(33.333, {msDecimalDigits: 4}), '33.3330ms');
 });
 
