@@ -34,7 +34,8 @@
     "text",
     "string",
     "str",
-    "number"
+    "number",
+    "hrtime"
   ],
   "dependencies": {
     "is-finite": "^1.0.1",
