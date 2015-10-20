@@ -28,6 +28,12 @@ it('should have a secDecimalDigits option', function () {
 	assert.strictEqual(prettyMs(33333, {secDecimalDigits: 4}), '33.3330s');
 });
 
+it('should have a msDecimalDigits option', function () {
+	assert.strictEqual(prettyMs(33.333), '34ms');
+	assert.strictEqual(prettyMs(33.333, {msDecimalDigits: 0}), '34ms');
+	assert.strictEqual(prettyMs(33.333, {msDecimalDigits: 4}), '33.3330ms');
+});
+
 it('should have a verbose option', function () {
 	var fn = function (ms) {
 		return prettyMs(ms, {verbose: true});
@@ -83,6 +89,21 @@ it('should work with verbose and secDecimalDigits options', function () {
 	assert.strictEqual(fn(1000 * 2 + 400), '2.4000 seconds');
 	assert.strictEqual(fn(1000 * 5 + 254), '5.2540 seconds');
 	assert.strictEqual(fn(33333), '33.3330 seconds');
+});
+
+it('should work with verbose and msDecimalDigits options', function () {
+	var fn = function (ms) {
+		return prettyMs(ms, {
+			verbose: true,
+			msDecimalDigits: 4
+		});
+	};
+
+	assert.strictEqual(fn(1), '1.0000 millisecond');
+	assert.strictEqual(fn(1 + .4), '1.4000 milliseconds');
+	assert.strictEqual(fn(1 * 2 + .400), '2.4000 milliseconds');
+	assert.strictEqual(fn(1 * 5 + .254), '5.2540 milliseconds');
+	assert.strictEqual(fn(33.333), '33.3330 milliseconds');
 });
 
 it('should throw on invalid', function () {

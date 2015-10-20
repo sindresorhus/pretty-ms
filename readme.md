@@ -55,6 +55,13 @@ Default: `1`
 
 Number of digits to appear after the seconds decimal point.
 
+##### msDecimalDigits
+
+Type: `number`  
+Default: `0`
+
+Number of digits to appear after the milliseconds decimal point.
+
 ##### compact
 
 Type: `boolean`  
