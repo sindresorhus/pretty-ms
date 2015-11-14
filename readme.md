@@ -10,7 +10,7 @@ $ npm install --save pretty-ms
 ```
 
 ```js
-var prettyMs = require('pretty-ms');
+const prettyMs = require('pretty-ms');
 
 prettyMs(1337000000);
 //=> '15d 11h 23m 20s'
@@ -41,7 +41,6 @@ prettyMs(new Date(2014, 0, 1, 10, 40) - new Date(2014, 0, 1, 10, 5))
 
 #### milliseconds
 
-*Required*  
 Type: `number`
 
 Milliseconds to humanize.

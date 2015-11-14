@@ -1,3 +1,4 @@
+/* eslint-env mocha */
 'use strict';
 var assert = require('assert');
 var prettyMs = require('./');
@@ -100,9 +101,9 @@ it('should work with verbose and msDecimalDigits options', function () {
 	};
 
 	assert.strictEqual(fn(1), '1.0000 millisecond');
-	assert.strictEqual(fn(1 + .4), '1.4000 milliseconds');
-	assert.strictEqual(fn(1 * 2 + .400), '2.4000 milliseconds');
-	assert.strictEqual(fn(1 * 5 + .254), '5.2540 milliseconds');
+	assert.strictEqual(fn(1 + 0.4), '1.4000 milliseconds');
+	assert.strictEqual(fn(1 * 2 + 0.400), '2.4000 milliseconds');
+	assert.strictEqual(fn(1 * 5 + 0.254), '5.2540 milliseconds');
 	assert.strictEqual(fn(33.333), '33.3330 milliseconds');
 });
 
