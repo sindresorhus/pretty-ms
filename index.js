@@ -29,7 +29,8 @@ module.exports = function (ms, opts) {
 
 	var parsed = parseMs(ms);
 
-	add(parsed.days, 'day', 'd');
+	add(Math.trunc(parsed.days / 365), 'year', 'y');
+	add(parsed.days % 365, 'day', 'd');
 	add(parsed.hours, 'hour', 'h');
 	add(parsed.minutes, 'minute', 'm');
 

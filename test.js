@@ -16,11 +16,15 @@ it('should prettify milliseconds', function () {
 	assert.strictEqual(prettyMs(1000 * 60 * 60 * 12), '12h');
 	assert.strictEqual(prettyMs(1000 * 60 * 60 * 40), '1d 16h');
 	assert.strictEqual(prettyMs(1000 * 60 * 60 * 999), '41d 15h');
+	assert.strictEqual(prettyMs(1000 * 60 * 60 * 24 * 465), '1y 100d');
+	assert.strictEqual(prettyMs(1000 * 60 * 67 * 24 * 465), '1y 154d 6h');
 });
 
 it('should have a compact option', function () {
 	assert.strictEqual(prettyMs(1000 + 4, {compact: true}), '~1s');
 	assert.strictEqual(prettyMs(1000 * 60 * 60 * 999, {compact: true}), '~41d');
+	assert.strictEqual(prettyMs(1000 * 60 * 60 * 24 * 465, {compact: true}), '~1y');
+	assert.strictEqual(prettyMs(1000 * 60 * 67 * 24 * 465, {compact: true}), '~1y');
 });
 
 it('should have a secDecimalDigits option', function () {
@@ -54,6 +58,8 @@ it('should have a verbose option', function () {
 	assert.strictEqual(fn(1000 * 60 * 60 * 12), '12 hours');
 	assert.strictEqual(fn(1000 * 60 * 60 * 40), '1 day 16 hours');
 	assert.strictEqual(fn(1000 * 60 * 60 * 999), '41 days 15 hours');
+	assert.strictEqual(fn(1000 * 60 * 60 * 24 * 465), '1 year 100 days');
+	assert.strictEqual(fn(1000 * 60 * 67 * 24 * 465), '1 year 154 days 6 hours');
 });
 
 it('should work with verbose and compact options', function () {
@@ -75,6 +81,8 @@ it('should work with verbose and compact options', function () {
 	assert.strictEqual(fn(1000 * 60 * 60 * 12), '~12 hours');
 	assert.strictEqual(fn(1000 * 60 * 60 * 40), '~1 day');
 	assert.strictEqual(fn(1000 * 60 * 60 * 999), '~41 days');
+	assert.strictEqual(fn(1000 * 60 * 60 * 24 * 465), '~1 year');
+	assert.strictEqual(fn(1000 * 60 * 67 * 24 * 750), '~2 years');
 });
 
 it('should work with verbose and secDecimalDigits options', function () {
