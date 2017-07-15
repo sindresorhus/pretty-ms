@@ -1,33 +1,32 @@
 'use strict';
-var parseMs = require('parse-ms');
-var plur = require('plur');
-var isFinitePonyfill = require('is-finite');
+const parseMs = require('parse-ms');
+const plur = require('plur');
 
-module.exports = function (ms, opts) {
-	if (!isFinitePonyfill(ms)) {
+module.exports = (ms, opts) => {
+	if (!Number.isFinite(ms)) {
 		throw new TypeError('Expected a finite number');
 	}
 
 	opts = opts || {};
 
 	if (ms < 1000) {
-		var msDecimalDigits = typeof opts.msDecimalDigits === 'number' ? opts.msDecimalDigits : 0;
+		const msDecimalDigits = typeof opts.msDecimalDigits === 'number' ? opts.msDecimalDigits : 0;
 		return (msDecimalDigits ? ms.toFixed(msDecimalDigits) : Math.ceil(ms)) + (opts.verbose ? ' ' + plur('millisecond', Math.ceil(ms)) : 'ms');
 	}
 
-	var ret = [];
+	const ret = [];
 
-	var add = function (val, long, short, valStr) {
+	const add = (val, long, short, valStr) => {
 		if (val === 0) {
 			return;
 		}
 
-		var postfix = opts.verbose ? ' ' + plur(long, val) : short;
+		const postfix = opts.verbose ? ' ' + plur(long, val) : short;
 
 		ret.push((valStr || val) + postfix);
 	};
 
-	var parsed = parseMs(ms);
+	const parsed = parseMs(ms);
 
 	add(Math.trunc(parsed.days / 365), 'year', 'y');
 	add(parsed.days % 365, 'day', 'd');
@@ -39,9 +38,9 @@ module.exports = function (ms, opts) {
 		return '~' + ret[0];
 	}
 
-	var sec = ms / 1000 % 60;
-	var secDecimalDigits = typeof opts.secDecimalDigits === 'number' ? opts.secDecimalDigits : 1;
-	var secStr = sec.toFixed(secDecimalDigits).replace(/\.0$/, '');
+	const sec = ms / 1000 % 60;
+	const secDecimalDigits = typeof opts.secDecimalDigits === 'number' ? opts.secDecimalDigits : 1;
+	const secStr = sec.toFixed(secDecimalDigits).replace(/\.0$/, '');
 	add(sec, 'second', 's', secStr);
 
 	return ret.join(' ');
