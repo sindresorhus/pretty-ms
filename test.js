@@ -26,6 +26,7 @@ test('have a compact option', t => {
 });
 
 test('have a secDecimalDigits option', t => {
+	t.is(m(10000), '10s');
 	t.is(m(33333), '33.3s');
 	t.is(m(33333, {secDecimalDigits: 0}), '33s');
 	t.is(m(33333, {secDecimalDigits: 4}), '33.3330s');
@@ -85,7 +86,7 @@ test('work with verbose and secDecimalDigits options', t => {
 		secDecimalDigits: 4
 	});
 
-	t.is(fn(1000), '1.0000 second');
+	t.is(fn(1000), '1 second');
 	t.is(fn(1000 + 400), '1.4000 seconds');
 	t.is(fn((1000 * 2) + 400), '2.4000 seconds');
 	t.is(fn((1000 * 5) + 254), '5.2540 seconds');
