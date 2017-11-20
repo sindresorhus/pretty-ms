@@ -65,6 +65,15 @@ Number of digits to appear after the milliseconds decimal point.
 
 Useful in combination with [`process.hrtime()`](https://nodejs.org/api/process.html#process_process_hrtime).
 
+##### keepDecimalsOnWholeSeconds
+
+Type: `boolean`<br>
+Default: `false`
+
+Keep milliseconds on whole seconds: `13s` → `13.0s`.
+
+Useful when you are showing a number of seconds spent on an operation and don't want the width of the output to change when hitting a whole number.
+
 ##### compact
 
 Type: `boolean`<br>

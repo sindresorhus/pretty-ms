@@ -38,6 +38,11 @@ test('have a msDecimalDigits option', t => {
 	t.is(m(33.333, {msDecimalDigits: 4}), '33.3330ms');
 });
 
+test('have a keepDecimalsOnWholeSeconds option', t => {
+	t.is(m(1000 * 33, {secDecimalDigits: 2, keepDecimalsOnWholeSeconds: true}), '33.00s');
+	t.is(m(1000 * 33.00004, {secDecimalDigits: 2, keepDecimalsOnWholeSeconds: true}), '33.00s');
+});
+
 test('have a verbose option', t => {
 	const fn = ms => m(ms, {verbose: true});
 

@@ -40,7 +40,8 @@ module.exports = (ms, opts) => {
 
 	const sec = ms / 1000 % 60;
 	const secDecimalDigits = typeof opts.secDecimalDigits === 'number' ? opts.secDecimalDigits : 1;
-	const secStr = sec.toFixed(secDecimalDigits).replace(/\.0+$/, '');
+	const secFixed = sec.toFixed(secDecimalDigits);
+	const secStr = opts.keepDecimalsOnWholeSeconds ? secFixed : secFixed.replace(/\.0+$/, '');
 	add(sec, 'second', 's', secStr);
 
 	return ret.join(' ');
