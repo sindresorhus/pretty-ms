@@ -1,6 +1,7 @@
 'use strict';
 const parseMs = require('parse-ms');
-const plur = require('plur');
+
+const plur = (word, count) => count === 1 ? word : word + 's';
 
 module.exports = (ms, opts) => {
 	if (!Number.isFinite(ms)) {
