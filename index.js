@@ -1,30 +1,28 @@
 'use strict';
 const parseMs = require('parse-ms');
 
-const plur = (word, count) => count === 1 ? word : word + 's';
+const pluralize = (word, count) => count === 1 ? word : word + 's';
 
-module.exports = (ms, opts) => {
+module.exports = (ms, options = {}) => {
 	if (!Number.isFinite(ms)) {
 		throw new TypeError('Expected a finite number');
 	}
 
-	opts = opts || {};
-
 	if (ms < 1000) {
-		const msDecimalDigits = typeof opts.msDecimalDigits === 'number' ? opts.msDecimalDigits : 0;
-		return (msDecimalDigits ? ms.toFixed(msDecimalDigits) : Math.ceil(ms)) + (opts.verbose ? ' ' + plur('millisecond', Math.ceil(ms)) : 'ms');
+		const msDecimalDigits = typeof options.msDecimalDigits === 'number' ? options.msDecimalDigits : 0;
+		return (msDecimalDigits ? ms.toFixed(msDecimalDigits) : Math.ceil(ms)) + (options.verbose ? ' ' + pluralize('millisecond', Math.ceil(ms)) : 'ms');
 	}
 
 	const ret = [];
 
-	const add = (val, long, short, valStr) => {
-		if (val === 0) {
+	const add = (value, long, short, valueString) => {
+		if (value === 0) {
 			return;
 		}
 
-		const postfix = opts.verbose ? ' ' + plur(long, val) : short;
+		const postfix = options.verbose ? ' ' + pluralize(long, value) : short;
 
-		ret.push((valStr || val) + postfix);
+		ret.push((valueString || value) + postfix);
 	};
 
 	const parsed = parseMs(ms);
@@ -34,15 +32,15 @@ module.exports = (ms, opts) => {
 	add(parsed.hours, 'hour', 'h');
 	add(parsed.minutes, 'minute', 'm');
 
-	if (opts.compact) {
+	if (options.compact) {
 		add(parsed.seconds, 'second', 's');
 		return '~' + ret[0];
 	}
 
 	const sec = ms / 1000 % 60;
-	const secDecimalDigits = typeof opts.secDecimalDigits === 'number' ? opts.secDecimalDigits : 1;
+	const secDecimalDigits = typeof options.secDecimalDigits === 'number' ? options.secDecimalDigits : 1;
 	const secFixed = sec.toFixed(secDecimalDigits);
-	const secStr = opts.keepDecimalsOnWholeSeconds ? secFixed : secFixed.replace(/\.0+$/, '');
+	const secStr = options.keepDecimalsOnWholeSeconds ? secFixed : secFixed.replace(/\.0+$/, '');
 	add(sec, 'second', 's', secStr);
 
 	return ret.join(' ');

@@ -1,47 +1,47 @@
 {
-  "name": "pretty-ms",
-  "version": "3.2.0",
-  "description": "Convert milliseconds to a human readable string: `1337000000` → `15d 11h 23m 20s`",
-  "license": "MIT",
-  "repository": "sindresorhus/pretty-ms",
-  "author": {
-    "name": "Sindre Sorhus",
-    "email": "sindresorhus@gmail.com",
-    "url": "sindresorhus.com"
-  },
-  "engines": {
-    "node": ">=4"
-  },
-  "scripts": {
-    "test": "xo && ava"
-  },
-  "files": [
-    "index.js"
-  ],
-  "keywords": [
-    "pretty",
-    "prettify",
-    "human",
-    "humanize",
-    "humanized",
-    "readable",
-    "time",
-    "ms",
-    "milliseconds",
-    "duration",
-    "period",
-    "range",
-    "text",
-    "string",
-    "str",
-    "number",
-    "hrtime"
-  ],
-  "dependencies": {
-    "parse-ms": "^1.0.0"
-  },
-  "devDependencies": {
-    "ava": "*",
-    "xo": "*"
-  }
+	"name": "pretty-ms",
+	"version": "3.2.0",
+	"description": "Convert milliseconds to a human readable string: `1337000000` → `15d 11h 23m 20s`",
+	"license": "MIT",
+	"repository": "sindresorhus/pretty-ms",
+	"author": {
+		"name": "Sindre Sorhus",
+		"email": "sindresorhus@gmail.com",
+		"url": "sindresorhus.com"
+	},
+	"engines": {
+		"node": ">=6"
+	},
+	"scripts": {
+		"test": "xo && ava"
+	},
+	"files": [
+		"index.js"
+	],
+	"keywords": [
+		"pretty",
+		"prettify",
+		"human",
+		"humanize",
+		"humanized",
+		"readable",
+		"time",
+		"ms",
+		"milliseconds",
+		"duration",
+		"period",
+		"range",
+		"text",
+		"string",
+		"str",
+		"number",
+		"hrtime"
+	],
+	"dependencies": {
+		"parse-ms": "^1.0.1"
+	},
+	"devDependencies": {
+		"ava": "*",
+		"xo": "*"
+	}
 }
