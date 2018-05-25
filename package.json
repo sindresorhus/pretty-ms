@@ -38,8 +38,7 @@
     "hrtime"
   ],
   "dependencies": {
-    "parse-ms": "^1.0.0",
-    "plur": "^2.1.2"
+    "parse-ms": "^1.0.0"
   },
   "devDependencies": {
     "ava": "*",
