@@ -64,6 +64,17 @@ test('have a verbose option', t => {
 	t.is(fn(1000 * 60 * 67 * 24 * 465), '1 year 154 days 6 hours');
 });
 
+test('have a separateMs option', t => {
+	t.is(m(1100, {separateMs: false}), '1.1s');
+	t.is(m(1100, {separateMs: true}), '1s 100ms');
+});
+
+test('have a formatSubMs option', t => {
+	t.is(m(0.400, {formatSubMs: true}), '400µs');
+	t.is(m(0.123571, {formatSubMs: true}), '123µs 571ns');
+	t.is(m(0.123456789, {formatSubMs: true}), '123µs 456ns');
+});
+
 test('work with verbose and compact options', t => {
 	const fn = ms => m(ms, {
 		verbose: true,
@@ -109,6 +120,18 @@ test('work with verbose and msDecimalDigits options', t => {
 	t.is(fn((1 * 2) + 0.400), '2.4000 milliseconds');
 	t.is(fn((1 * 5) + 0.254), '5.2540 milliseconds');
 	t.is(fn(33.333), '33.3330 milliseconds');
+});
+
+test('work with verbose and formatSubMs options', t => {
+	t.is(m(0.400, {formatSubMs: true, verbose: true}), '400 microseconds');
+	t.is(m(0.123571, {formatSubMs: true, verbose: true}), '123 microseconds 571 nanoseconds');
+	t.is(m(0.123456789, {formatSubMs: true, verbose: true}), '123 microseconds 456 nanoseconds');
+	t.is(m(0.001, {formatSubMs: true, verbose: true}), '1 microsecond');
+});
+
+test('work with separateMs and formatSubMs options', t => {
+	t.is(m(1010.340067, {separateMs: true, formatSubMs: true}), '1s 10ms 340µs 67ns');
+	t.is(m(((60 * 1000) + 34 + 0.000005), {separateMs: true, formatSubMs: true}), '1m 34ms 5ns');
 });
 
 test('throw on invalid', t => {
