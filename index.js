@@ -26,9 +26,6 @@ module.exports = (ms, options = {}) => {
 	};
 
 	const parsed = parseMs(ms);
-	// Manually add µs and ns to parsed, could be a pr to parse-ms
-	parsed.microseconds = Math.floor(ms * 1000) % 1000;
-	parsed.nanoseconds = Math.floor(ms * 1e6) % 1000;
 
 	add(Math.trunc(parsed.days / 365), 'year', 'y');
 	add(parsed.days % 365, 'day', 'd');
