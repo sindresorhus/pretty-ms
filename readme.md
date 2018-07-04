@@ -95,6 +95,8 @@ Use full-length units: `5h 1m 45s` → `5 hours 1 minute 45 seconds`
 ## Related
 
 - [pretty-ms-cli](https://github.com/sindresorhus/pretty-ms-cli) - CLI for this module
+- [parse-ms](https://github.com/sindresorhus/parse-ms) - Parse milliseconds into an object
+- [to-milliseconds](https://github.com/sindresorhus/to-milliseconds) - Convert an object of time properties to milliseconds
 
 
 ## License
