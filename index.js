@@ -52,7 +52,7 @@ module.exports = (ms, options = {}) => {
 	add(sec, 'second', 's', secStr);
 
 	if (typeof options.unitsToShow === 'number') {
-		return ret.slice(0, options.unitsToShow).join(' ');
+		return '~' + ret.slice(0, options.unitsToShow).join(' ');
 	}
 
 	return ret.join(' ');

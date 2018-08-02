@@ -84,6 +84,13 @@ Default: `false`
 
 Only show the first unit: `1h 10m` → `~1h`.
 
+##### unitsToShow
+
+Type: `number`<br>
+Default: `infinity`
+
+Number of units to show.
+
 ##### verbose
 
 Type: `boolean`<br>
