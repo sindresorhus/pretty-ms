@@ -101,14 +101,14 @@ Use full-length units: `5h 1m 45s` → `5 hours 1 minute 45 seconds`
 Type: `boolean`<br>
 Default: `false`
 
-Show milliseconds separately, this means they won't be included in the decimal part of the seconds
+Show milliseconds separately. This means they won't be included in the decimal part of the seconds.
 
 #### formatSubMs
 
 Type: `boolean`<br>
 Default: `false`
 
-Show microseconds and nanoseconds
+Show microseconds and nanoseconds.
 
 
 ## Related
