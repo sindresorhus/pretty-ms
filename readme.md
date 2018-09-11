@@ -33,7 +33,7 @@ prettyMs(1335669000, {verbose: true});
 //=> '15 days 11 hours 1 minute 9 seconds'
 
 // formatSubMs option
-prettyMs(100.400080)
+prettyMs(100.400080, {formatSubMs: true})
 //=> '100ms 400µs 80ns'
 
 // can be useful for time durations
