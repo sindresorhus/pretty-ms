@@ -73,6 +73,7 @@ test('have a formatSubMs option', t => {
 	t.is(m(0.400, {formatSubMs: true}), '400µs');
 	t.is(m(0.123571, {formatSubMs: true}), '123µs 571ns');
 	t.is(m(0.123456789, {formatSubMs: true}), '123µs 456ns');
+	t.is(m((60 * 60 * 1000) + (23 * 1000) + 433 + 0.123456, {formatSubMs: true}), '1h 23s 433ms 123µs 456ns');
 });
 
 test('work with verbose and compact options', t => {
