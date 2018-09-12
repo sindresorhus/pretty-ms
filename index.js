@@ -25,6 +25,15 @@ module.exports = (ms, options = {}) => {
 		ret.push((valueString || value) + postfix);
 	};
 
+	const secDecimalDigits = typeof options.secDecimalDigits === 'number' ? options.secDecimalDigits : 1;
+
+	if (secDecimalDigits < 1) {
+		const diff = 1000 - (ms % 1000);
+		if (diff < 500) {
+			ms += diff;
+		}
+	}
+
 	const parsed = parseMs(ms);
 
 	add(Math.trunc(parsed.days / 365), 'year', 'y');

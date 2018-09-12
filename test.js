@@ -148,3 +148,12 @@ test('throw on invalid', t => {
 		m(Infinity);
 	});
 });
+
+test('properly rounds milliseconds with secDecimalDigits', t => {
+	const fn = ms => m(ms, {verbose: true, secDecimalDigits: 0});
+	t.is(fn(179700), '3 minutes');
+	t.is(fn((365 * 24 * 3600 * 1e3) - 1), '1 year');
+	t.is(fn((24 * 3600 * 1e3) - 1), '1 day');
+	t.is(fn((3600 * 1e3) - 1), '1 hour');
+	t.is(fn((2 * 3600 * 1e3) - 1), '2 hours');
+});
