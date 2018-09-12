@@ -32,7 +32,7 @@ module.exports = (ms, options = {}) => {
 	add(parsed.hours, 'hour', 'h');
 	add(parsed.minutes, 'minute', 'm');
 
-	if (options.separateMs || ms < 1000) {
+	if (options.separateMs || options.formatSubMs || ms < 1000) {
 		add(parsed.seconds, 'second', 's');
 		if (options.formatSubMs) {
 			add(parsed.milliseconds, 'millisecond', 'ms');
