@@ -84,7 +84,7 @@ Default: `false`
 
 Only show the first unit: `1h 10m` → `~1h`.
 
-##### unitsToShow
+##### unitCount
 
 Type: `number`<br>
 Default: `infinity`

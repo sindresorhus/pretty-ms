@@ -51,8 +51,8 @@ module.exports = (ms, options = {}) => {
 	const secStr = options.keepDecimalsOnWholeSeconds ? secFixed : secFixed.replace(/\.0+$/, '');
 	add(sec, 'second', 's', secStr);
 
-	if (typeof options.unitsToShow === 'number') {
-		return '~' + ret.slice(0, Math.max(options.unitsToShow, 1)).join(' ');
+	if (typeof options.unitCount === 'number') {
+		return '~' + ret.slice(0, Math.max(options.unitCount, 1)).join(' ');
 	}
 
 	return ret.join(' ');

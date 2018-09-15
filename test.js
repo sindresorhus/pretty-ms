@@ -26,13 +26,13 @@ test('have a compact option', t => {
 });
 
 test('limit number of units shown', t => {
-	t.is(m(1000 * 60, {unitsToShow: 0}), '~1m');
-	t.is(m(1000 * 60, {unitsToShow: 1}), '~1m');
-	t.is(m(1000 * 60 * 67, {unitsToShow: 1}), '~1h');
-	t.is(m(1000 * 60 * 67, {unitsToShow: 2}), '~1h 7m');
-	t.is(m(1000 * 60 * 67 * 24 * 465, {unitsToShow: 1}), '~1y');
-	t.is(m(1000 * 60 * 67 * 24 * 465, {unitsToShow: 2}), '~1y 154d');
-	t.is(m(1000 * 60 * 67 * 24 * 465, {unitsToShow: 3}), '~1y 154d 6h');
+	t.is(m(1000 * 60, {unitCount: 0}), '~1m');
+	t.is(m(1000 * 60, {unitCount: 1}), '~1m');
+	t.is(m(1000 * 60 * 67, {unitCount: 1}), '~1h');
+	t.is(m(1000 * 60 * 67, {unitCount: 2}), '~1h 7m');
+	t.is(m(1000 * 60 * 67 * 24 * 465, {unitCount: 1}), '~1y');
+	t.is(m(1000 * 60 * 67 * 24 * 465, {unitCount: 2}), '~1y 154d');
+	t.is(m(1000 * 60 * 67 * 24 * 465, {unitCount: 3}), '~1y 154d 6h');
 });
 
 test('have a secDecimalDigits option', t => {
