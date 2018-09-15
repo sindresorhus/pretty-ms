@@ -87,7 +87,7 @@ Only show the first unit: `1h 10m` → `~1h`.
 ##### unitCount
 
 Type: `number`<br>
-Default: `infinity`
+Default: `Infinity`
 
 Number of units to show.
 
