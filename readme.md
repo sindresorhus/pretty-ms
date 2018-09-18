@@ -24,19 +24,19 @@ prettyMs(1337);
 prettyMs(133);
 //=> '133ms'
 
-// compact option
+// `compact` option
 prettyMs(1337, {compact: true});
 //=> '~1s'
 
-// verbose option
+// `verbose` option
 prettyMs(1335669000, {verbose: true});
 //=> '15 days 11 hours 1 minute 9 seconds'
 
-// formatSubMs option
+// `formatSubMs` option
 prettyMs(100.400080, {formatSubMs: true})
 //=> '100ms 400µs 80ns'
 
-// can be useful for time durations
+// Can be useful for time durations
 prettyMs(new Date(2014, 0, 1, 10, 40) - new Date(2014, 0, 1, 10, 5))
 //=> '35m'
 ```
@@ -86,7 +86,7 @@ Useful when you are showing a number of seconds spent on an operation and don't 
 Type: `boolean`<br>
 Default: `false`
 
-Only show the first unit: `1h 10m` → `~1h`.  
+Only show the first unit: `1h 10m` → `~1h`.
 Also ensures that `msDecimalDigits` and `secDecimalDigits` are both set to `0`.
 
 ##### unitCount
@@ -103,14 +103,14 @@ Default: `false`
 
 Use full-length units: `5h 1m 45s` → `5 hours 1 minute 45 seconds`
 
-#### separateMs
+##### separateMs
 
 Type: `boolean`<br>
 Default: `false`
 
 Show milliseconds separately. This means they won't be included in the decimal part of the seconds.
 
-#### formatSubMs
+##### formatSubMs
 
 Type: `boolean`<br>
 Default: `false`
