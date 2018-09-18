@@ -25,7 +25,7 @@ test('have a compact option', t => {
 	t.is(m(1000 * 60 * 67 * 24 * 465, {compact: true}), '~1y');
 });
 
-test('limit number of units shown', t => {
+test('have a unitCount option', t => {
 	t.is(m(1000 * 60, {unitCount: 0}), '~1m');
 	t.is(m(1000 * 60, {unitCount: 1}), '~1m');
 	t.is(m(1000 * 60 * 67, {unitCount: 1}), '~1h');
@@ -95,6 +95,15 @@ test('work with verbose and compact options', t => {
 	t.is(fn(1000 * 60 * 67 * 24 * 750), '~2 years');
 });
 
+test('work with verbose and unitCount options', t => {
+	t.is(m(1000 * 60, {verbose: true, unitCount: 1}), '~1 minute');
+	t.is(m(1000 * 60 * 67, {verbose: true, unitCount: 1}), '~1 hour');
+	t.is(m(1000 * 60 * 67, {verbose: true, unitCount: 2}), '~1 hour 7 minutes');
+	t.is(m(1000 * 60 * 67 * 24 * 465, {verbose: true, unitCount: 1}), '~1 year');
+	t.is(m(1000 * 60 * 67 * 24 * 465, {verbose: true, unitCount: 2}), '~1 year 154 days');
+	t.is(m(1000 * 60 * 67 * 24 * 465, {verbose: true, unitCount: 3}), '~1 year 154 days 6 hours');
+});
+
 test('work with verbose and secDecimalDigits options', t => {
 	const fn = ms => m(ms, {
 		verbose: true,
@@ -119,6 +128,12 @@ test('work with verbose and msDecimalDigits options', t => {
 	t.is(fn((1 * 2) + 0.400), '2.4000 milliseconds');
 	t.is(fn((1 * 5) + 0.254), '5.2540 milliseconds');
 	t.is(fn(33.333), '33.3330 milliseconds');
+});
+
+test('compact option overrides unitCount option', t => {
+	t.is(m(1000 * 60 * 67 * 24 * 465, {verbose: true, compact: true, unitCount: 1}), '~1 year');
+	t.is(m(1000 * 60 * 67 * 24 * 465, {verbose: true, compact: true, unitCount: 2}), '~1 year');
+	t.is(m(1000 * 60 * 67 * 24 * 465, {verbose: true, compact: true, unitCount: 3}), '~1 year');
 });
 
 test('throw on invalid', t => {
