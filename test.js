@@ -25,6 +25,16 @@ test('have a compact option', t => {
 	t.is(m(1000 * 60 * 67 * 24 * 465, {compact: true}), '~1y');
 });
 
+test('have a unitCount option', t => {
+	t.is(m(1000 * 60, {unitCount: 0}), '~1m');
+	t.is(m(1000 * 60, {unitCount: 1}), '~1m');
+	t.is(m(1000 * 60 * 67, {unitCount: 1}), '~1h');
+	t.is(m(1000 * 60 * 67, {unitCount: 2}), '~1h 7m');
+	t.is(m(1000 * 60 * 67 * 24 * 465, {unitCount: 1}), '~1y');
+	t.is(m(1000 * 60 * 67 * 24 * 465, {unitCount: 2}), '~1y 154d');
+	t.is(m(1000 * 60 * 67 * 24 * 465, {unitCount: 3}), '~1y 154d 6h');
+});
+
 test('have a secDecimalDigits option', t => {
 	t.is(m(10000), '10s');
 	t.is(m(33333), '33.3s');
@@ -97,6 +107,15 @@ test('work with verbose and compact options', t => {
 	t.is(fn(1000 * 60 * 67 * 24 * 750), '~2 years');
 });
 
+test('work with verbose and unitCount options', t => {
+	t.is(m(1000 * 60, {verbose: true, unitCount: 1}), '~1 minute');
+	t.is(m(1000 * 60 * 67, {verbose: true, unitCount: 1}), '~1 hour');
+	t.is(m(1000 * 60 * 67, {verbose: true, unitCount: 2}), '~1 hour 7 minutes');
+	t.is(m(1000 * 60 * 67 * 24 * 465, {verbose: true, unitCount: 1}), '~1 year');
+	t.is(m(1000 * 60 * 67 * 24 * 465, {verbose: true, unitCount: 2}), '~1 year 154 days');
+	t.is(m(1000 * 60 * 67 * 24 * 465, {verbose: true, unitCount: 3}), '~1 year 154 days 6 hours');
+});
+
 test('work with verbose and secDecimalDigits options', t => {
 	const fn = ms => m(ms, {
 		verbose: true,
@@ -128,6 +147,12 @@ test('work with verbose and formatSubMs options', t => {
 	t.is(m(0.123571, {formatSubMs: true, verbose: true}), '123 microseconds 571 nanoseconds');
 	t.is(m(0.123456789, {formatSubMs: true, verbose: true}), '123 microseconds 456 nanoseconds');
 	t.is(m(0.001, {formatSubMs: true, verbose: true}), '1 microsecond');
+});
+
+test('compact option overrides unitCount option', t => {
+	t.is(m(1000 * 60 * 67 * 24 * 465, {verbose: true, compact: true, unitCount: 1}), '~1 year');
+	t.is(m(1000 * 60 * 67 * 24 * 465, {verbose: true, compact: true, unitCount: 2}), '~1 year');
+	t.is(m(1000 * 60 * 67 * 24 * 465, {verbose: true, compact: true, unitCount: 3}), '~1 year');
 });
 
 test('work with separateMs and formatSubMs options', t => {

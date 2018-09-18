@@ -69,5 +69,9 @@ module.exports = (ms, options = {}) => {
 		return '~' + ret[0];
 	}
 
+	if (typeof options.unitCount === 'number') {
+		return '~' + ret.slice(0, Math.max(options.unitCount, 1)).join(' ');
+	}
+
 	return ret.join(' ');
 };

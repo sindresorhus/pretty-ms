@@ -89,6 +89,13 @@ Default: `false`
 Only show the first unit: `1h 10m` → `~1h`.  
 Also ensures that `msDecimalDigits` and `secDecimalDigits` are both set to `0`.
 
+##### unitCount
+
+Type: `number`<br>
+Default: `Infinity`
+
+Number of units to show. Setting `compact` to `true` overrides this option.
+
 ##### verbose
 
 Type: `boolean`<br>
