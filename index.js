@@ -1,19 +1,19 @@
 'use strict';
-const parseMs = require('parse-ms');
+const parseMilliseconds = require('parse-ms');
 
 const pluralize = (word, count) => count === 1 ? word : word + 's';
 
-module.exports = (ms, options = {}) => {
-	if (!Number.isFinite(ms)) {
+module.exports = (milliseconds, options = {}) => {
+	if (!Number.isFinite(milliseconds)) {
 		throw new TypeError('Expected a finite number');
 	}
 
 	if (options.compact) {
-		options.secDecimalDigits = 0;
-		options.msDecimalDigits = 0;
+		options.secondsDecimalDigits = 0;
+		options.millisecondsDecimalDigits = 0;
 	}
 
-	const ret = [];
+	const result = [];
 
 	const add = (value, long, short, valueString) => {
 		if (value === 0) {
@@ -22,56 +22,81 @@ module.exports = (ms, options = {}) => {
 
 		const postfix = options.verbose ? ' ' + pluralize(long, value) : short;
 
-		ret.push((valueString || value) + postfix);
+		result.push((valueString || value) + postfix);
 	};
 
-	const secDecimalDigits = typeof options.secDecimalDigits === 'number' ? options.secDecimalDigits : 1;
+	const secondsDecimalDigits =
+		typeof options.secondsDecimalDigits === 'number' ?
+			options.secondsDecimalDigits :
+			1;
 
-	if (secDecimalDigits < 1) {
-		const diff = 1000 - (ms % 1000);
-		if (diff < 500) {
-			ms += diff;
+	if (secondsDecimalDigits < 1) {
+		const difference = 1000 - (milliseconds % 1000);
+		if (difference < 500) {
+			milliseconds += difference;
 		}
 	}
 
-	const parsed = parseMs(ms);
+	const parsed = parseMilliseconds(milliseconds);
 
 	add(Math.trunc(parsed.days / 365), 'year', 'y');
 	add(parsed.days % 365, 'day', 'd');
 	add(parsed.hours, 'hour', 'h');
 	add(parsed.minutes, 'minute', 'm');
 
-	if (options.separateMs || options.formatSubMs || ms < 1000) {
+	if (
+		options.separateMilliseconds ||
+		options.formatSubMilliseconds ||
+		milliseconds < 1000
+	) {
 		add(parsed.seconds, 'second', 's');
-		if (options.formatSubMs) {
+		if (options.formatSubMilliseconds) {
 			add(parsed.milliseconds, 'millisecond', 'ms');
 			add(parsed.microseconds, 'microsecond', 'µs');
 			add(parsed.nanoseconds, 'nanosecond', 'ns');
 		} else {
-			const msAndBelow = parsed.milliseconds + (parsed.microseconds / 1000) + (parsed.nanoseconds / 1e6);
-			const msDecimalDigits = typeof options.msDecimalDigits === 'number' ? options.msDecimalDigits : 0;
-			const msStr = msDecimalDigits ? msAndBelow.toFixed(msDecimalDigits) : Math.ceil(msAndBelow);
-			add(parseFloat(msStr, 10), 'millisecond', 'ms', msStr);
+			const millisecondsAndBelow =
+				parsed.milliseconds +
+				(parsed.microseconds / 1000) +
+				(parsed.nanoseconds / 1e6);
+			const millisecondsDecimalDigits =
+				typeof options.millisecondsDecimalDigits === 'number' ?
+					options.millisecondsDecimalDigits :
+					0;
+			const millisecondsString = millisecondsDecimalDigits ?
+				millisecondsAndBelow.toFixed(millisecondsDecimalDigits) :
+				Math.ceil(millisecondsAndBelow);
+			add(
+				parseFloat(millisecondsString, 10),
+				'millisecond',
+				'ms',
+				millisecondsString
+			);
 		}
 	} else {
-		const sec = ms / 1000 % 60;
-		const secDecimalDigits = typeof options.secDecimalDigits === 'number' ? options.secDecimalDigits : 1;
-		const secFixed = sec.toFixed(secDecimalDigits);
-		const secStr = options.keepDecimalsOnWholeSeconds ? secFixed : secFixed.replace(/\.0+$/, '');
-		add(parseFloat(secStr, 10), 'second', 's', secStr);
+		const seconds = (milliseconds / 1000) % 60;
+		const secondsDecimalDigits =
+			typeof options.secondsDecimalDigits === 'number' ?
+				options.secondsDecimalDigits :
+				1;
+		const secondsFixed = seconds.toFixed(secondsDecimalDigits);
+		const secondsString = options.keepDecimalsOnWholeSeconds ?
+			secondsFixed :
+			secondsFixed.replace(/\.0+$/, '');
+		add(parseFloat(secondsString, 10), 'second', 's', secondsString);
 	}
 
-	if (ret.length === 0) {
+	if (result.length === 0) {
 		return '0' + (options.verbose ? ' milliseconds' : 'ms');
 	}
 
 	if (options.compact) {
-		return '~' + ret[0];
+		return '~' + result[0];
 	}
 
 	if (typeof options.unitCount === 'number') {
-		return '~' + ret.slice(0, Math.max(options.unitCount, 1)).join(' ');
+		return '~' + result.slice(0, Math.max(options.unitCount, 1)).join(' ');
 	}
 
-	return ret.join(' ');
+	return result.join(' ');
 };
