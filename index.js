@@ -59,13 +59,16 @@ module.exports = (milliseconds, options = {}) => {
 				parsed.milliseconds +
 				(parsed.microseconds / 1000) +
 				(parsed.nanoseconds / 1e6);
+
 			const millisecondsDecimalDigits =
 				typeof options.millisecondsDecimalDigits === 'number' ?
 					options.millisecondsDecimalDigits :
 					0;
+
 			const millisecondsString = millisecondsDecimalDigits ?
 				millisecondsAndBelow.toFixed(millisecondsDecimalDigits) :
 				Math.ceil(millisecondsAndBelow);
+
 			add(
 				parseFloat(millisecondsString, 10),
 				'millisecond',

@@ -10,7 +10,7 @@
 		"url": "sindresorhus.com"
 	},
 	"engines": {
-		"node": ">=6"
+		"node": ">=8"
 	},
 	"scripts": {
 		"test": "xo && ava && tsd"
@@ -34,12 +34,11 @@
 		"range",
 		"text",
 		"string",
-		"str",
 		"number",
 		"hrtime"
 	],
 	"dependencies": {
-		"parse-ms": "^2.0.0"
+		"parse-ms": "^2.1.0"
 	},
 	"devDependencies": {
 		"ava": "^1.4.1",
