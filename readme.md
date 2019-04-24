@@ -13,40 +13,40 @@ $ npm install pretty-ms
 ## Usage
 
 ```js
-const prettyMs = require('pretty-ms');
+const prettyMilliseconds = require('pretty-ms');
 
-prettyMs(1337000000);
+prettyMilliseconds(1337000000);
 //=> '15d 11h 23m 20s'
 
-prettyMs(1337);
+prettyMilliseconds(1337);
 //=> '1.3s'
 
-prettyMs(133);
+prettyMilliseconds(133);
 //=> '133ms'
 
 // `compact` option
-prettyMs(1337, {compact: true});
+prettyMilliseconds(1337, {compact: true});
 //=> '~1s'
 
 // `verbose` option
-prettyMs(1335669000, {verbose: true});
+prettyMilliseconds(1335669000, {verbose: true});
 //=> '15 days 11 hours 1 minute 9 seconds'
 
-// `formatSubMs` option
-prettyMs(100.400080, {formatSubMs: true})
+// `formatSubMilliseconds` option
+prettyMilliseconds(100.400080, {formatSubMilliseconds: true})
 //=> '100ms 400µs 80ns'
 
 // Can be useful for time durations
-prettyMs(new Date(2014, 0, 1, 10, 40) - new Date(2014, 0, 1, 10, 5))
+prettyMilliseconds(new Date(2014, 0, 1, 10, 40) - new Date(2014, 0, 1, 10, 5))
 //=> '35m'
 ```
 
 
 ## API
 
-### prettyMs(input, [options])
+### prettyMilliseconds(milliseconds, [options])
 
-#### input
+#### milliseconds
 
 Type: `number`
 
@@ -54,16 +54,16 @@ Milliseconds to humanize.
 
 #### options
 
-Type: `Object`
+Type: `object`
 
-##### secDecimalDigits
+##### secondsDecimalDigits
 
 Type: `number`<br>
 Default: `1`
 
 Number of digits to appear after the seconds decimal point.
 
-##### msDecimalDigits
+##### millisecondsDecimalDigits
 
 Type: `number`<br>
 Default: `0`
@@ -87,7 +87,8 @@ Type: `boolean`<br>
 Default: `false`
 
 Only show the first unit: `1h 10m` → `~1h`.
-Also ensures that `msDecimalDigits` and `secDecimalDigits` are both set to `0`.
+
+Also ensures that `millisecondsDecimalDigits` and `secondsDecimalDigits` are both set to `0`.
 
 ##### unitCount
 
@@ -103,14 +104,14 @@ Default: `false`
 
 Use full-length units: `5h 1m 45s` → `5 hours 1 minute 45 seconds`
 
-##### separateMs
+##### separateMilliseconds
 
 Type: `boolean`<br>
 Default: `false`
 
 Show milliseconds separately. This means they won't be included in the decimal part of the seconds.
 
-##### formatSubMs
+##### formatSubMilliseconds
 
 Type: `boolean`<br>
 Default: `false`
