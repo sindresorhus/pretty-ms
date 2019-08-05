@@ -39,6 +39,9 @@ prettyMilliseconds(100.400080, {formatSubMilliseconds: true})
 // Can be useful for time durations
 prettyMilliseconds(new Date(2014, 0, 1, 10, 40) - new Date(2014, 0, 1, 10, 5))
 //=> '35m'
+
+prettyMilliseconds(1337000000, {language: 'fr'});
+//=> '15j 11h 23m 20s'
 ```
 
 
@@ -118,6 +121,42 @@ Default: `false`
 
 Show microseconds and nanoseconds.
 
+##### language
+
+Type: `string`<br>
+Default: `en`
+
+The language to use when displaying units.
+By default `en`, `fr` and `es` are available but you can add more with the `languages` option described hereafter.
+This options fallbacks to `en` if it is `undefined` or if the targeted language was not found.
+
+##### languages
+
+Type: `object`<br>
+Default: `{}`
+
+Allows to define additional languages (`en`, `fr` and `es` are already available).
+
+Example:
+
+```js
+languages: {
+    en: {
+        short: { y: 'y', d: 'd', h: 'h', m: 'm', s: 's', ms: 'ms', µs: 'µs', ns: 'ns' },
+        long: {
+            y: 'year',
+            d: 'day',
+            h: 'hour',
+            m: 'minute',
+            s: 'second',
+            ms: 'millisecond',
+            µs: 'microsecond',
+            ns: 'nanosecond'
+        },
+        pluralize: (word, count) => count === 1 ? word : word + 's'
+    }
+}
+```
 
 ## Related
 

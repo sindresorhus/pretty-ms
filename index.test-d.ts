@@ -18,3 +18,12 @@ expectType<string>(
 expectType<string>(
 	prettyMilliseconds(1335669000, {formatSubMilliseconds: true})
 );
+expectType<string>(
+	prettyMilliseconds(1335669000, {language: 'xx', languages: {
+		xx: {
+			short: { y: 'Y', d: 'D', h: 'H', m: 'M', s: 'S', ms: 'MS', µs: 'US', ns: 'NS' },
+			long: { y: 'YEAR', d: 'DAY', h: 'HOUR', m: 'MINUTE', s: 'SECOND', ms: 'MILLISECOND', µs: 'MICROSECOND', ns: 'NANOSECOND' },
+			pluralize: (word, count) => count === 1 ? word : word + 'S'
+		}
+	}})
+);

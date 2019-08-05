@@ -1,7 +1,27 @@
 'use strict';
 const parseMilliseconds = require('parse-ms');
+const languages = require('./languages');
 
-const pluralize = (word, count) => count === 1 ? word : word + 's';
+function loadLanguage(options) {
+	if (!options.language) {
+		return languages.en;
+	}
+
+	let lang;
+	if (options.languages && Object.keys(options.languages).includes(options.language)) {
+		lang = options.languages[options.language];
+	} else if (Object.keys(languages).includes(options.language)) {
+		lang = languages[options.language];
+	} else {
+		return languages.en;
+	}
+
+	if (!lang.pluralize) {
+		lang.pluralize = languages.en.pluralize;
+	}
+
+	return lang;
+}
 
 module.exports = (milliseconds, options = {}) => {
 	if (!Number.isFinite(milliseconds)) {
@@ -15,12 +35,14 @@ module.exports = (milliseconds, options = {}) => {
 
 	const result = [];
 
-	const add = (value, long, short, valueString) => {
+	const lang = loadLanguage(options);
+
+	const add = (value, unit, valueString) => {
 		if (value === 0) {
 			return;
 		}
 
-		const postfix = options.verbose ? ' ' + pluralize(long, value) : short;
+		const postfix = options.verbose ? ' ' + lang.pluralize(lang.long[unit], value) : lang.short[unit];
 
 		result.push((valueString || value) + postfix);
 	};
@@ -39,21 +61,21 @@ module.exports = (milliseconds, options = {}) => {
 
 	const parsed = parseMilliseconds(milliseconds);
 
-	add(Math.trunc(parsed.days / 365), 'year', 'y');
-	add(parsed.days % 365, 'day', 'd');
-	add(parsed.hours, 'hour', 'h');
-	add(parsed.minutes, 'minute', 'm');
+	add(Math.trunc(parsed.days / 365), 'y');
+	add(parsed.days % 365, 'd');
+	add(parsed.hours, 'h');
+	add(parsed.minutes, 'm');
 
 	if (
 		options.separateMilliseconds ||
 		options.formatSubMilliseconds ||
 		milliseconds < 1000
 	) {
-		add(parsed.seconds, 'second', 's');
+		add(parsed.seconds, 's');
 		if (options.formatSubMilliseconds) {
-			add(parsed.milliseconds, 'millisecond', 'ms');
-			add(parsed.microseconds, 'microsecond', 'µs');
-			add(parsed.nanoseconds, 'nanosecond', 'ns');
+			add(parsed.milliseconds, 'ms');
+			add(parsed.microseconds, 'µs');
+			add(parsed.nanoseconds, 'ns');
 		} else {
 			const millisecondsAndBelow =
 				parsed.milliseconds +
@@ -71,7 +93,6 @@ module.exports = (milliseconds, options = {}) => {
 
 			add(
 				parseFloat(millisecondsString, 10),
-				'millisecond',
 				'ms',
 				millisecondsString
 			);
@@ -86,11 +107,11 @@ module.exports = (milliseconds, options = {}) => {
 		const secondsString = options.keepDecimalsOnWholeSeconds ?
 			secondsFixed :
 			secondsFixed.replace(/\.0+$/, '');
-		add(parseFloat(secondsString, 10), 'second', 's', secondsString);
+		add(parseFloat(secondsString, 10), 's', secondsString);
 	}
 
 	if (result.length === 0) {
-		return '0' + (options.verbose ? ' milliseconds' : 'ms');
+		return '0' + (options.verbose ? ` ${lang.pluralize(lang.long.ms)}` : lang.short.ms);
 	}
 
 	if (options.compact) {
