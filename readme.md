@@ -123,6 +123,13 @@ Default: `false`
 
 Show microseconds and nanoseconds.
 
+##### colonNotation
+
+Type: `boolean`<br>
+Default: `false`
+
+Use colon notation: `5h 1m 45s` → `5:01:45`
+
 
 ## Related
 
