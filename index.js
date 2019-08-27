@@ -16,13 +16,20 @@ module.exports = (milliseconds, options = {}) => {
 	const result = [];
 
 	const add = (value, long, short, valueString) => {
-		if (value === 0) {
+		if ((result.length === 0 || !options.colonNotation) && value === 0 && !(options.colonNotation && short === 'm')) {
 			return;
 		}
 
-		const postfix = options.verbose ? ' ' + pluralize(long, value) : short;
+		const prefix = options.colonNotation && result.length > 0 ? ':' : '';
+		const postfix = options.colonNotation ? '' : (options.verbose ? ' ' + pluralize(long, value) : short);
+		let valueStr = (valueString || value || '0').toString();
+		const wholeDigits = valueStr.includes('.') ? valueStr.split('.')[0].length : valueStr.length;
+		const paddingLength = ['ms', 'µs', 'ns'].includes(short) ? 3 : 2;
+		if (result.length > 0 && options.colonNotation) {
+			valueStr = '0'.repeat(paddingLength - wholeDigits) + valueStr;
+		}
 
-		result.push((valueString || value) + postfix);
+		result.push(prefix + valueStr + postfix);
 	};
 
 	const secondsDecimalDigits =
@@ -101,5 +108,5 @@ module.exports = (milliseconds, options = {}) => {
 		return '~' + result.slice(0, Math.max(options.unitCount, 1)).join(' ');
 	}
 
-	return result.join(' ');
+	return options.colonNotation ? result.join('') : result.join(' ');
 };

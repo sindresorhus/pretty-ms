@@ -221,3 +221,14 @@ test('properly rounds milliseconds with secondsDecimalDigits', t => {
 	t.is(fn((3600 * 1e3) - 1), '1 hour');
 	t.is(fn((2 * 3600 * 1e3) - 1), '2 hours');
 });
+
+test('work with colon output option', t => {
+	t.is(prettyMilliseconds(1000, {colonNotation: true}), '0:01');
+	t.is(prettyMilliseconds(1500, {colonNotation: true}), '0:01.5');
+	t.is(prettyMilliseconds(1543, {colonNotation: true, secondsDecimalDigits: 3}), '0:01.543');
+	t.is(prettyMilliseconds(1000 * 60, {colonNotation: true}), '1:00');
+	t.is(prettyMilliseconds(1000 * 90, {colonNotation: true}), '1:30');
+	t.is(prettyMilliseconds(95500, {colonNotation: true}), '1:35.5');
+	t.is(prettyMilliseconds((1000 * 60 * 59) + (1000 * 59) + (500), {colonNotation: true}), '59:59.5');
+});
+

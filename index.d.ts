@@ -61,6 +61,13 @@ declare namespace prettyMilliseconds {
 		@default false
 		*/
 		readonly formatSubMilliseconds?: boolean;
+
+		/**
+		Display time using colon notation: `5h 1m 45s`→ `5:01:45`.
+
+		@default false
+		 */
+		readonly colonNotation?: boolean;
 	}
 }
 
