@@ -229,6 +229,7 @@ test('work with colon output option', t => {
 	t.is(prettyMilliseconds(1000 * 60, {colonNotation: true}), '1:00');
 	t.is(prettyMilliseconds(1000 * 90, {colonNotation: true}), '1:30');
 	t.is(prettyMilliseconds(95500, {colonNotation: true}), '1:35.5');
+	t.is(prettyMilliseconds(95511.111, {colonNotation: true, formatSubMilliseconds: true}), '1:35.5');
 	t.is(prettyMilliseconds((1000 * 60 * 59) + (1000 * 59) + (500), {colonNotation: true}), '59:59.5');
 });
 
