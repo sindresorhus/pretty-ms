@@ -32,7 +32,7 @@ prettyMilliseconds(1337, {compact: true});
 prettyMilliseconds(1335669000, {verbose: true});
 //=> '15 days 11 hours 1 minute 9 seconds'
 
-// `verbose` option
+// `colonNotation` option
 prettyMilliseconds(95500, {colonNotation: true});
 //=> '1:35.5'
 
@@ -121,7 +121,7 @@ Show milliseconds separately. This means they won't be included in the decimal p
 Type: `boolean`\
 Default: `false`
 
-Show microseconds and nanoseconds.
+Show microseconds and nanoseconds. Setting `colonNotation` to `true` overrides this option.
 
 ##### colonNotation
 
