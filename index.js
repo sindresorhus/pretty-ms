@@ -13,6 +13,10 @@ module.exports = (milliseconds, options = {}) => {
 		options.millisecondsDecimalDigits = 0;
 	}
 
+	if (options.colonNotation) {
+		options.formatSubMilliseconds = false;
+	}
+
 	const result = [];
 
 	const add = (value, long, short, valueString) => {
@@ -24,9 +28,8 @@ module.exports = (milliseconds, options = {}) => {
 		const postfix = options.colonNotation ? '' : (options.verbose ? ' ' + pluralize(long, value) : short);
 		let valueStr = (valueString || value || '0').toString();
 		const wholeDigits = valueStr.includes('.') ? valueStr.split('.')[0].length : valueStr.length;
-		const paddingLength = ['ms', 'µs', 'ns'].includes(short) ? 3 : 2;
-		if (result.length > 0 && options.colonNotation) {
-			valueStr = '0'.repeat(paddingLength - wholeDigits) + valueStr;
+		if (result.length > 0 && options.colonNotation && !options.formatSubMilliseconds) {
+			valueStr = '0'.repeat(2 - wholeDigits) + valueStr;
 		}
 
 		result.push(prefix + valueStr + postfix);
