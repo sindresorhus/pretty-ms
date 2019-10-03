@@ -1,10 +1,11 @@
 'use strict';
 const parseMilliseconds = require('parse-ms');
 
-const pluralize = (word, count) => count === 1 ? word : word + 's';
+const pluralize = function(word, count) { return count === 1 ? word : word + 's' };
 
-module.exports = (milliseconds, options = {}) => {
-	if (!Number.isFinite(milliseconds)) {
+module.exports = function(milliseconds, options) {
+    options = options || {};
+    if (!Number.isFinite(milliseconds)) {
 		throw new TypeError('Expected a finite number');
 	}
 
@@ -15,7 +16,7 @@ module.exports = (milliseconds, options = {}) => {
 
 	const result = [];
 
-	const add = (value, long, short, valueString) => {
+	const add = function(value, long, short, valueString) {
 		if (value === 0) {
 			return;
 		}
