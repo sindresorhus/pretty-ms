@@ -37,6 +37,14 @@ module.exports = (milliseconds, options = {}) => {
 		}
 	}
 
+	if (milliseconds > 1000 && !options.separateMilliseconds &&
+		!options.formatSubMilliseconds) {
+		const difference = 60 - milliseconds % 60
+		if (difference < 20) {
+			milliseconds += difference;
+		}
+	}
+
 	const parsed = parseMilliseconds(milliseconds);
 
 	add(Math.trunc(parsed.days / 365), 'year', 'y');
@@ -67,7 +75,9 @@ module.exports = (milliseconds, options = {}) => {
 
 			const millisecondsString = millisecondsDecimalDigits ?
 				millisecondsAndBelow.toFixed(millisecondsDecimalDigits) :
-				Math.ceil(millisecondsAndBelow);
+				millisecondsAndBelow >= 1 ?
+					Math.round(millisecondsAndBelow) :
+					Math.ceil(millisecondsAndBelow);
 
 			add(
 				parseFloat(millisecondsString, 10),
