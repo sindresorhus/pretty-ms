@@ -39,7 +39,7 @@ module.exports = (milliseconds, options = {}) => {
 
 	if (milliseconds >= (1000 * 60) - 50 && !options.separateMilliseconds &&
 		!options.formatSubMilliseconds) {
-		const difference = 60 - milliseconds % 60
+		const difference = 60 - (milliseconds % 60);
 		if (difference <= 50) {
 			milliseconds += difference;
 		}
