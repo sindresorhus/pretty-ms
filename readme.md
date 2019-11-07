@@ -44,7 +44,7 @@ prettyMilliseconds(new Date(2014, 0, 1, 10, 40) - new Date(2014, 0, 1, 10, 5))
 
 ## API
 
-### prettyMilliseconds(milliseconds, [options])
+### prettyMilliseconds(milliseconds, options?)
 
 #### milliseconds
 
@@ -58,14 +58,14 @@ Type: `object`
 
 ##### secondsDecimalDigits
 
-Type: `number`<br>
+Type: `number`\
 Default: `1`
 
 Number of digits to appear after the seconds decimal point.
 
 ##### millisecondsDecimalDigits
 
-Type: `number`<br>
+Type: `number`\
 Default: `0`
 
 Number of digits to appear after the milliseconds decimal point.
@@ -74,7 +74,7 @@ Useful in combination with [`process.hrtime()`](https://nodejs.org/api/process.h
 
 ##### keepDecimalsOnWholeSeconds
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `false`
 
 Keep milliseconds on whole seconds: `13s` → `13.0s`.
@@ -83,7 +83,7 @@ Useful when you are showing a number of seconds spent on an operation and don't 
 
 ##### compact
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `false`
 
 Only show the first unit: `1h 10m` → `~1h`.
@@ -92,28 +92,28 @@ Also ensures that `millisecondsDecimalDigits` and `secondsDecimalDigits` are bot
 
 ##### unitCount
 
-Type: `number`<br>
+Type: `number`\
 Default: `Infinity`
 
 Number of units to show. Setting `compact` to `true` overrides this option.
 
 ##### verbose
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `false`
 
 Use full-length units: `5h 1m 45s` → `5 hours 1 minute 45 seconds`
 
 ##### separateMilliseconds
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `false`
 
 Show milliseconds separately. This means they won't be included in the decimal part of the seconds.
 
 ##### formatSubMilliseconds
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `false`
 
 Show microseconds and nanoseconds.
@@ -124,8 +124,4 @@ Show microseconds and nanoseconds.
 - [pretty-ms-cli](https://github.com/sindresorhus/pretty-ms-cli) - CLI for this module
 - [parse-ms](https://github.com/sindresorhus/parse-ms) - Parse milliseconds into an object
 - [to-milliseconds](https://github.com/sindresorhus/to-milliseconds) - Convert an object of time properties to milliseconds
-
-
-## License
-
-MIT © [Sindre Sorhus](https://sindresorhus.com)
+- [pretty-bytes](https://github.com/sindresorhus/pretty-bytes) - Convert bytes to a human readable string
