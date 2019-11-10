@@ -95,6 +95,8 @@ Only show the first unit: `1h 10m` → `~1h`.
 
 Also ensures that `millisecondsDecimalDigits` and `secondsDecimalDigits` are both set to `0`.
 
+Setting `colonNotation` to `true` overrides this option.
+
 ##### unitCount
 
 Type: `number`\
@@ -109,12 +111,16 @@ Default: `false`
 
 Use full-length units: `5h 1m 45s` → `5 hours 1 minute 45 seconds`
 
+Setting `colonNotation` to `true` overrides this option.
+
 ##### separateMilliseconds
 
 Type: `boolean`\
 Default: `false`
 
 Show milliseconds separately. This means they won't be included in the decimal part of the seconds.
+
+Setting `colonNotation` to `true` overrides this option.
 
 ##### formatSubMilliseconds
 
