@@ -8,13 +8,16 @@ module.exports = (milliseconds, options = {}) => {
 		throw new TypeError('Expected a finite number');
 	}
 
+	if (options.colonNotation) {
+		options.compact = false;
+		options.formatSubMilliseconds = false;
+		options.separateMilliseconds = false;
+		options.verbose = false;
+	}
+
 	if (options.compact) {
 		options.secondsDecimalDigits = 0;
 		options.millisecondsDecimalDigits = 0;
-	}
-
-	if (options.colonNotation) {
-		options.formatSubMilliseconds = false;
 	}
 
 	const result = [];
@@ -24,15 +27,21 @@ module.exports = (milliseconds, options = {}) => {
 			return;
 		}
 
-		const prefix = options.colonNotation && result.length > 0 ? ':' : '';
-		const postfix = options.colonNotation ? '' : (options.verbose ? ' ' + pluralize(long, value) : short);
-		let valueStr = (valueString || value || '0').toString();
-		const wholeDigits = valueStr.includes('.') ? valueStr.split('.')[0].length : valueStr.length;
-		if (result.length > 0 && options.colonNotation && !options.formatSubMilliseconds) {
-			valueStr = '0'.repeat(2 - wholeDigits) + valueStr;
+		valueString = (valueString || value || '0').toString();
+		let prefix;
+		let suffix;
+		if (options.colonNotation) {
+			prefix = result.length > 0 ? ':' : '';
+			suffix = '';
+			const wholeDigits = valueString.includes('.') ? valueString.split('.')[0].length : valueString.length;
+			const minLength = result.length > 0 ? 2 : 1;
+			valueString = '0'.repeat(Math.max(0, minLength - wholeDigits)) + valueString;
+		} else {
+			prefix = '';
+			suffix = options.verbose ? ' ' + pluralize(long, value) : short;
 		}
 
-		result.push(prefix + valueStr + postfix);
+		result.push(prefix + valueString + suffix);
 	};
 
 	const secondsDecimalDigits =
