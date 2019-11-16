@@ -94,8 +94,6 @@ Only show the first unit: `1h 10m` → `~1h`.
 
 Also ensures that `millisecondsDecimalDigits` and `secondsDecimalDigits` are both set to `0`.
 
-Setting `colonNotation` to `true` overrides this option.
-
 ##### unitCount
 
 Type: `number`\
@@ -110,8 +108,6 @@ Default: `false`
 
 Use full-length units: `5h 1m 45s` → `5 hours 1 minute 45 seconds`
 
-Setting `colonNotation` to `true` overrides this option.
-
 ##### separateMilliseconds
 
 Type: `boolean`\
@@ -119,22 +115,25 @@ Default: `false`
 
 Show milliseconds separately. This means they won't be included in the decimal part of the seconds.
 
-Setting `colonNotation` to `true` overrides this option.
-
 ##### formatSubMilliseconds
 
 Type: `boolean`\
 Default: `false`
-
-Show microseconds and nanoseconds. Setting `colonNotation` to `true` overrides this option.
 
 ##### colonNotation
 
 Type: `boolean`<br>
 Default: `false`
 
-Use colon notation: `5h 1m 45s` → `5:01:45`
+Display time using colon notation: `5h 1m 45s` → `5:01:45`. Always shows time in at least minutes: `1s` → `0:01`
 
+Useful when you want to display time without the time units, similar to a digital watch.
+
+Setting `colonNotation` to `true` overrides the following options to `false`:
+- `compact`
+- `formatSubMilliseconds`
+- `separateMilliseconds`
+- `verbose`
 
 ## Related
 

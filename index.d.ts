@@ -63,7 +63,7 @@ declare namespace prettyMilliseconds {
 		readonly formatSubMilliseconds?: boolean;
 
 		/**
-		Display time using colon notation: `5h 1m 45s`→ `5:01:45`.
+		Display time using colon notation: `5h 1m 45s` → `5:01:45`. Always shows time in at least minutes: `1s` → `0:01`
 
 		@default false
 		*/
@@ -96,6 +96,10 @@ prettyMilliseconds(1337, {compact: true});
 // `verbose` option
 prettyMilliseconds(1335669000, {verbose: true});
 //=> '15 days 11 hours 1 minute 9 seconds'
+
+// `colonNotation` option
+prettyMilliseconds(95500, {colonNotation: true});
+//=> '1:35.5'
 
 // `formatSubMilliseconds` option
 prettyMilliseconds(100.400080, {formatSubMilliseconds: true})
