@@ -43,7 +43,6 @@ prettyMilliseconds(100.400080, {formatSubMilliseconds: true})
 // Can be useful for time durations
 prettyMilliseconds(new Date(2014, 0, 1, 10, 40) - new Date(2014, 0, 1, 10, 5))
 //=> '35m'
-
 ```
 
 
