@@ -120,6 +120,8 @@ Show milliseconds separately. This means they won't be included in the decimal p
 Type: `boolean`\
 Default: `false`
 
+Show microseconds and nanoseconds.
+
 ##### colonNotation
 
 Type: `boolean`<br>

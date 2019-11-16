@@ -65,6 +65,14 @@ declare namespace prettyMilliseconds {
 		/**
 		Display time using colon notation: `5h 1m 45s` → `5:01:45`. Always shows time in at least minutes: `1s` → `0:01`
 
+		Useful when you want to display time without the time units, similar to a digital watch.
+
+		Setting `colonNotation` to `true` overrides the following options to `false`:
+		- `compact`
+		- `formatSubMilliseconds`
+		- `separateMilliseconds`
+		- `verbose`
+
 		@default false
 		*/
 		readonly colonNotation?: boolean;
