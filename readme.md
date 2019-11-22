@@ -32,6 +32,10 @@ prettyMilliseconds(1337, {compact: true});
 prettyMilliseconds(1335669000, {verbose: true});
 //=> '15 days 11 hours 1 minute 9 seconds'
 
+// `colonNotation` option
+prettyMilliseconds(95500, {colonNotation: true});
+//=> '1:35.5'
+
 // `formatSubMilliseconds` option
 prettyMilliseconds(100.400080, {formatSubMilliseconds: true})
 //=> '100ms 400µs 80ns'
@@ -118,6 +122,20 @@ Default: `false`
 
 Show microseconds and nanoseconds.
 
+##### colonNotation
+
+Type: `boolean`<br>
+Default: `false`
+
+Display time using colon notation: `5h 1m 45s` → `5:01:45`. Always shows time in at least minutes: `1s` → `0:01`
+
+Useful when you want to display time without the time units, similar to a digital watch.
+
+Setting `colonNotation` to `true` overrides the following options to `false`:
+- `compact`
+- `formatSubMilliseconds`
+- `separateMilliseconds`
+- `verbose`
 
 ## Related
 

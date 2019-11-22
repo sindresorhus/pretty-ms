@@ -8,6 +8,13 @@ module.exports = (milliseconds, options = {}) => {
 		throw new TypeError('Expected a finite number');
 	}
 
+	if (options.colonNotation) {
+		options.compact = false;
+		options.formatSubMilliseconds = false;
+		options.separateMilliseconds = false;
+		options.verbose = false;
+	}
+
 	if (options.compact) {
 		options.secondsDecimalDigits = 0;
 		options.millisecondsDecimalDigits = 0;
@@ -16,13 +23,25 @@ module.exports = (milliseconds, options = {}) => {
 	const result = [];
 
 	const add = (value, long, short, valueString) => {
-		if (value === 0) {
+		if ((result.length === 0 || !options.colonNotation) && value === 0 && !(options.colonNotation && short === 'm')) {
 			return;
 		}
 
-		const postfix = options.verbose ? ' ' + pluralize(long, value) : short;
+		valueString = (valueString || value || '0').toString();
+		let prefix;
+		let suffix;
+		if (options.colonNotation) {
+			prefix = result.length > 0 ? ':' : '';
+			suffix = '';
+			const wholeDigits = valueString.includes('.') ? valueString.split('.')[0].length : valueString.length;
+			const minLength = result.length > 0 ? 2 : 1;
+			valueString = '0'.repeat(Math.max(0, minLength - wholeDigits)) + valueString;
+		} else {
+			prefix = '';
+			suffix = options.verbose ? ' ' + pluralize(long, value) : short;
+		}
 
-		result.push((valueString || value) + postfix);
+		result.push(prefix + valueString + suffix);
 	};
 
 	const secondsDecimalDigits =
@@ -101,5 +120,5 @@ module.exports = (milliseconds, options = {}) => {
 		return '~' + result.slice(0, Math.max(options.unitCount, 1)).join(' ');
 	}
 
-	return result.join(' ');
+	return options.colonNotation ? result.join('') : result.join(' ');
 };
