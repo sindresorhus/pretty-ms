@@ -80,7 +80,7 @@ test('have a separateMilliseconds option', t => {
 });
 
 test('have a formatSubMilliseconds option', t => {
-	t.is(prettyMilliseconds(0.400, {formatSubMilliseconds: true}), '400µs');
+	t.is(prettyMilliseconds(0.4, {formatSubMilliseconds: true}), '400µs');
 	t.is(prettyMilliseconds(0.123571, {formatSubMilliseconds: true}), '123µs 571ns');
 	t.is(prettyMilliseconds(0.123456789, {formatSubMilliseconds: true}), '123µs 456ns');
 	t.is(
@@ -142,7 +142,7 @@ test('work with verbose and millisecondsDecimalDigits options', t => {
 
 	t.is(fn(1), '1.0000 millisecond');
 	t.is(fn(1 + 0.4), '1.4000 milliseconds');
-	t.is(fn((1 * 2) + 0.400), '2.4000 milliseconds');
+	t.is(fn((1 * 2) + 0.4), '2.4000 milliseconds');
 	t.is(fn((1 * 5) + 0.254), '5.2540 milliseconds');
 	t.is(fn(33.333), '33.3330 milliseconds');
 });

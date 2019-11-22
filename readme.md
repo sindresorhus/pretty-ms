@@ -2,13 +2,11 @@
 
 > Convert milliseconds to a human readable string: `1337000000` → `15d 11h 23m 20s`
 
-
 ## Install
 
 ```
 $ npm install pretty-ms
 ```
-
 
 ## Usage
 
@@ -44,7 +42,6 @@ prettyMilliseconds(100.400080, {formatSubMilliseconds: true})
 prettyMilliseconds(new Date(2014, 0, 1, 10, 40) - new Date(2014, 0, 1, 10, 5))
 //=> '35m'
 ```
-
 
 ## API
 
@@ -124,7 +121,7 @@ Show microseconds and nanoseconds.
 
 ##### colonNotation
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `false`
 
 Display time using colon notation: `5h 1m 45s` → `5:01:45`. Always shows time in at least minutes: `1s` → `0:01`
