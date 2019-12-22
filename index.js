@@ -39,7 +39,7 @@ module.exports = (milliseconds, options = {}) => {
 
 	// Round up milliseconds for values lager than 1 minute - 50ms since these
 	// always need to be round up.
-	// (this fixes issues when rounding seconds independently of minute later)
+	// (this fixes issues when rounding seconds independently of minutes later)
 	if (
 		milliseconds >= (1000 * 60) - 50 &&
 		!options.separateMilliseconds &&
