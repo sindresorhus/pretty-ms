@@ -26,13 +26,13 @@ test('have a compact option', t => {
 });
 
 test('have a unitCount option', t => {
-	t.is(prettyMilliseconds(1000 * 60, {unitCount: 0}), '~1m');
-	t.is(prettyMilliseconds(1000 * 60, {unitCount: 1}), '~1m');
-	t.is(prettyMilliseconds(1000 * 60 * 67, {unitCount: 1}), '~1h');
-	t.is(prettyMilliseconds(1000 * 60 * 67, {unitCount: 2}), '~1h 7m');
-	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {unitCount: 1}), '~1y');
-	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {unitCount: 2}), '~1y 154d');
-	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {unitCount: 3}), '~1y 154d 6h');
+	t.is(prettyMilliseconds(1000 * 60, {unitCount: 0}), '1m');
+	t.is(prettyMilliseconds(1000 * 60, {unitCount: 1}), '1m');
+	t.is(prettyMilliseconds(1000 * 60 * 67, {unitCount: 1}), '1h');
+	t.is(prettyMilliseconds(1000 * 60 * 67, {unitCount: 2}), '1h 7m');
+	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {unitCount: 1}), '1y');
+	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {unitCount: 2}), '1y 154d');
+	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {unitCount: 3}), '1y 154d 6h');
 });
 
 test('have a secondsDecimalDigits option', t => {
@@ -113,12 +113,12 @@ test('work with verbose and compact options', t => {
 });
 
 test('work with verbose and unitCount options', t => {
-	t.is(prettyMilliseconds(1000 * 60, {verbose: true, unitCount: 1}), '~1 minute');
-	t.is(prettyMilliseconds(1000 * 60 * 67, {verbose: true, unitCount: 1}), '~1 hour');
-	t.is(prettyMilliseconds(1000 * 60 * 67, {verbose: true, unitCount: 2}), '~1 hour 7 minutes');
-	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {verbose: true, unitCount: 1}), '~1 year');
-	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {verbose: true, unitCount: 2}), '~1 year 154 days');
-	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {verbose: true, unitCount: 3}), '~1 year 154 days 6 hours');
+	t.is(prettyMilliseconds(1000 * 60, {verbose: true, unitCount: 1}), '1 minute');
+	t.is(prettyMilliseconds(1000 * 60 * 67, {verbose: true, unitCount: 1}), '1 hour');
+	t.is(prettyMilliseconds(1000 * 60 * 67, {verbose: true, unitCount: 2}), '1 hour 7 minutes');
+	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {verbose: true, unitCount: 1}), '1 year');
+	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {verbose: true, unitCount: 2}), '1 year 154 days');
+	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {verbose: true, unitCount: 3}), '1 year 154 days 6 hours');
 });
 
 test('work with verbose and secondsDecimalDigits options', t => {
