@@ -98,7 +98,7 @@ module.exports = (milliseconds, options = {}) => {
 	}
 
 	if (typeof options.unitCount === 'number') {
-		return '~' + result.slice(0, Math.max(options.unitCount, 1)).join(' ');
+		return result.slice(0, Math.max(options.unitCount, 1)).join(' ');
 	}
 
 	return result.join(' ');
