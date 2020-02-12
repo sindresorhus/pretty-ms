@@ -1,7 +1,7 @@
 'use strict';
 const parseMilliseconds = require('parse-ms');
 
-const pluralize = (word, count) => count === 1 ? word : word + 's';
+const pluralize = (word, count) => count === 1 ? word : `${word}s`;
 
 module.exports = (milliseconds, options = {}) => {
 	if (!Number.isFinite(milliseconds)) {
@@ -57,8 +57,8 @@ module.exports = (milliseconds, options = {}) => {
 	}
 
 	// Round up milliseconds for values lager than 1 minute - 50ms since these
-	// always need to be round up.
-	// (this fixes issues when rounding seconds independently of minutes later)
+	// always need to be round up. This fixes issues when rounding seconds
+	// independently of minutes later on.
 	if (
 		milliseconds >= (1000 * 60) - 50 &&
 		!options.separateMilliseconds &&
