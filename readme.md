@@ -24,7 +24,7 @@ prettyMilliseconds(133);
 
 // `compact` option
 prettyMilliseconds(1337, {compact: true});
-//=> '~1s'
+//=> '1s'
 
 // `verbose` option
 prettyMilliseconds(1335669000, {verbose: true});
@@ -87,7 +87,7 @@ Useful when you are showing a number of seconds spent on an operation and don't 
 Type: `boolean`\
 Default: `false`
 
-Only show the first unit: `1h 10m` → `~1h`.
+Only show the first unit: `1h 10m` → `1h`.
 
 Also ensures that `millisecondsDecimalDigits` and `secondsDecimalDigits` are both set to `0`.
 

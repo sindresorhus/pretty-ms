@@ -113,7 +113,7 @@ module.exports = (milliseconds, options = {}) => {
 	}
 
 	if (options.compact) {
-		return '~' + result[0];
+		return result[0];
 	}
 
 	if (typeof options.unitCount === 'number') {

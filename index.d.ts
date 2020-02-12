@@ -26,7 +26,7 @@ declare namespace prettyMilliseconds {
 		readonly keepDecimalsOnWholeSeconds?: boolean;
 
 		/**
-		Only show the first unit: `1h 10m` → `~1h`.
+		Only show the first unit: `1h 10m` → `1h`.
 
 		Also ensures that `millisecondsDecimalDigits` and `secondsDecimalDigits` are both set to `0`.
 
@@ -99,7 +99,7 @@ prettyMilliseconds(133);
 
 // `compact` option
 prettyMilliseconds(1337, {compact: true});
-//=> '~1s'
+//=> '1s'
 
 // `verbose` option
 prettyMilliseconds(1335669000, {verbose: true});

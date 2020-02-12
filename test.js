@@ -19,10 +19,10 @@ test('prettify milliseconds', t => {
 });
 
 test('have a compact option', t => {
-	t.is(prettyMilliseconds(1000 + 4, {compact: true}), '~1s');
-	t.is(prettyMilliseconds(1000 * 60 * 60 * 999, {compact: true}), '~41d');
-	t.is(prettyMilliseconds(1000 * 60 * 60 * 24 * 465, {compact: true}), '~1y');
-	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {compact: true}), '~1y');
+	t.is(prettyMilliseconds(1000 + 4, {compact: true}), '1s');
+	t.is(prettyMilliseconds(1000 * 60 * 60 * 999, {compact: true}), '41d');
+	t.is(prettyMilliseconds(1000 * 60 * 60 * 24 * 465, {compact: true}), '1y');
+	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {compact: true}), '1y');
 });
 
 test('have a unitCount option', t => {
@@ -97,19 +97,19 @@ test('work with verbose and compact options', t => {
 		compact: true
 	});
 
-	t.is(fn(1000), '~1 second');
-	t.is(fn(1000 + 400), '~1 second');
-	t.is(fn((1000 * 2) + 400), '~2 seconds');
-	t.is(fn(1000 * 5), '~5 seconds');
-	t.is(fn(1000 * 55), '~55 seconds');
-	t.is(fn(1000 * 67), '~1 minute');
-	t.is(fn(1000 * 60 * 5), '~5 minutes');
-	t.is(fn(1000 * 60 * 67), '~1 hour');
-	t.is(fn(1000 * 60 * 60 * 12), '~12 hours');
-	t.is(fn(1000 * 60 * 60 * 40), '~1 day');
-	t.is(fn(1000 * 60 * 60 * 999), '~41 days');
-	t.is(fn(1000 * 60 * 60 * 24 * 465), '~1 year');
-	t.is(fn(1000 * 60 * 67 * 24 * 750), '~2 years');
+	t.is(fn(1000), '1 second');
+	t.is(fn(1000 + 400), '1 second');
+	t.is(fn((1000 * 2) + 400), '2 seconds');
+	t.is(fn(1000 * 5), '5 seconds');
+	t.is(fn(1000 * 55), '55 seconds');
+	t.is(fn(1000 * 67), '1 minute');
+	t.is(fn(1000 * 60 * 5), '5 minutes');
+	t.is(fn(1000 * 60 * 67), '1 hour');
+	t.is(fn(1000 * 60 * 60 * 12), '12 hours');
+	t.is(fn(1000 * 60 * 60 * 40), '1 day');
+	t.is(fn(1000 * 60 * 60 * 999), '41 days');
+	t.is(fn(1000 * 60 * 60 * 24 * 465), '1 year');
+	t.is(fn(1000 * 60 * 67 * 24 * 750), '2 years');
 });
 
 test('work with verbose and unitCount options', t => {
@@ -173,9 +173,9 @@ test('work with verbose and formatSubMilliseconds options', t => {
 });
 
 test('compact option overrides unitCount option', t => {
-	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {verbose: true, compact: true, unitCount: 1}), '~1 year');
-	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {verbose: true, compact: true, unitCount: 2}), '~1 year');
-	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {verbose: true, compact: true, unitCount: 3}), '~1 year');
+	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {verbose: true, compact: true, unitCount: 1}), '1 year');
+	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {verbose: true, compact: true, unitCount: 2}), '1 year');
+	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {verbose: true, compact: true, unitCount: 3}), '1 year');
 });
 
 test('work with separateMilliseconds and formatSubMilliseconds options', t => {
