@@ -26,7 +26,7 @@ declare namespace prettyMilliseconds {
 		readonly keepDecimalsOnWholeSeconds?: boolean;
 
 		/**
-		Only show the first unit: `1h 10m` → `~1h`.
+		Only show the first unit: `1h 10m` → `1h`.
 
 		Also ensures that `millisecondsDecimalDigits` and `secondsDecimalDigits` are both set to `0`.
 
@@ -61,6 +61,21 @@ declare namespace prettyMilliseconds {
 		@default false
 		*/
 		readonly formatSubMilliseconds?: boolean;
+
+		/**
+		Display time using colon notation: `5h 1m 45s` → `5:01:45`. Always shows time in at least minutes: `1s` → `0:01`
+
+		Useful when you want to display time without the time units, similar to a digital watch.
+
+		Setting `colonNotation` to `true` overrides the following options to `false`:
+		- `compact`
+		- `formatSubMilliseconds`
+		- `separateMilliseconds`
+		- `verbose`
+
+		@default false
+		*/
+		readonly colonNotation?: boolean;
 	}
 }
 
@@ -84,11 +99,15 @@ prettyMilliseconds(133);
 
 // `compact` option
 prettyMilliseconds(1337, {compact: true});
-//=> '~1s'
+//=> '1s'
 
 // `verbose` option
 prettyMilliseconds(1335669000, {verbose: true});
 //=> '15 days 11 hours 1 minute 9 seconds'
+
+// `colonNotation` option
+prettyMilliseconds(95500, {colonNotation: true});
+//=> '1:35.5'
 
 // `formatSubMilliseconds` option
 prettyMilliseconds(100.400080, {formatSubMilliseconds: true})

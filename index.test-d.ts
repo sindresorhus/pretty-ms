@@ -18,3 +18,6 @@ expectType<string>(
 expectType<string>(
 	prettyMilliseconds(1335669000, {formatSubMilliseconds: true})
 );
+expectType<string>(
+	prettyMilliseconds(1335669000, {colonNotation: true})
+);
