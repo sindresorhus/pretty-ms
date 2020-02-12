@@ -56,6 +56,20 @@ module.exports = (milliseconds, options = {}) => {
 		}
 	}
 
+	// Round up milliseconds for values lager than 1 minute - 50ms since these
+	// always need to be round up.
+	// (this fixes issues when rounding seconds independently of minutes later)
+	if (
+		milliseconds >= (1000 * 60) - 50 &&
+		!options.separateMilliseconds &&
+		!options.formatSubMilliseconds
+	) {
+		const difference = 60 - (milliseconds % 60);
+		if (difference <= 50) {
+			milliseconds += difference;
+		}
+	}
+
 	const parsed = parseMilliseconds(milliseconds);
 
 	add(Math.trunc(parsed.days / 365), 'year', 'y');
@@ -84,9 +98,13 @@ module.exports = (milliseconds, options = {}) => {
 					options.millisecondsDecimalDigits :
 					0;
 
+			const roundedMiliseconds = millisecondsAndBelow >= 1 ?
+				Math.round(millisecondsAndBelow) :
+				Math.ceil(millisecondsAndBelow);
+
 			const millisecondsString = millisecondsDecimalDigits ?
 				millisecondsAndBelow.toFixed(millisecondsDecimalDigits) :
-				Math.ceil(millisecondsAndBelow);
+				roundedMiliseconds;
 
 			add(
 				parseFloat(millisecondsString, 10),

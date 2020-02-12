@@ -16,6 +16,7 @@ test('prettify milliseconds', t => {
 	t.is(prettyMilliseconds(1000 * 60 * 60 * 999), '41d 15h');
 	t.is(prettyMilliseconds(1000 * 60 * 60 * 24 * 465), '1y 100d');
 	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465), '1y 154d 6h');
+	t.is(prettyMilliseconds(119999), '2m');
 });
 
 test('have a compact option', t => {
@@ -43,8 +44,8 @@ test('have a secondsDecimalDigits option', t => {
 });
 
 test('have a millisecondsDecimalDigits option', t => {
-	t.is(prettyMilliseconds(33.333), '34ms');
-	t.is(prettyMilliseconds(33.333, {millisecondsDecimalDigits: 0}), '34ms');
+	t.is(prettyMilliseconds(33.333), '33ms');
+	t.is(prettyMilliseconds(33.333, {millisecondsDecimalDigits: 0}), '33ms');
 	t.is(prettyMilliseconds(33.333, {millisecondsDecimalDigits: 4}), '33.3330ms');
 });
 
