@@ -135,7 +135,8 @@ module.exports = (milliseconds, options = {}) => {
 	}
 
 	if (typeof options.unitCount === 'number') {
-		return result.slice(0, Math.max(options.unitCount, 1)).join(' ');
+		const separator = options.colonNotation ? '' : ' ';
+		return result.slice(0, Math.max(options.unitCount, 1)).join(separator);
 	}
 
 	return options.colonNotation ? result.join('') : result.join(' ');

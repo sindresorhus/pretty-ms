@@ -255,6 +255,14 @@ test('`colonNotation` option', t => {
 	t.is(prettyMilliseconds(1000 * 90, {colonNotation: true, secondsDecimalDigits: 3, keepDecimalsOnWholeSeconds: true}), '1:30.000');
 	t.is(prettyMilliseconds(1000 * 60 * 10, {colonNotation: true, secondsDecimalDigits: 3, keepDecimalsOnWholeSeconds: true}), '10:00.000');
 
+	// Together with `unitCount`
+	t.is(prettyMilliseconds(1000 * 90, {colonNotation: true, secondsDecimalDigits: 0, unitCount: 1}), '1');
+	t.is(prettyMilliseconds(1000 * 90, {colonNotation: true, secondsDecimalDigits: 0, unitCount: 2}), '1:30');
+	t.is(prettyMilliseconds(1000 * 60 * 90, {colonNotation: true, secondsDecimalDigits: 0, unitCount: 3}), '1:30:00');
+	t.is(prettyMilliseconds(95543, {colonNotation: true, secondsDecimalDigits: 1, unitCount: 1}), '1');
+	t.is(prettyMilliseconds(95543, {colonNotation: true, secondsDecimalDigits: 1, unitCount: 2}), '1:35.6');
+	t.is(prettyMilliseconds(95543 + (1000 * 60 * 60), {colonNotation: true, secondsDecimalDigits: 1, unitCount: 3}), '1:01:35.6');
+
 	// Make sure incompatible options fall back to `colonNotation`
 	t.is(prettyMilliseconds((1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true, formatSubMilliseconds: true}), '59:59.6');
 	t.is(prettyMilliseconds((1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true, separateMilliseconds: true}), '59:59.6');
