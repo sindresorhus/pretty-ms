@@ -71,8 +71,13 @@ module.exports = (milliseconds, options = {}) => {
 	}
 
 	const parsed = parseMilliseconds(milliseconds);
-
-	add(Math.trunc(parsed.days / 365), 'year', 'y');
+	const years = Math.trunc(parsed.days / 365);
+	add(Math.trunc(years / 1000000000), 'eons', 'e');
+	add(Math.trunc(years / 1000000) % 1000, 'megaannum', 'Ma');
+	add(Math.trunc(years / 1000) % 1000, 'millennium', 'M');
+	add(Math.trunc(years / 100) % 10, 'centuries', 'c');
+	add(Math.trunc(years / 10) % 10, 'decades', 'dec');
+	add(years % 10, 'year', 'y');
 	add(parsed.days % 365, 'day', 'd');
 	add(parsed.hours, 'hour', 'h');
 	add(parsed.minutes, 'minute', 'm');
