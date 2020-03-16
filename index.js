@@ -75,8 +75,8 @@ module.exports = (milliseconds, options = {}) => {
 	add(Math.trunc(years / 1000000000), 'eons', 'e');
 	add(Math.trunc(years / 1000000) % 1000, 'megaannum', 'Ma');
 	add(Math.trunc(years / 1000) % 1000, 'millennium', 'M');
-	add(Math.trunc(years / 100) % 10, 'centuries', 'c');
-	add(Math.trunc(years / 10) % 10, 'decades', 'dec');
+	add(Math.trunc(years / 100) % 10, 'century', 'c');
+	add(Math.trunc(years / 10) % 10, 'decade', 'dec');
 	add(years % 10, 'year', 'y');
 	add(parsed.days % 365, 'day', 'd');
 	add(parsed.hours, 'hour', 'h');
