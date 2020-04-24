@@ -71,7 +71,7 @@ Default: `0`
 
 Number of digits to appear after the milliseconds decimal point.
 
-Useful in combination with [`process.hrtime()`](https://nodejs.org/api/process.html#process_process_hrtime).
+Useful in combination with [`process.hrtime()`](https://nodejs.org/api/process.html#process_process_hrtime_time).
 
 ##### keepDecimalsOnWholeSeconds
 
