@@ -209,7 +209,7 @@ test('throw on invalid', t => {
 	});
 
 	t.throws(() => {
-		prettyMilliseconds(NaN);
+		prettyMilliseconds(Number.NaN);
 	});
 
 	t.throws(() => {

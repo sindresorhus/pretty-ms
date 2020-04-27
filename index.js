@@ -89,7 +89,7 @@ module.exports = (milliseconds, options = {}) => {
 				roundedMiliseconds;
 
 			add(
-				parseFloat(millisecondsString, 10),
+				Number.parseFloat(millisecondsString, 10),
 				'millisecond',
 				'ms',
 				millisecondsString
@@ -105,7 +105,7 @@ module.exports = (milliseconds, options = {}) => {
 		const secondsString = options.keepDecimalsOnWholeSeconds ?
 			secondsFixed :
 			secondsFixed.replace(/\.0+$/, '');
-		add(parseFloat(secondsString, 10), 'second', 's', secondsString);
+		add(Number.parseFloat(secondsString, 10), 'second', 's', secondsString);
 	}
 
 	if (result.length === 0) {
