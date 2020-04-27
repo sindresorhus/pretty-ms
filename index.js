@@ -3,6 +3,8 @@ const parseMilliseconds = require('parse-ms');
 
 const pluralize = (word, count) => count === 1 ? word : `${word}s`;
 
+const SECOND_ROUNDING_EPSILON = 0.0000001;
+
 module.exports = (milliseconds, options = {}) => {
 	if (!Number.isFinite(milliseconds)) {
 		throw new TypeError('Expected a finite number');
@@ -21,6 +23,12 @@ module.exports = (milliseconds, options = {}) => {
 	}
 
 	const result = [];
+
+	const floorDecimals = (value, decimalDigits) => {
+		const flooredInterimValue = Math.floor((value * (10 ** decimalDigits)) + SECOND_ROUNDING_EPSILON);
+		const flooredValue = Math.round(flooredInterimValue) / (10 ** decimalDigits);
+		return flooredValue.toFixed(decimalDigits);
+	};
 
 	const add = (value, long, short, valueString) => {
 		if ((result.length === 0 || !options.colonNotation) && value === 0 && !(options.colonNotation && short === 'm')) {
@@ -43,32 +51,6 @@ module.exports = (milliseconds, options = {}) => {
 
 		result.push(prefix + valueString + suffix);
 	};
-
-	const secondsDecimalDigits =
-		typeof options.secondsDecimalDigits === 'number' ?
-			options.secondsDecimalDigits :
-			1;
-
-	if (secondsDecimalDigits < 1) {
-		const difference = 1000 - (milliseconds % 1000);
-		if (difference < 500) {
-			milliseconds += difference;
-		}
-	}
-
-	// Round up milliseconds for values lager than 1 minute - 50ms since these
-	// always need to be round up. This fixes issues when rounding seconds
-	// independently of minutes later on.
-	if (
-		milliseconds >= (1000 * 60) - 50 &&
-		!options.separateMilliseconds &&
-		!options.formatSubMilliseconds
-	) {
-		const difference = 60 - (milliseconds % 60);
-		if (difference <= 50) {
-			milliseconds += difference;
-		}
-	}
 
 	const parsed = parseMilliseconds(milliseconds);
 
@@ -119,7 +101,7 @@ module.exports = (milliseconds, options = {}) => {
 			typeof options.secondsDecimalDigits === 'number' ?
 				options.secondsDecimalDigits :
 				1;
-		const secondsFixed = seconds.toFixed(secondsDecimalDigits);
+		const secondsFixed = floorDecimals(seconds, secondsDecimalDigits);
 		const secondsString = options.keepDecimalsOnWholeSeconds ?
 			secondsFixed :
 			secondsFixed.replace(/\.0+$/, '');

@@ -5,6 +5,8 @@ test('prettify milliseconds', t => {
 	t.is(prettyMilliseconds(0), '0ms');
 	t.is(prettyMilliseconds(0.1), '1ms');
 	t.is(prettyMilliseconds(1), '1ms');
+	t.is(prettyMilliseconds(999), '999ms');
+	t.is(prettyMilliseconds(1000), '1s');
 	t.is(prettyMilliseconds(1000 + 400), '1.4s');
 	t.is(prettyMilliseconds((1000 * 2) + 400), '2.4s');
 	t.is(prettyMilliseconds(1000 * 55), '55s');
@@ -16,7 +18,8 @@ test('prettify milliseconds', t => {
 	t.is(prettyMilliseconds(1000 * 60 * 60 * 999), '41d 15h');
 	t.is(prettyMilliseconds(1000 * 60 * 60 * 24 * 465), '1y 100d');
 	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465), '1y 154d 6h');
-	t.is(prettyMilliseconds(119999), '2m');
+	t.is(prettyMilliseconds(119999), '1m 59.9s');
+	t.is(prettyMilliseconds(120000), '2m');
 });
 
 test('have a compact option', t => {
@@ -39,6 +42,10 @@ test('have a unitCount option', t => {
 test('have a secondsDecimalDigits option', t => {
 	t.is(prettyMilliseconds(10000), '10s');
 	t.is(prettyMilliseconds(33333), '33.3s');
+	t.is(prettyMilliseconds(999, {secondsDecimalDigits: 0}), '999ms');
+	t.is(prettyMilliseconds(1000, {secondsDecimalDigits: 0}), '1s');
+	t.is(prettyMilliseconds(1999, {secondsDecimalDigits: 0}), '1s');
+	t.is(prettyMilliseconds(2000, {secondsDecimalDigits: 0}), '2s');
 	t.is(prettyMilliseconds(33333, {secondsDecimalDigits: 0}), '33s');
 	t.is(prettyMilliseconds(33333, {secondsDecimalDigits: 4}), '33.3330s');
 });
@@ -216,11 +223,16 @@ test('properly rounds milliseconds with secondsDecimalDigits', t => {
 			verbose: true,
 			secondsDecimalDigits: 0
 		});
-	t.is(fn(179700), '3 minutes');
-	t.is(fn((365 * 24 * 3600 * 1e3) - 1), '1 year');
-	t.is(fn((24 * 3600 * 1e3) - 1), '1 day');
-	t.is(fn((3600 * 1e3) - 1), '1 hour');
-	t.is(fn((2 * 3600 * 1e3) - 1), '2 hours');
+	t.is(fn(3 * 60 * 1000), '3 minutes');
+	t.is(fn((3 * 60 * 1000) - 1), '2 minutes 59 seconds');
+	t.is(fn(365 * 24 * 3600 * 1e3), '1 year');
+	t.is(fn((365 * 24 * 3600 * 1e3) - 1), '364 days 23 hours 59 minutes 59 seconds');
+	t.is(fn(24 * 3600 * 1e3), '1 day');
+	t.is(fn((24 * 3600 * 1e3) - 1), '23 hours 59 minutes 59 seconds');
+	t.is(fn(3600 * 1e3), '1 hour');
+	t.is(fn((3600 * 1e3) - 1), '59 minutes 59 seconds');
+	t.is(fn(2 * 3600 * 1e3), '2 hours');
+	t.is(fn((2 * 3600 * 1e3) - 1), '1 hour 59 minutes 59 seconds');
 });
 
 test('`colonNotation` option', t => {
@@ -229,22 +241,22 @@ test('`colonNotation` option', t => {
 	t.is(prettyMilliseconds(1543, {colonNotation: true}), '0:01.5');
 	t.is(prettyMilliseconds(1000 * 60, {colonNotation: true}), '1:00');
 	t.is(prettyMilliseconds(1000 * 90, {colonNotation: true}), '1:30');
-	t.is(prettyMilliseconds(95543, {colonNotation: true}), '1:35.6');
+	t.is(prettyMilliseconds(95543, {colonNotation: true}), '1:35.5');
 	t.is(prettyMilliseconds((1000 * 60 * 10) + 543, {colonNotation: true}), '10:00.5');
-	t.is(prettyMilliseconds((1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true}), '59:59.6');
-	t.is(prettyMilliseconds((1000 * 60 * 60 * 15) + (1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true}), '15:59:59.6');
+	t.is(prettyMilliseconds((1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true}), '59:59.5');
+	t.is(prettyMilliseconds((1000 * 60 * 60 * 15) + (1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true}), '15:59:59.5');
 
 	// Together with `secondsDecimalDigits`
-	t.is(prettyMilliseconds(1543, {colonNotation: true, secondsDecimalDigits: 0}), '0:02');
+	t.is(prettyMilliseconds(1543, {colonNotation: true, secondsDecimalDigits: 0}), '0:01');
 	t.is(prettyMilliseconds(1543, {colonNotation: true, secondsDecimalDigits: 1}), '0:01.5');
 	t.is(prettyMilliseconds(1543, {colonNotation: true, secondsDecimalDigits: 2}), '0:01.54');
 	t.is(prettyMilliseconds(1543, {colonNotation: true, secondsDecimalDigits: 3}), '0:01.543');
-	t.is(prettyMilliseconds(95543, {colonNotation: true, secondsDecimalDigits: 0}), '1:36');
-	t.is(prettyMilliseconds(95543, {colonNotation: true, secondsDecimalDigits: 1}), '1:35.6');
-	t.is(prettyMilliseconds(95543, {colonNotation: true, secondsDecimalDigits: 2}), '1:35.58');
-	t.is(prettyMilliseconds(95543, {colonNotation: true, secondsDecimalDigits: 3}), '1:35.580');
+	t.is(prettyMilliseconds(95543, {colonNotation: true, secondsDecimalDigits: 0}), '1:35');
+	t.is(prettyMilliseconds(95543, {colonNotation: true, secondsDecimalDigits: 1}), '1:35.5');
+	t.is(prettyMilliseconds(95543, {colonNotation: true, secondsDecimalDigits: 2}), '1:35.54');
+	t.is(prettyMilliseconds(95543, {colonNotation: true, secondsDecimalDigits: 3}), '1:35.543');
 	t.is(prettyMilliseconds((1000 * 60 * 10) + 543, {colonNotation: true, secondsDecimalDigits: 3}), '10:00.543');
-	t.is(prettyMilliseconds((1000 * 60 * 60 * 15) + (1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true, secondsDecimalDigits: 3}), '15:59:59.580');
+	t.is(prettyMilliseconds((1000 * 60 * 60 * 15) + (1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true, secondsDecimalDigits: 3}), '15:59:59.543');
 
 	// Together with `keepDecimalsOnWholeSeconds`
 	t.is(prettyMilliseconds(1000, {colonNotation: true, keepDecimalsOnWholeSeconds: true}), '0:01.0');
@@ -260,12 +272,12 @@ test('`colonNotation` option', t => {
 	t.is(prettyMilliseconds(1000 * 90, {colonNotation: true, secondsDecimalDigits: 0, unitCount: 2}), '1:30');
 	t.is(prettyMilliseconds(1000 * 60 * 90, {colonNotation: true, secondsDecimalDigits: 0, unitCount: 3}), '1:30:00');
 	t.is(prettyMilliseconds(95543, {colonNotation: true, secondsDecimalDigits: 1, unitCount: 1}), '1');
-	t.is(prettyMilliseconds(95543, {colonNotation: true, secondsDecimalDigits: 1, unitCount: 2}), '1:35.6');
-	t.is(prettyMilliseconds(95543 + (1000 * 60 * 60), {colonNotation: true, secondsDecimalDigits: 1, unitCount: 3}), '1:01:35.6');
+	t.is(prettyMilliseconds(95543, {colonNotation: true, secondsDecimalDigits: 1, unitCount: 2}), '1:35.5');
+	t.is(prettyMilliseconds(95543 + (1000 * 60 * 60), {colonNotation: true, secondsDecimalDigits: 1, unitCount: 3}), '1:01:35.5');
 
 	// Make sure incompatible options fall back to `colonNotation`
-	t.is(prettyMilliseconds((1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true, formatSubMilliseconds: true}), '59:59.6');
-	t.is(prettyMilliseconds((1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true, separateMilliseconds: true}), '59:59.6');
-	t.is(prettyMilliseconds((1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true, verbose: true}), '59:59.6');
-	t.is(prettyMilliseconds((1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true, compact: true}), '59:59.6');
+	t.is(prettyMilliseconds((1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true, formatSubMilliseconds: true}), '59:59.5');
+	t.is(prettyMilliseconds((1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true, separateMilliseconds: true}), '59:59.5');
+	t.is(prettyMilliseconds((1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true, verbose: true}), '59:59.5');
+	t.is(prettyMilliseconds((1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true, compact: true}), '59:59.5');
 });
