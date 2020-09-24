@@ -62,7 +62,7 @@ module.exports = (milliseconds, options = {}) => {
 	if (
 		options.separateMilliseconds ||
 		options.formatSubMilliseconds ||
-		milliseconds < 1000
+		(!options.colonNotation && milliseconds < 1000)
 	) {
 		add(parsed.seconds, 'second', 's');
 		if (options.formatSubMilliseconds) {
