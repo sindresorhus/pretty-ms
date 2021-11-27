@@ -11,11 +11,13 @@
 		"url": "https://sindresorhus.com"
 	},
 	"engines": {
-		"node": ">=10"
+		"node": ">=12"
 	},
 	"scripts": {
 		"test": "xo && ava && tsd"
 	},
+	"type": "module",
+	"exports": "./index.js",
 	"files": [
 		"index.js",
 		"index.d.ts"
@@ -39,11 +41,11 @@
 		"hrtime"
 	],
 	"dependencies": {
-		"parse-ms": "^2.1.0"
+		"parse-ms": "^3.0.0"
 	},
 	"devDependencies": {
-		"ava": "^2.4.0",
-		"tsd": "^0.11.0",
-		"xo": "^0.30.0"
+		"ava": "^3.15.0",
+		"tsd": "^0.19.0",
+		"xo": "^0.47.0"
 	}
 }
