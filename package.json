@@ -10,14 +10,14 @@
 		"email": "sindresorhus@gmail.com",
 		"url": "https://sindresorhus.com"
 	},
+	"type": "module",
+	"exports": "./index.js",
 	"engines": {
 		"node": ">=12"
 	},
 	"scripts": {
 		"test": "xo && ava && tsd"
 	},
-	"type": "module",
-	"exports": "./index.js",
 	"files": [
 		"index.js",
 		"index.d.ts"
