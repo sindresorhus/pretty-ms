@@ -10,8 +10,10 @@
 		"email": "sindresorhus@gmail.com",
 		"url": "https://sindresorhus.com"
 	},
+	"type": "module",
+	"exports": "./index.js",
 	"engines": {
-		"node": ">=10"
+		"node": ">=12"
 	},
 	"scripts": {
 		"test": "xo && ava && tsd"
@@ -39,11 +41,11 @@
 		"hrtime"
 	],
 	"dependencies": {
-		"parse-ms": "^2.1.0"
+		"parse-ms": "^3.0.0"
 	},
 	"devDependencies": {
-		"ava": "^2.4.0",
-		"tsd": "^0.11.0",
-		"xo": "^0.30.0"
+		"ava": "^3.15.0",
+		"tsd": "^0.19.0",
+		"xo": "^0.47.0"
 	}
 }

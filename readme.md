@@ -11,7 +11,7 @@ $ npm install pretty-ms
 ## Usage
 
 ```js
-const prettyMilliseconds = require('pretty-ms');
+import prettyMilliseconds from 'pretty-ms';
 
 prettyMilliseconds(1337000000);
 //=> '15d 11h 23m 20s'
