@@ -4,8 +4,8 @@
 
 ## Install
 
-```
-$ npm install pretty-ms
+```sh
+npm install pretty-ms
 ```
 
 ## Usage
