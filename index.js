@@ -2,7 +2,10 @@ import parseMilliseconds from 'parse-ms';
 
 const pluralize = (word, count) => count === 1 ? word : `${word}s`;
 
-const SECOND_ROUNDING_EPSILON = 0.000_000_1;
+const SECOND_ROUNDING_EPSILON =
+	(typeof navigator !== 'undefined' && navigator.product === 'ReactNative')
+	? 0.0000001
+	: parseFloat('0.000_000_1'.split('_').join(''));
 
 export default function prettyMilliseconds(milliseconds, options = {}) {
 	if (!Number.isFinite(milliseconds)) {
