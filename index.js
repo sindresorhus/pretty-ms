@@ -116,7 +116,7 @@ export default function prettyMilliseconds(milliseconds, options = {}) {
 
 	const separator = options.colonNotation ? ':' : ' ';
 	if (typeof options.unitCount === 'number') {
-		result = result.slice(0, Math.max(options.unitCount, 1))
+		result = result.slice(0, Math.max(options.unitCount, 1));
 	}
 
 	return result.join(separator);
