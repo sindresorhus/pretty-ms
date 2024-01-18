@@ -7,7 +7,7 @@ const SECOND_ROUNDING_EPSILON = 0.000_000_1;
 const ONE_DAY_IN_MILLISECONDS = 24n * 60n * 60n * 1000n;
 
 export default function prettyMilliseconds(milliseconds, options = {}) {
-	const isBigInt = typeof milliseconds == 'bigint';
+	const isBigInt = typeof milliseconds === 'bigint';
 	if (!Number.isFinite(milliseconds) && !isBigInt) {
 		throw new TypeError('Expected a finite number or bigint');
 	}
@@ -57,7 +57,7 @@ export default function prettyMilliseconds(milliseconds, options = {}) {
 		result.push(prefix + valueString + suffix);
 	};
 
-	let parsed = parseMilliseconds(milliseconds);
+	const parsed = parseMilliseconds(milliseconds);
 	const days = BigInt(parsed.days);
 
 	add(days / 365n, 'year', 'y');
@@ -70,7 +70,7 @@ export default function prettyMilliseconds(milliseconds, options = {}) {
 		|| options.formatSubMilliseconds
 		|| (!options.colonNotation && milliseconds < 1000)
 	) {
-		const seconds = Number(parsed.seconds)
+		const seconds = Number(parsed.seconds);
 		const milliseconds = Number(parsed.milliseconds);
 		const microseconds = Number(parsed.microseconds);
 		const nanoseconds = Number(parsed.nanoseconds);
@@ -108,9 +108,9 @@ export default function prettyMilliseconds(milliseconds, options = {}) {
 			);
 		}
 	} else {
-		const seconds = Number(
-			isBigInt ? milliseconds - days * ONE_DAY_IN_MILLISECONDS : milliseconds
-		) / 1000 % 60;
+		const seconds = (Number(
+			isBigInt ? (milliseconds - (days * ONE_DAY_IN_MILLISECONDS)) : milliseconds,
+		) / 1000) % 60;
 		const secondsDecimalDigits
 			= typeof options.secondsDecimalDigits === 'number'
 				? options.secondsDecimalDigits
