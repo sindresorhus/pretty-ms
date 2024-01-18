@@ -22,7 +22,7 @@ export default function prettyMilliseconds(milliseconds, options = {}) {
 		options.millisecondsDecimalDigits = 0;
 	}
 
-	const result = [];
+	let result = [];
 
 	const floorDecimals = (value, decimalDigits) => {
 		const flooredInterimValue = Math.floor((value * (10 ** decimalDigits)) + SECOND_ROUNDING_EPSILON);
@@ -38,21 +38,16 @@ export default function prettyMilliseconds(milliseconds, options = {}) {
 			return;
 		}
 
-		valueString = (valueString || value || '0').toString();
-		let prefix;
-		let suffix;
+		valueString = valueString ?? String(value);
 		if (options.colonNotation) {
-			prefix = result.length > 0 ? ':' : '';
-			suffix = '';
 			const wholeDigits = valueString.includes('.') ? valueString.split('.')[0].length : valueString.length;
 			const minLength = result.length > 0 ? 2 : 1;
 			valueString = '0'.repeat(Math.max(0, minLength - wholeDigits)) + valueString;
 		} else {
-			prefix = '';
-			suffix = options.verbose ? ' ' + pluralize(long, value) : short;
+			valueString += options.verbose ? ' ' + pluralize(long, value) : short;
 		}
 
-		result.push(prefix + valueString + suffix);
+		result.push(valueString);
 	};
 
 	const parsed = parseMilliseconds(milliseconds);
@@ -119,10 +114,10 @@ export default function prettyMilliseconds(milliseconds, options = {}) {
 		return result[0];
 	}
 
+	const separator = options.colonNotation ? ':' : ' ';
 	if (typeof options.unitCount === 'number') {
-		const separator = options.colonNotation ? '' : ' ';
-		return result.slice(0, Math.max(options.unitCount, 1)).join(separator);
+		result = result.slice(0, Math.max(options.unitCount, 1))
 	}
 
-	return options.colonNotation ? result.join('') : result.join(' ');
+	return result.join(separator);
 }
