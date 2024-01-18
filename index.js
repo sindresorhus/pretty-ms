@@ -6,7 +6,6 @@ const pluralize = (word, count) => (count === 1 || count === 1n) ? word : `${wor
 const SECOND_ROUNDING_EPSILON = 0.000_000_1;
 const ONE_DAY_IN_MILLISECONDS = 24n * 60n * 60n * 1000n;
 
-
 export default function prettyMilliseconds(milliseconds, options) {
 	const isBigInt = typeof milliseconds === 'bigint';
 	if (!isBigInt && !Number.isFinite(milliseconds)) {
