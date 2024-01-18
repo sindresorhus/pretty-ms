@@ -20,6 +20,8 @@ test('prettify milliseconds', t => {
 	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465), '1y 154d 6h');
 	t.is(prettyMilliseconds(119_999), '1m 59.9s');
 	t.is(prettyMilliseconds(120_000), '2m');
+	t.is(prettyMilliseconds(Number.MAX_SAFE_INTEGER), '285616y 151d 8h 59m 0.9s');
+	t.is(prettyMilliseconds(Number.MAX_VALUE), '5.700447535712568e+297y 218d 8h 8m 48s');
 });
 
 test('have a compact option', t => {
@@ -301,4 +303,8 @@ test('`colonNotation` option', t => {
 	t.is(format((1000 * 60 * 59) + (1000 * 59) + 543, {separateMilliseconds: true}), '59:59.5');
 	t.is(format((1000 * 60 * 59) + (1000 * 59) + 543, {verbose: true}), '59:59.5');
 	t.is(format((1000 * 60 * 59) + (1000 * 59) + 543, {compact: true}), '59:59.5');
+
+	// Big numbers
+	t.is(format(Number.MAX_SAFE_INTEGER), '285616:151:08:59:00.9');
+	t.is(format(Number.MAX_VALUE), '5.700447535712568e+297:218:08:08:48');
 });
