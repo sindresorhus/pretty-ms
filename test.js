@@ -313,7 +313,7 @@ test('pure', t => {
 	const runTest = options => {
 		const copy = {...options};
 		prettyMilliseconds(1, options);
-		t.deepEqual(options, copy)
+		t.deepEqual(options, copy);
 	};
 
 	runTest({colonNotation: true});
