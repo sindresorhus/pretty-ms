@@ -4,10 +4,12 @@ const isZero = value => value === 0 || value === 0n;
 const pluralize = (word, count) => (count === 1 || count === 1n) ? word : `${word}s`;
 
 const SECOND_ROUNDING_EPSILON = 0.000_000_1;
+const ONE_DAY_IN_MILLISECONDS = 24n * 60n * 60n * 1000n;
 
 export default function prettyMilliseconds(milliseconds, options) {
-	if (!Number.isFinite(milliseconds)) {
-		throw new TypeError('Expected a finite number');
+	const isBigInt = typeof milliseconds === 'bigint';
+	if (!isBigInt && !Number.isFinite(milliseconds)) {
+		throw new TypeError('Expected a finite number or bigint');
 	}
 
 	options = {...options};
@@ -58,27 +60,34 @@ export default function prettyMilliseconds(milliseconds, options) {
 	};
 
 	const parsed = parseMilliseconds(milliseconds);
+	const days = BigInt(parsed.days);
 
-	add(BigInt(parsed.days) / 365n, 'year', 'y');
-	add(parsed.days % 365, 'day', 'd');
-	add(parsed.hours, 'hour', 'h');
-	add(parsed.minutes, 'minute', 'm');
+	add(days / 365n, 'year', 'y');
+	add(days % 365n, 'day', 'd');
+	add(Number(parsed.hours), 'hour', 'h');
+	add(Number(parsed.minutes), 'minute', 'm');
 
 	if (
 		options.separateMilliseconds
 		|| options.formatSubMilliseconds
 		|| (!options.colonNotation && milliseconds < 1000)
 	) {
-		add(parsed.seconds, 'second', 's');
+		const seconds = Number(parsed.seconds);
+		const milliseconds = Number(parsed.milliseconds);
+		const microseconds = Number(parsed.microseconds);
+		const nanoseconds = Number(parsed.nanoseconds);
+
+		add(seconds, 'second', 's');
+
 		if (options.formatSubMilliseconds) {
-			add(parsed.milliseconds, 'millisecond', 'ms');
-			add(parsed.microseconds, 'microsecond', 'µs');
-			add(parsed.nanoseconds, 'nanosecond', 'ns');
+			add(milliseconds, 'millisecond', 'ms');
+			add(microseconds, 'microsecond', 'µs');
+			add(nanoseconds, 'nanosecond', 'ns');
 		} else {
 			const millisecondsAndBelow
-				= parsed.milliseconds
-				+ (parsed.microseconds / 1000)
-				+ (parsed.nanoseconds / 1e6);
+				= milliseconds
+				+ (microseconds / 1000)
+				+ (nanoseconds / 1e6);
 
 			const millisecondsDecimalDigits
 				= typeof options.millisecondsDecimalDigits === 'number'
@@ -101,7 +110,10 @@ export default function prettyMilliseconds(milliseconds, options) {
 			);
 		}
 	} else {
-		const seconds = (milliseconds / 1000) % 60;
+		const seconds = (
+			(isBigInt ? Number(milliseconds % ONE_DAY_IN_MILLISECONDS) : milliseconds)
+			/ 1000
+		) % 60;
 		const secondsDecimalDigits
 			= typeof options.secondsDecimalDigits === 'number'
 				? options.secondsDecimalDigits

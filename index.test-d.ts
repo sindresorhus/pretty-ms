@@ -2,6 +2,7 @@ import {expectType} from 'tsd';
 import prettyMilliseconds from './index.js';
 
 expectType<string>(prettyMilliseconds(1_335_669_000));
+expectType<string>(prettyMilliseconds(1_335_669_000n));
 expectType<string>(prettyMilliseconds(1_335_669_000, {secondsDecimalDigits: 1}));
 expectType<string>(
 	prettyMilliseconds(1_335_669_000, {millisecondsDecimalDigits: 2}),

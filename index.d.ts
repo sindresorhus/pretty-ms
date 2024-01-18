@@ -117,7 +117,7 @@ prettyMilliseconds(new Date(2014, 0, 1, 10, 40) - new Date(2014, 0, 1, 10, 5))
 ```
 */
 export default function prettyMilliseconds(
-	milliseconds: number,
+	milliseconds: number | bigint,
 	options?: Options
 ): string;
 

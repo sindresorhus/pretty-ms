@@ -16,6 +16,9 @@ import prettyMilliseconds from 'pretty-ms';
 prettyMilliseconds(1337000000);
 //=> '15d 11h 23m 20s'
 
+prettyMilliseconds(1337000000n);
+//=> '15d 11h 23m 20s'
+
 prettyMilliseconds(1337);
 //=> '1.3s'
 
@@ -49,7 +52,7 @@ prettyMilliseconds(new Date(2014, 0, 1, 10, 40) - new Date(2014, 0, 1, 10, 5))
 
 #### milliseconds
 
-Type: `number`
+Type: `number | bigint`
 
 Milliseconds to humanize.
 
