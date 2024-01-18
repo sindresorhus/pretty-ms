@@ -79,13 +79,13 @@ export default function prettyMilliseconds(milliseconds, options = {}) {
 					? options.millisecondsDecimalDigits
 					: 0;
 
-			const roundedMiliseconds = millisecondsAndBelow >= 1
+			const roundedMilliseconds = millisecondsAndBelow >= 1
 				? Math.round(millisecondsAndBelow)
 				: Math.ceil(millisecondsAndBelow);
 
 			const millisecondsString = millisecondsDecimalDigits
 				? millisecondsAndBelow.toFixed(millisecondsDecimalDigits)
-				: roundedMiliseconds;
+				: roundedMilliseconds;
 
 			add(
 				Number.parseFloat(millisecondsString),
