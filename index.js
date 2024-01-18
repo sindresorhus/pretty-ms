@@ -1,6 +1,7 @@
 import parseMilliseconds from 'parse-ms';
 
-const pluralize = (word, count) => count === 1 ? word : `${word}s`;
+const isZero = value => value === 0 || value === 0n;
+const pluralize = (word, count) => (count === 1 || count === 1n) ? word : `${word}s`;
 
 const SECOND_ROUNDING_EPSILON = 0.000_000_1;
 
@@ -30,7 +31,10 @@ export default function prettyMilliseconds(milliseconds, options = {}) {
 	};
 
 	const add = (value, long, short, valueString) => {
-		if ((result.length === 0 || !options.colonNotation) && value === 0 && !(options.colonNotation && short === 'm')) {
+		if (
+			(result.length === 0 || !options.colonNotation)
+			&& isZero(value)
+			&& !(options.colonNotation && short === 'm')) {
 			return;
 		}
 
@@ -53,7 +57,7 @@ export default function prettyMilliseconds(milliseconds, options = {}) {
 
 	const parsed = parseMilliseconds(milliseconds);
 
-	add(Math.trunc(parsed.days / 365), 'year', 'y');
+	add(BigInt(parsed.days) / 365n, 'year', 'y');
 	add(parsed.days % 365, 'day', 'd');
 	add(parsed.hours, 'hour', 'h');
 	add(parsed.minutes, 'minute', 'm');
