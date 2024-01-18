@@ -18,6 +18,7 @@ export default function prettyMilliseconds(milliseconds, options = {}) {
 	}
 
 	if (options.compact) {
+		options.unitCount = 1;
 		options.secondsDecimalDigits = 0;
 		options.millisecondsDecimalDigits = 0;
 	}
@@ -108,10 +109,6 @@ export default function prettyMilliseconds(milliseconds, options = {}) {
 
 	if (result.length === 0) {
 		return '0' + (options.verbose ? ' milliseconds' : 'ms');
-	}
-
-	if (options.compact) {
-		return result[0];
 	}
 
 	const separator = options.colonNotation ? ':' : ' ';
