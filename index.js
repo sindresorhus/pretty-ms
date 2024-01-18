@@ -108,9 +108,10 @@ export default function prettyMilliseconds(milliseconds, options = {}) {
 			);
 		}
 	} else {
-		const seconds = (Number(
-			isBigInt ? (milliseconds - (days * ONE_DAY_IN_MILLISECONDS)) : milliseconds,
-		) / 1000) % 60;
+		const seconds = (
+			(isBigInt ? Number(milliseconds % ONE_DAY_IN_MILLISECONDS) : milliseconds)
+			/ 1000
+		) % 60;
 		const secondsDecimalDigits
 			= typeof options.secondsDecimalDigits === 'number'
 				? options.secondsDecimalDigits
