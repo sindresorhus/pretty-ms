@@ -5,10 +5,12 @@ const pluralize = (word, count) => (count === 1 || count === 1n) ? word : `${wor
 
 const SECOND_ROUNDING_EPSILON = 0.000_000_1;
 
-export default function prettyMilliseconds(milliseconds, options = {}) {
+export default function prettyMilliseconds(milliseconds, options) {
 	if (!Number.isFinite(milliseconds)) {
 		throw new TypeError('Expected a finite number');
 	}
+
+	options = {...options};
 
 	if (options.colonNotation) {
 		options.compact = false;
