@@ -43,7 +43,7 @@ export default function prettyMilliseconds(milliseconds, options) {
 			return;
 		}
 
-		valueString = valueString ?? String(value);
+		valueString ??= String(value);
 		if (options.colonNotation) {
 			const wholeDigits = valueString.includes('.') ? valueString.split('.')[0].length : valueString.length;
 			const minLength = result.length > 0 ? 2 : 1;
