@@ -15,7 +15,7 @@ export default function prettyMilliseconds(milliseconds, options) {
 	options = {...options};
 
 	const sign = milliseconds < 0 ? '-' : '';
-	milliseconds = Math.abs(milliseconds);
+	milliseconds = milliseconds < 0 ? -milliseconds : milliseconds; // Cannot use `Math.abs()` because of BigInt support.
 
 	if (options.colonNotation) {
 		options.compact = false;
