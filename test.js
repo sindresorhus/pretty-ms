@@ -275,6 +275,41 @@ runTests({
 });
 
 runTests({
+	title: 'negative milliseconds with options',
+	cases: [
+		[-0, '0ms'],
+		[-0.1, '-1ms'],
+		[-1, '-1ms'],
+		[-999, '-999ms'],
+		[-1000, '-1s'],
+		[-1000 + 400, '-600ms'],
+		[(-1000 * 2) + 400, '-1.6s'],
+		[-13_370, '-13.3s'],
+		[Number.MIN_SAFE_INTEGER, '-285616y 151d 8h 59m 0.9s'],
+		// With compact option
+		[-1000 * 60 * 60 * 999, {compact: true}, '-41d'],
+		[-1000 * 60 * 60 * 24 * 465, {compact: true}, '-1y'],
+		// With unit-count
+		[-1000 * 60 * 67, {unitCount: 2}, '-1h 7m'],
+		[-1000 * 60 * 67 * 24 * 465, {unitCount: 1}, '-1y'],
+		[-1000 * 60 * 67 * 24 * 465, {unitCount: 2}, '-1y 154d'],
+		// With verbose and secondsDecimalDigits
+		[(-1000 * 5) - 254, {verbose: true, secondsDecimalDigits: 4}, '-5.2540 seconds'],
+		[-33_333, {verbose: true, secondsDecimalDigits: 4}, '-33.3330 seconds'],
+		// With verbose and compact
+		[-1000 * 60 * 5, {verbose: true, compact: true}, '-5 minutes'],
+		[-1000 * 60 * 67, {verbose: true, compact: true}, '-1 hour'],
+		[-1000 * 60 * 60 * 12, {verbose: true, compact: true}, '-12 hours'],
+		// With separateMilliseconds option
+		[-1001, {separateMilliseconds: true}, '-1s 1ms'],
+		[-1234, {separateMilliseconds: true}, '-1s 234ms'],
+		// With formatSubMilliseconds option
+		[-1.234_567, {formatSubMilliseconds: true}, '-1ms 234µs 567ns'],
+		[-1234.567, {formatSubMilliseconds: true}, '-1s 234ms 567µs'],
+	],
+});
+
+runTests({
 	title: '`colonNotation` option',
 	defaultOptions: {colonNotation: true},
 	cases: [

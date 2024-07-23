@@ -14,6 +14,9 @@ export default function prettyMilliseconds(milliseconds, options) {
 
 	options = {...options};
 
+	const sign = milliseconds < 0 ? '-' : '';
+	milliseconds = milliseconds < 0 ? -milliseconds : milliseconds; // Cannot use `Math.abs()` because of BigInt support.
+
 	if (options.colonNotation) {
 		options.compact = false;
 		options.formatSubMilliseconds = false;
@@ -122,7 +125,7 @@ export default function prettyMilliseconds(milliseconds, options) {
 	}
 
 	if (result.length === 0) {
-		return '0' + (options.verbose ? ' milliseconds' : 'ms');
+		return sign + '0' + (options.verbose ? ' milliseconds' : 'ms');
 	}
 
 	const separator = options.colonNotation ? ':' : ' ';
@@ -130,5 +133,5 @@ export default function prettyMilliseconds(milliseconds, options) {
 		result = result.slice(0, Math.max(options.unitCount, 1));
 	}
 
-	return result.join(separator);
+	return sign + result.join(separator);
 }
