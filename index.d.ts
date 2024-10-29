@@ -77,18 +77,18 @@ export type Options = {
 	readonly colonNotation?: boolean;
 
 	/**
-	 Hides the years and shows the hidden years additionally as days (365 per year).: `1y 3d 5h 1m 45s` → `368d 5h 1m 45s`.
+	 Hides the year and shows the hidden year additionally as days (365 per year).: `1y 3d 5h 1m 45s` → `368d 5h 1m 45s`.
 
 	 @default false
 	 */
-	readonly hideYears?: boolean;
+	readonly hideYear?: boolean;
 
 	/**
-	 Hides the years and days and shows the hidden values additionally as hours.: `1y 3d 5h 1m 45s` → `8837h 1m 45s`.
+	 Hides the year and days and shows the hidden values additionally as hours.: `1y 3d 5h 1m 45s` → `8837h 1m 45s`.
 
 	 @default false
 	 */
-	readonly hideYearsAndDays?: boolean;
+	readonly hideYearAndDays?: boolean;
 
 	/**
 	 Hides the seconds: `1y 3d 5h 1m 45s` → `1y 3d 5h 1m`.

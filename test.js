@@ -380,26 +380,26 @@ runTests({
 });
 
 runTests({
-	title: 'have a hideYears option',
+	title: 'have a hideYear option',
 	cases: [
-		[1000 * 60, {hideYears: true}, '1m'],
-		[1000 * 60, {hideYears: false}, '1m'],
-		[1000 * 60 * 67, {hideYears: true}, '1h 7m'],
-		[1000 * 60 * 67, {hideYears: false}, '1h 7m'],
-		[1000 * 60 * 67 * 24 * 465, {hideYears: false}, '1y 154d 6h'],
-		[1000 * 60 * 67 * 24 * 465, {hideYears: true}, '519d 6h'],
+		[1000 * 60, {hideYear: true}, '1m'],
+		[1000 * 60, {hideYear: false}, '1m'],
+		[1000 * 60 * 67, {hideYear: true}, '1h 7m'],
+		[1000 * 60 * 67, {hideYear: false}, '1h 7m'],
+		[1000 * 60 * 67 * 24 * 465, {hideYear: false}, '1y 154d 6h'],
+		[1000 * 60 * 67 * 24 * 465, {hideYear: true}, '519d 6h'],
 	],
 });
 
 runTests({
-	title: 'have a hideYearsAndDays option',
+	title: 'have a hideYearAndDays option',
 	cases: [
-		[1000 * 60, {hideYearsAndDays: true}, '1m'],
-		[1000 * 60, {hideYearsAndDays: false}, '1m'],
-		[1000 * 60 * 67, {hideYearsAndDays: false}, '1h 7m'],
-		[1000 * 60 * 67, {hideYearsAndDays: true}, '1h 7m'],
-		[1000 * 60 * 67 * 24 * 465, {hideYearsAndDays: false}, '1y 154d 6h'],
-		[1000 * 60 * 67 * 24 * 465, {hideYearsAndDays: true}, '12462h'],
+		[1000 * 60, {hideYearAndDays: true}, '1m'],
+		[1000 * 60, {hideYearAndDays: false}, '1m'],
+		[1000 * 60 * 67, {hideYearAndDays: false}, '1h 7m'],
+		[1000 * 60 * 67, {hideYearAndDays: true}, '1h 7m'],
+		[1000 * 60 * 67 * 24 * 465, {hideYearAndDays: false}, '1y 154d 6h'],
+		[1000 * 60 * 67 * 24 * 465, {hideYearAndDays: true}, '12462h'],
 	],
 });
 
@@ -412,10 +412,10 @@ runTests({
 });
 
 runTests({
-	title: 'have hideYearsAndDays,hideSeconds and colonNotation options',
+	title: 'have hideYearAndDays,hideSeconds and colonNotation options',
 	cases: [
-		[(1000 * 60 * 60 * 15) + (1000 * 60 * 59) + (1000 * 59) + 543, {hideSeconds: true, hideYearsAndDays: true, colonNotation: true}, '15:59'],
-		[(1000 * 60 * 67 * 24 * 465) + (1000 * 60 * 60 * 15) + (1000 * 60 * 59) + (1000 * 59) + 543, {hideSeconds: true, hideYearsAndDays: true, colonNotation: true}, '12477:59'],
+		[(1000 * 60 * 60 * 15) + (1000 * 60 * 59) + (1000 * 59) + 543, {hideSeconds: true, hideYearAndDays: true, colonNotation: true}, '15:59'],
+		[(1000 * 60 * 67 * 24 * 465) + (1000 * 60 * 60 * 15) + (1000 * 60 * 59) + (1000 * 59) + 543, {hideSeconds: true, hideYearAndDays: true, colonNotation: true}, '12477:59'],
 	],
 });
 
