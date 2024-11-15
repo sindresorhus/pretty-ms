@@ -379,6 +379,67 @@ runTests({
 	],
 });
 
+runTests({
+	title: 'have a hideYear option',
+	cases: [
+		[1000 * 60, {hideYear: true}, '1m'],
+		[1000 * 60, {hideYear: false}, '1m'],
+		[1000 * 60 * 67, {hideYear: true}, '1h 7m'],
+		[1000 * 60 * 67, {hideYear: false}, '1h 7m'],
+		[1000 * 60 * 67 * 24 * 465, {hideYear: false}, '1y 154d 6h'],
+		[1000 * 60 * 67 * 24 * 465, {hideYear: true}, '519d 6h'],
+		[(1000 * 60 * 67 * 24 * 465) + (1000 * 60) + 6500, {hideYear: false}, '1y 154d 6h 1m 6.5s'],
+		[(1000 * 60 * 67 * 24 * 465) + (1000 * 60) + 6500, {hideYear: true}, '519d 6h 1m 6.5s'],
+		[(1000 * 60 * 67 * 24 * 465) + (1000 * 60) + 6500, {hideYear: true, secondsDecimalDigits: 0}, '519d 6h 1m 6s'],
+		[(1000 * 60 * 67 * 24 * 465) + (1000 * 60) + 6000, {hideYear: true, keepDecimalsOnWholeSeconds: true}, '519d 6h 1m 6.0s'],
+		[(1000 * 60 * 67 * 24 * 465) + (1000 * 60) + 6500, {hideYear: true, separateMilliseconds: true}, '519d 6h 1m 6s 500ms'],
+		[(1000 * 60 * 67 * 24 * 465) + (1000 * 60) + 6500, {hideYear: true, verbose: true}, '519 days 6 hours 1 minute 6.5 seconds'],
+		[(1000 * 60 * 67 * 24 * 465) + (1000 * 60) + 6500, {hideYear: true, compact: true}, '519d'],
+	],
+});
+
+runTests({
+	title: 'have a hideYearAndDays option',
+	cases: [
+		[1000 * 60, {hideYearAndDays: true}, '1m'],
+		[1000 * 60, {hideYearAndDays: false}, '1m'],
+		[1000 * 60 * 67, {hideYearAndDays: false}, '1h 7m'],
+		[1000 * 60 * 67, {hideYearAndDays: true}, '1h 7m'],
+		[1000 * 60 * 67 * 24 * 465, {hideYearAndDays: false}, '1y 154d 6h'],
+		[1000 * 60 * 67 * 24 * 465, {hideYearAndDays: true}, '12462h'],
+		[(1000 * 60 * 67 * 24 * 465) + (1000 * 60) + 6500, {hideYearAndDays: false}, '1y 154d 6h 1m 6.5s'],
+		[(1000 * 60 * 67 * 24 * 465) + (1000 * 60) + 6500, {hideYearAndDays: true}, '12462h 1m 6.5s'],
+		[(1000 * 60 * 67 * 24 * 465) + (1000 * 60) + 6500, {hideYearAndDays: true, secondsDecimalDigits: 0}, '12462h 1m 6s'],
+		[(1000 * 60 * 67 * 24 * 465) + (1000 * 60) + 6000, {hideYearAndDays: true, keepDecimalsOnWholeSeconds: true}, '12462h 1m 6.0s'],
+		[(1000 * 60 * 67 * 24 * 465) + (1000 * 60) + 6500, {hideYearAndDays: true, separateMilliseconds: true}, '12462h 1m 6s 500ms'],
+		[(1000 * 60 * 67 * 24 * 465) + (1000 * 60) + 6500, {hideYearAndDays: true, verbose: true}, '12462 hours 1 minute 6.5 seconds'],
+		[(1000 * 60 * 67 * 24 * 465) + (1000 * 60) + 6500, {hideYearAndDays: true, compact: true}, '12462h'],
+	],
+});
+
+runTests({
+	title: 'have a hideSeconds option',
+	cases: [
+		[(1000 * 60) + 6500, {hideSeconds: false}, '1m 6.5s'],
+		[(1000 * 60) + 6500, {hideSeconds: true}, '1m'],
+		[(1000 * 60) + 6500, {hideSeconds: true, secondsDecimalDigits: 3}, '1m'],
+		[(1000 * 60) + 6500, {hideSeconds: true, keepDecimalsOnWholeSeconds: true}, '1m'],
+		[(1000 * 60) + 6500, {hideSeconds: true, formatSubMilliseconds: true}, '1m'],
+		[(1000 * 60) + 6500, {hideSeconds: true, separateMilliseconds: true}, '1m'],
+		[(1000 * 60) + 6500, {hideSeconds: true, verbose: true}, '1 minute'],
+		[(1000 * 60) + 6500, {hideSeconds: true, compact: true}, '1m'],
+	],
+});
+
+runTests({
+	title: 'have hideYearAndDays,hideSeconds and colonNotation options',
+	cases: [
+		[(1000 * 60 * 60 * 15) + (1000 * 60 * 59) + (1000 * 59) + 543, {hideSeconds: true, hideYearAndDays: true, colonNotation: true}, '15:59'],
+		[(1000 * 60 * 67 * 24 * 465) + (1000 * 60 * 60 * 15) + (1000 * 60 * 59) + (1000 * 59) + 543, {hideSeconds: true, hideYearAndDays: true, colonNotation: true}, '12477:59'],
+		[BigInt(Number.MAX_VALUE), {hideSeconds: true, hideYearAndDays: true, colonNotation: true}, '49935920412842103004035395481028987999464046534956943499699299111988127994452371877941544064657466158761238598198439573398422590802628939657907651862093754718347197382375356132290413913997035817798852363459759428417939788028673041157169044258923152298554951723373534213538382550255361078125112229495590:14'],
+	],
+});
+
 test('Big numbers', t => {
 	t.is(
 		prettyMilliseconds(Number.MAX_VALUE),

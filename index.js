@@ -61,67 +61,79 @@ export default function prettyMilliseconds(milliseconds, options) {
 	const parsed = parseMilliseconds(milliseconds);
 	const days = BigInt(parsed.days);
 
-	add(days / 365n, 'year', 'y');
-	add(days % 365n, 'day', 'd');
-	add(Number(parsed.hours), 'hour', 'h');
+	if (options.hideYearAndDays) {
+		add((BigInt(days) * 24n) + BigInt(parsed.hours), 'hour', 'h');
+	} else {
+		if (options.hideYear) {
+			add(days, 'day', 'd');
+		} else {
+			add(days / 365n, 'year', 'y');
+			add(days % 365n, 'day', 'd');
+		}
+
+		add(Number(parsed.hours), 'hour', 'h');
+	}
+
 	add(Number(parsed.minutes), 'minute', 'm');
 
-	if (
-		options.separateMilliseconds
-		|| options.formatSubMilliseconds
-		|| (!options.colonNotation && milliseconds < 1000)
-	) {
-		const seconds = Number(parsed.seconds);
-		const milliseconds = Number(parsed.milliseconds);
-		const microseconds = Number(parsed.microseconds);
-		const nanoseconds = Number(parsed.nanoseconds);
+	if (!options.hideSeconds) {
+		if (
+			options.separateMilliseconds
+			|| options.formatSubMilliseconds
+			|| (!options.colonNotation && milliseconds < 1000)
+		) {
+			const seconds = Number(parsed.seconds);
+			const milliseconds = Number(parsed.milliseconds);
+			const microseconds = Number(parsed.microseconds);
+			const nanoseconds = Number(parsed.nanoseconds);
 
-		add(seconds, 'second', 's');
+			add(seconds, 'second', 's');
 
-		if (options.formatSubMilliseconds) {
-			add(milliseconds, 'millisecond', 'ms');
-			add(microseconds, 'microsecond', 'µs');
-			add(nanoseconds, 'nanosecond', 'ns');
+			if (options.formatSubMilliseconds) {
+				add(milliseconds, 'millisecond', 'ms');
+				add(microseconds, 'microsecond', 'µs');
+				add(nanoseconds, 'nanosecond', 'ns');
+			} else {
+				const millisecondsAndBelow
+					= milliseconds
+					+ (microseconds / 1000)
+					+ (nanoseconds / 1e6);
+
+				const millisecondsDecimalDigits
+					= typeof options.millisecondsDecimalDigits === 'number'
+						? options.millisecondsDecimalDigits
+						: 0;
+
+				const roundedMilliseconds = millisecondsAndBelow >= 1
+					? Math.round(millisecondsAndBelow)
+					: Math.ceil(millisecondsAndBelow);
+
+				const millisecondsString = millisecondsDecimalDigits
+					? millisecondsAndBelow.toFixed(millisecondsDecimalDigits)
+					: roundedMilliseconds;
+
+				add(
+					Number.parseFloat(millisecondsString),
+					'millisecond',
+					'ms',
+					millisecondsString,
+				);
+			}
 		} else {
-			const millisecondsAndBelow
-				= milliseconds
-				+ (microseconds / 1000)
-				+ (nanoseconds / 1e6);
-
-			const millisecondsDecimalDigits
-				= typeof options.millisecondsDecimalDigits === 'number'
-					? options.millisecondsDecimalDigits
-					: 0;
-
-			const roundedMilliseconds = millisecondsAndBelow >= 1
-				? Math.round(millisecondsAndBelow)
-				: Math.ceil(millisecondsAndBelow);
-
-			const millisecondsString = millisecondsDecimalDigits
-				? millisecondsAndBelow.toFixed(millisecondsDecimalDigits)
-				: roundedMilliseconds;
-
-			add(
-				Number.parseFloat(millisecondsString),
-				'millisecond',
-				'ms',
-				millisecondsString,
-			);
+			const seconds = (
+				(isBigInt ? Number(milliseconds % ONE_DAY_IN_MILLISECONDS) : milliseconds)
+				/ 1000
+			) % 60;
+			const secondsDecimalDigits
+				= typeof options.secondsDecimalDigits === 'number'
+					? options.secondsDecimalDigits
+					: 1;
+			const secondsFixed = floorDecimals(seconds, secondsDecimalDigits);
+			const secondsString = options.keepDecimalsOnWholeSeconds
+				? secondsFixed
+				: secondsFixed.replace(/\.0+$/, '');
+			add(Number.parseFloat(secondsString), 'second', 's', secondsString);
 		}
-	} else {
-		const seconds = (
-			(isBigInt ? Number(milliseconds % ONE_DAY_IN_MILLISECONDS) : milliseconds)
-			/ 1000
-		) % 60;
-		const secondsDecimalDigits
-			= typeof options.secondsDecimalDigits === 'number'
-				? options.secondsDecimalDigits
-				: 1;
-		const secondsFixed = floorDecimals(seconds, secondsDecimalDigits);
-		const secondsString = options.keepDecimalsOnWholeSeconds
-			? secondsFixed
-			: secondsFixed.replace(/\.0+$/, '');
-		add(Number.parseFloat(secondsString), 'second', 's', secondsString);
 	}
 
 	if (result.length === 0) {
