@@ -62,7 +62,7 @@ export default function prettyMilliseconds(milliseconds, options) {
 	const days = BigInt(parsed.days);
 
 	if (options.hideYearAndDays) {
-		add((BigInt(days) * BigInt(24)) + BigInt(parsed.hours), 'hour', 'h');
+		add((BigInt(days) * 24n) + BigInt(parsed.hours), 'hour', 'h');
 	} else {
 		if (options.hideYear) {
 			add(days, 'day', 'd');
