@@ -142,14 +142,14 @@ Setting `colonNotation` to `true` overrides the following options to `false`:
 Type: `boolean`\
 Default: `false`
 
-Hides the year and shows the hidden year additionally as days (365 per year).: `1y 3d 5h 1m 45s` → `368d 5h 1m 45s`.
+Hides the year and shows the hidden year additionally as days (365 per year): `1y 3d 5h 1m 45s` → `368d 5h 1m 45s`.
 
 ##### hideYearAndDays
 
 Type: `boolean`\
 Default: `false`
 
-Hides the year and days and shows the hidden values additionally as hours.: `1y 3d 5h 1m 45s` → `8837h 1m 45s`.
+Hides the year and days and shows the hidden values additionally as hours: `1y 3d 5h 1m 45s` → `8837h 1m 45s`.
 
 ##### hideSeconds
 
@@ -157,7 +157,6 @@ Type: `boolean`\
 Default: `false`
 
 Hides the seconds: `1y 3d 5h 1m 45s` → `1y 3d 5h 1m`.
-
 
 ## Related
 
