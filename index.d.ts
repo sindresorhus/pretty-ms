@@ -96,6 +96,15 @@ export type Options = {
 	@default false
 	*/
 	readonly hideSeconds?: boolean;
+
+	/**
+	Show sub-second values as decimal seconds: `900ms` → `0.9s`.
+
+	Useful for progress indicators where you want consistent unit format to prevent flickering.
+
+	@default false
+	*/
+	readonly subSecondsAsDecimals?: boolean;
 };
 
 /**
@@ -131,6 +140,10 @@ prettyMilliseconds(95500, {colonNotation: true});
 // `formatSubMilliseconds` option
 prettyMilliseconds(100.400080, {formatSubMilliseconds: true})
 //=> '100ms 400µs 80ns'
+
+// `subSecondsAsDecimals` option
+prettyMilliseconds(900, {subSecondsAsDecimals: true});
+//=> '0.9s'
 
 // Can be useful for time durations
 prettyMilliseconds(new Date(2014, 0, 1, 10, 40) - new Date(2014, 0, 1, 10, 5))

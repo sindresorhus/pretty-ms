@@ -80,7 +80,7 @@ export default function prettyMilliseconds(milliseconds, options) {
 		if (
 			options.separateMilliseconds
 			|| options.formatSubMilliseconds
-			|| (!options.colonNotation && milliseconds < 1000)
+			|| (!options.colonNotation && milliseconds < 1000 && !options.subSecondsAsDecimals)
 		) {
 			const seconds = Number(parsed.seconds);
 			const milliseconds = Number(parsed.milliseconds);

@@ -41,6 +41,10 @@ prettyMilliseconds(95500, {colonNotation: true});
 prettyMilliseconds(100.400080, {formatSubMilliseconds: true})
 //=> '100ms 400µs 80ns'
 
+// `subSecondsAsDecimals` option
+prettyMilliseconds(900, {subSecondsAsDecimals: true});
+//=> '0.9s'
+
 // Can be useful for time durations
 prettyMilliseconds(new Date(2014, 0, 1, 10, 40) - new Date(2014, 0, 1, 10, 5))
 //=> '35m'
@@ -157,6 +161,15 @@ Type: `boolean`\
 Default: `false`
 
 Hides the seconds: `1y 3d 5h 1m 45s` → `1y 3d 5h 1m`.
+
+##### subSecondsAsDecimals
+
+Type: `boolean`\
+Default: `false`
+
+Show sub-second values as decimal seconds: `900ms` → `0.9s`.
+
+Useful for progress indicators where you want consistent unit format to prevent flickering.
 
 ## Related
 

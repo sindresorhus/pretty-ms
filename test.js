@@ -432,6 +432,37 @@ runTests({
 });
 
 runTests({
+	title: 'have a subSecondsAsDecimals option',
+	defaultOptions: {subSecondsAsDecimals: true},
+	cases: [
+		// Basic functionality
+		[100, '0.1s'],
+		[500, '0.5s'],
+		[900, '0.9s'],
+		[999, '0.9s'], // Floors to 0.9s
+		[-900, '-0.9s'], // Negative values
+		[0, '0ms'], // Zero falls back to ms
+		[1, '0ms'], // Too small, falls back to ms
+
+		// With precision options
+		[1, {secondsDecimalDigits: 3}, '0.001s'],
+		[900, {secondsDecimalDigits: 2}, '0.90s'],
+		[1000, {keepDecimalsOnWholeSeconds: true}, '1.0s'],
+
+		// Only affects sub-second values
+		[1500, '1.5s'],
+
+		// Works with other options
+		[900, {verbose: true}, '0.9 seconds'],
+		[900, {colonNotation: true}, '0:00.9'],
+
+		// Doesn't interfere with these options (they take precedence)
+		[900.123_456, {formatSubMilliseconds: true}, '900ms 123µs 456ns'],
+		[1500, {separateMilliseconds: true}, '1s 500ms'],
+	],
+});
+
+runTests({
 	title: 'have hideYearAndDays,hideSeconds and colonNotation options',
 	cases: [
 		[(1000 * 60 * 60 * 15) + (1000 * 60 * 59) + (1000 * 59) + 543, {hideSeconds: true, hideYearAndDays: true, colonNotation: true}, '15:59'],
