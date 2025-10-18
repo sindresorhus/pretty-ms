@@ -171,6 +171,12 @@ Show sub-second values as decimal seconds: `900ms` → `0.9s`.
 
 Useful for progress indicators where you want consistent unit format to prevent flickering.
 
+## FAQ
+
+### Why doesn't this package support months or years?
+
+This package formats time durations, not calendar dates. Months (28-31 days) and years (365-366 days) have variable lengths, making duration calculations ambiguous. Days are the largest unit since they're always exactly 24 hours. For calendar-based formatting, use [Temporal API](https://tc39.es/proposal-temporal/docs/) or a date library like [date-fns](https://github.com/date-fns/date-fns).
+
 ## Related
 
 - [pretty-ms-cli](https://github.com/sindresorhus/pretty-ms-cli) - CLI for this module
