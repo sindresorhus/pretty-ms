@@ -2,6 +2,8 @@
 
 > Convert milliseconds to a human readable string: `1337000000` → `15d 11h 23m 20s`
 
+*See [`parse-duration-ms`](https://github.com/sindresorhus/parse-duration-ms) for the inverse.*
+
 ## Install
 
 ```sh
@@ -182,4 +184,5 @@ This package formats time durations, not calendar dates. Months (28-31 days) and
 - [pretty-ms-cli](https://github.com/sindresorhus/pretty-ms-cli) - CLI for this module
 - [parse-ms](https://github.com/sindresorhus/parse-ms) - Parse milliseconds into an object
 - [to-milliseconds](https://github.com/sindresorhus/to-milliseconds) - Convert an object of time properties to milliseconds
+- [parse-duration-ms](https://github.com/sindresorhus/parse-duration-ms) - Parse duration strings to milliseconds
 - [pretty-bytes](https://github.com/sindresorhus/pretty-bytes) - Convert bytes to a human readable string
