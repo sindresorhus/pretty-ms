@@ -179,6 +179,16 @@ Useful for progress indicators where you want consistent unit format to prevent 
 
 This package formats time durations, not calendar dates. Months (28-31 days) and years (365-366 days) have variable lengths, making duration calculations ambiguous. Days are the largest unit since they're always exactly 24 hours. For calendar-based formatting, use [Temporal API](https://tc39.es/proposal-temporal/docs/) or a date library like [date-fns](https://github.com/date-fns/date-fns).
 
+### Why doesn't the formatted difference of two values match the formatted values?
+
+```js
+prettyMilliseconds(3670);        //=> '3.6s'
+prettyMilliseconds(5230);        //=> '5.2s'
+prettyMilliseconds(5230 - 3670); //=> '1.5s' // Not '1.6s'
+```
+
+This is inherent to displaying rounded numbers, the same reason [rounded percentages don't always add up to 100%](https://help.surveymonkey.com/en/surveymonkey/analyze/percents-not-totaling/). Values are rounded independently, and rounding does not distribute over subtraction. `prettyMilliseconds(5230 - 3670)` correctly represents the true difference; it just won't always match subtracting the two rounded strings by eye.
+
 ## Related
 
 - [pretty-ms-cli](https://github.com/sindresorhus/pretty-ms-cli) - CLI for this module
