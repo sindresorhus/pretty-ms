@@ -105,7 +105,7 @@ export default function prettyMilliseconds(milliseconds, options) {
 						: 0;
 
 				const roundedMilliseconds = millisecondsAndBelow >= 1
-					? Math.round(millisecondsAndBelow)
+					? Math.min(Math.round(millisecondsAndBelow), 999)
 					: Math.ceil(millisecondsAndBelow);
 
 				const millisecondsString = millisecondsDecimalDigits

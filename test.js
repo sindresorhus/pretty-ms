@@ -142,6 +142,9 @@ runTests({
 	cases: [
 		[1100, {separateMilliseconds: false}, '1.1s'],
 		[1100, {separateMilliseconds: true}, '1s 100ms'],
+		[1999.5, {separateMilliseconds: true}, '1s 999ms'],
+		[59_999.5, {separateMilliseconds: true}, '59s 999ms'],
+		[86_399_999.5, {separateMilliseconds: true}, '23h 59m 59s 999ms'],
 	],
 });
 
