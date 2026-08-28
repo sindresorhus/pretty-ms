@@ -107,10 +107,11 @@ export default function prettyMilliseconds(milliseconds, options) {
 				const roundedMilliseconds = millisecondsAndBelow >= 1
 					? Math.round(millisecondsAndBelow)
 					: Math.ceil(millisecondsAndBelow);
+				const maximumMilliseconds = 1000 - (10 ** -millisecondsDecimalDigits);
 
 				const millisecondsString = millisecondsDecimalDigits
-					? millisecondsAndBelow.toFixed(millisecondsDecimalDigits)
-					: roundedMilliseconds;
+					? Math.min(millisecondsAndBelow, maximumMilliseconds).toFixed(millisecondsDecimalDigits)
+					: Math.min(roundedMilliseconds, maximumMilliseconds);
 
 				add(
 					Number.parseFloat(millisecondsString),

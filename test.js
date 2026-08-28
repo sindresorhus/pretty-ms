@@ -146,6 +146,33 @@ runTests({
 });
 
 runTests({
+	title: 'never round the milliseconds component to 1000',
+	cases: [
+		[999.5, '999ms'],
+		[999.999_999, '999ms'],
+		[1999.5, {separateMilliseconds: true}, '1s 999ms'],
+		[59_999.5, {separateMilliseconds: true}, '59s 999ms'],
+		[86_399_999.5, {separateMilliseconds: true}, '23h 59m 59s 999ms'],
+		[1999.5, {separateMilliseconds: true, millisecondsDecimalDigits: 0}, '1s 999ms'],
+		[999.95, {millisecondsDecimalDigits: 1}, '999.9ms'],
+		[1999.95, {separateMilliseconds: true, millisecondsDecimalDigits: 1}, '1s 999.9ms'],
+		[59_999.996, {separateMilliseconds: true, millisecondsDecimalDigits: 2}, '59s 999.99ms'],
+		[86_399_999.9996, {separateMilliseconds: true, millisecondsDecimalDigits: 3}, '23h 59m 59s 999.999ms'],
+		[999.999_96, {millisecondsDecimalDigits: 4}, '999.9999ms'],
+		[1999.999_996, {separateMilliseconds: true, millisecondsDecimalDigits: 5}, '1s 999.99999ms'],
+		[-1999.95, {separateMilliseconds: true, millisecondsDecimalDigits: 1}, '-1s 999.9ms'],
+		[1999.95, {separateMilliseconds: true, millisecondsDecimalDigits: 1, verbose: true}, '1 second 999.9 milliseconds'],
+		[998.96, {millisecondsDecimalDigits: 1}, '999.0ms'],
+		[999.9, {millisecondsDecimalDigits: 1}, '999.9ms'],
+		[1999, {separateMilliseconds: true, millisecondsDecimalDigits: 1}, '1s 999.0ms'],
+		[0.999_999, {millisecondsDecimalDigits: 3}, '1.000ms'],
+		[1999.5, {formatSubMilliseconds: true}, '1s 999ms 500µs'],
+		[33.666, '34ms'],
+		[0.1, '1ms'],
+	],
+});
+
+runTests({
 	title: 'have a formatSubMilliseconds option',
 	defaultOptions: {formatSubMilliseconds: true},
 	cases: [
