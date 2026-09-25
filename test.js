@@ -370,10 +370,6 @@ test('never drop a nonzero duration to zero milliseconds', t => {
 
 test('never render a signed zero', t => {
 	// Rounding can leave nothing but zeros, and a signed zero reads as a negative duration.
-	t.is(prettyMilliseconds(-1, {subSecondsAsDecimals: true}), '0ms');
-	t.is(prettyMilliseconds(-0.5, {subSecondsAsDecimals: true}), '0ms');
-	t.is(prettyMilliseconds(-1, {subSecondsAsDecimals: true, verbose: true}), '0 milliseconds');
-	t.is(prettyMilliseconds(-1, {subSecondsAsDecimals: true, secondsDecimalDigits: 0}), '0ms');
 	t.is(prettyMilliseconds(-1, {colonNotation: true}), '0:00');
 	t.is(prettyMilliseconds(-1, {colonNotation: true, hideSeconds: true}), '0');
 	t.is(prettyMilliseconds(-1e-300), '0ms');
@@ -381,10 +377,38 @@ test('never render a signed zero', t => {
 
 	// The sign still applies to anything that renders as a nonzero value.
 	t.is(prettyMilliseconds(-1), '-1ms');
+	t.is(prettyMilliseconds(-1, {subSecondsAsDecimals: true}), '-1ms');
+	t.is(prettyMilliseconds(-0.5, {subSecondsAsDecimals: true}), '-1ms');
+	t.is(prettyMilliseconds(-1, {subSecondsAsDecimals: true, verbose: true}), '-1 millisecond');
+	t.is(prettyMilliseconds(-1, {subSecondsAsDecimals: true, secondsDecimalDigits: 0}), '-1ms');
 	t.is(prettyMilliseconds(-1, {colonNotation: true, secondsDecimalDigits: 3}), '-0:00.001');
 	t.is(prettyMilliseconds(-999, {colonNotation: true}), '-0:00.9');
 	t.is(prettyMilliseconds(-1000), '-1s');
 	t.is(prettyMilliseconds(-0), '0ms');
+});
+
+test('keep the value when the seconds field cannot show it', t => {
+	// `subSecondsAsDecimals` moves the value into the seconds field, so a field that floors to zero destroyed the value.
+	t.is(prettyMilliseconds(900, {subSecondsAsDecimals: true, secondsDecimalDigits: 0}), '900ms');
+	t.is(prettyMilliseconds(999, {subSecondsAsDecimals: true, secondsDecimalDigits: 0}), '999ms');
+	t.is(prettyMilliseconds(900, {subSecondsAsDecimals: true, compact: true}), '900ms');
+	t.is(prettyMilliseconds(50, {subSecondsAsDecimals: true, secondsDecimalDigits: 1}), '50ms');
+
+	// A nonzero duration never renders as a bare zero at any digit count.
+	for (const milliseconds of [1, 5, 50, 500, 900, 999]) {
+		for (let digits = 0; digits <= 3; digits++) {
+			const formatted = prettyMilliseconds(milliseconds, {subSecondsAsDecimals: true, secondsDecimalDigits: digits});
+			t.not(formatted, '0ms', `${milliseconds}ms at ${digits} digits`);
+			t.not(formatted, '0s', `${milliseconds}ms at ${digits} digits`);
+		}
+	}
+
+	// The seconds field still wins whenever it can represent the value.
+	t.is(prettyMilliseconds(100, {subSecondsAsDecimals: true}), '0.1s');
+	t.is(prettyMilliseconds(500, {subSecondsAsDecimals: true}), '0.5s');
+	t.is(prettyMilliseconds(900, {subSecondsAsDecimals: true}), '0.9s');
+	t.is(prettyMilliseconds(0, {subSecondsAsDecimals: true}), '0ms');
+	t.is(prettyMilliseconds(1000, {subSecondsAsDecimals: true, keepDecimalsOnWholeSeconds: true}), '1.0s');
 });
 
 test('throw on invalid', t => {
@@ -586,7 +610,7 @@ runTests({
 		[999, '0.9s'], // Floors to 0.9s
 		[-900, '-0.9s'], // Negative values
 		[0, '0ms'], // Zero falls back to ms
-		[1, '0ms'], // Too small, falls back to ms
+		[1, '1ms'], // Too small, falls back to ms
 
 		// With precision options
 		[1, {secondsDecimalDigits: 3}, '0.001s'],
