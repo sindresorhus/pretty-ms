@@ -96,8 +96,10 @@ export default function prettyMilliseconds(milliseconds, options) {
 
 	add(Number(parsed.minutes), 'minute', 'm');
 
+	const secondsDecimalDigits = decimalDigits(options.secondsDecimalDigits, 1);
+
 	// The smallest value the seconds field can render, in milliseconds.
-	const minimumDecimalSeconds = (10 ** -decimalDigits(options.secondsDecimalDigits, 1)) * 1000;
+	const minimumDecimalSeconds = (10 ** -secondsDecimalDigits) * 1000;
 
 	// `subSecondsAsDecimals` moves the value into the seconds field, so it only applies when that field is rendered and can represent the value. Otherwise the value is lost.
 	const canShowAsDecimalSeconds = options.subSecondsAsDecimals
@@ -162,8 +164,6 @@ export default function prettyMilliseconds(milliseconds, options) {
 			const seconds = (
 				isBigInt ? Number(milliseconds % ONE_MINUTE_IN_BIGINT_MILLISECONDS) : milliseconds % ONE_MINUTE_IN_MILLISECONDS
 			) / 1000;
-			const secondsDecimalDigits
-				= decimalDigits(options.secondsDecimalDigits, 1);
 			// As for the milliseconds, the rounding epsilon must not carry the seconds into the next minute.
 			const maximumSeconds = 60 - (10 ** -secondsDecimalDigits);
 			const secondsFixed = floorDecimals(Math.min(seconds, maximumSeconds), secondsDecimalDigits);
