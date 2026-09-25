@@ -270,6 +270,13 @@ runTests({
 	],
 });
 
+test('never drop every unit', t => {
+	// `slice(0, NaN)` is an empty slice, which used to produce an empty string.
+	t.is(prettyMilliseconds(1000 * 60 * 67, {unitCount: Number.NaN}), '1h 7m');
+	t.is(prettyMilliseconds(1000 * 60 * 67, {unitCount: Number.POSITIVE_INFINITY}), '1h 7m');
+	t.is(prettyMilliseconds(1000 * 60 * 67, {unitCount: -1}), '1h');
+});
+
 test('throw on invalid', t => {
 	t.throws(() => {
 		prettyMilliseconds('foo');

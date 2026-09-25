@@ -143,7 +143,8 @@ export default function prettyMilliseconds(milliseconds, options) {
 
 	const separator = options.colonNotation ? ':' : ' ';
 	if (typeof options.unitCount === 'number') {
-		result = result.slice(0, Math.max(options.unitCount, 1));
+		// `Math.max()` propagates `NaN`, and `slice(0, NaN)` is an empty slice, which would drop every unit.
+		result = result.slice(0, Math.max(options.unitCount, 1) || Infinity);
 	}
 
 	return sign + result.join(separator);
