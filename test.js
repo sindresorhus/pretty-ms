@@ -291,6 +291,21 @@ test('clamp the decimal digit options to what toFixed accepts', t => {
 	t.is(prettyMilliseconds(500, {millisecondsDecimalDigits: 0.5}), '500ms');
 });
 
+test('keep the seconds component precise for large values', t => {
+	// `milliseconds / 1000` loses sub-second precision above ~2^22ms, so the same 2.9s used to render as `2.89s`.
+	t.is(prettyMilliseconds(2900, {secondsDecimalDigits: 2}), '2.90s');
+	t.is(prettyMilliseconds(40_176_002_900, {secondsDecimalDigits: 2}), '1y 100d 2.90s');
+
+	// The seconds component must not depend on the magnitude it is embedded in.
+	for (const days of [0, 1, 100, 999, 10_000, 1_000_000]) {
+		t.is(
+			prettyMilliseconds((days * 86_400_000) + 2900, {secondsDecimalDigits: 2}).split(' ').at(-1),
+			'2.90s',
+			`${days} days`,
+		);
+	}
+});
+
 test('throw on invalid', t => {
 	t.throws(() => {
 		prettyMilliseconds('foo');
@@ -520,9 +535,10 @@ runTests({
 });
 
 test('Big numbers', t => {
+	// The seconds are the exact remainder within the day: `BigInt(Number.MAX_VALUE) % 86_400_000n` is `80_058_368n`, so `18.3s`, not `48s`.
 	t.is(
 		prettyMilliseconds(Number.MAX_VALUE),
-		'5700447535712568547083700427941645003808085225292279557374304680873482979681895890593452082909683139015032646149857723394516742095667500822861020052921074432454921864096959420926519725467567456931340929884912090099277441972878147362726992943838905852030073647982034630974035871792165820638724934142y 218d 8h 8m 48s',
+		'5700447535712568547083700427941645003808085225292279557374304680873482979681895890593452082909683139015032646149857723394516742095667500822861020052921074432454921864096959420926519725467567456931340929884912090099277441972878147362726992943838905852030073647982034630974035871792165820638724934142y 218d 8h 8m 18.3s',
 	);
 	t.is(
 		prettyMilliseconds(BigInt(Number.MAX_VALUE)),

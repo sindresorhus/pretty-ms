@@ -4,7 +4,8 @@ const isZero = value => value === 0 || value === 0n;
 const pluralize = (word, count) => (count === 1 || count === 1n) ? word : `${word}s`;
 
 const SECOND_ROUNDING_EPSILON = 0.000_000_1;
-const ONE_DAY_IN_MILLISECONDS = 24n * 60n * 60n * 1000n;
+const ONE_DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
+const ONE_DAY_IN_BIGINT_MILLISECONDS = BigInt(ONE_DAY_IN_MILLISECONDS);
 const MAX_DECIMAL_DIGITS = 100; // The most `Number#toFixed()` accepts.
 
 // `toFixed()` throws for anything outside 0-100, and a `NaN` count would leak into the output as `NaN`.
@@ -125,8 +126,9 @@ export default function prettyMilliseconds(milliseconds, options) {
 				);
 			}
 		} else {
+			// Reduce modulo a day before dividing, as `milliseconds / 1000` loses its sub-second precision at large magnitudes.
 			const seconds = (
-				(isBigInt ? Number(milliseconds % ONE_DAY_IN_MILLISECONDS) : milliseconds)
+				(isBigInt ? Number(milliseconds % ONE_DAY_IN_BIGINT_MILLISECONDS) : milliseconds % ONE_DAY_IN_MILLISECONDS)
 				/ 1000
 			) % 60;
 			const secondsDecimalDigits
