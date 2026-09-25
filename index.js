@@ -4,6 +4,8 @@ const isZero = value => value === 0 || value === 0n;
 const pluralize = (word, count) => (count === 1 || count === 1n) ? word : `${word}s`;
 
 const SECOND_ROUNDING_EPSILON = 0.000_000_1;
+// The largest scaled value whose ulp is still below 1, so a relative rounding correction cannot cross into the next integer.
+const EXACT_SCALING_RANGE = 2 ** 52;
 const ONE_MINUTE_IN_MILLISECONDS = 60 * 1000;
 const ONE_MINUTE_IN_BIGINT_MILLISECONDS = BigInt(ONE_MINUTE_IN_MILLISECONDS);
 const MAX_DECIMAL_DIGITS = 100; // The most `Number#toFixed()` accepts.
@@ -12,6 +14,23 @@ const MAX_DECIMAL_DIGITS = 100; // The most `Number#toFixed()` accepts.
 const decimalDigits = (value, defaultValue) => typeof value === 'number' && !Number.isNaN(value)
 	? Math.min(Math.max(Math.trunc(value), 0), MAX_DECIMAL_DIGITS)
 	: defaultValue;
+
+const floorDecimals = (value, decimalDigits) => {
+	const scaledValue = value * (10 ** decimalDigits);
+	// Scaling by a power of ten carries up to half a ulp of error, which under-reports the last digit once it outgrows the fixed epsilon. It can only be absorbed while a ulp of the scaled value stays below 1.
+	const epsilon = Math.abs(scaledValue) < EXACT_SCALING_RANGE
+		? Math.max(SECOND_ROUNDING_EPSILON, (Math.abs(scaledValue) * Number.EPSILON) / 2)
+		: SECOND_ROUNDING_EPSILON;
+	const flooredValue = Math.floor(scaledValue + epsilon);
+
+	// Dividing the floored value back by the power of ten reintroduces the error the flooring just removed, so the digits are placed directly instead.
+	if (decimalDigits > 0 && Number.isSafeInteger(flooredValue)) {
+		const digits = flooredValue.toFixed(0).padStart(decimalDigits + 1, '0');
+		return `${digits.slice(0, -decimalDigits)}.${digits.slice(-decimalDigits)}`;
+	}
+
+	return (flooredValue / (10 ** decimalDigits)).toFixed(decimalDigits);
+};
 
 export default function prettyMilliseconds(milliseconds, options) {
 	const isBigInt = typeof milliseconds === 'bigint';
@@ -38,12 +57,6 @@ export default function prettyMilliseconds(milliseconds, options) {
 	}
 
 	let result = [];
-
-	const floorDecimals = (value, decimalDigits) => {
-		const flooredInterimValue = Math.floor((value * (10 ** decimalDigits)) + SECOND_ROUNDING_EPSILON);
-		const flooredValue = Math.round(flooredInterimValue) / (10 ** decimalDigits);
-		return flooredValue.toFixed(decimalDigits);
-	};
 
 	const add = (value, long, short, valueString) => {
 		if (

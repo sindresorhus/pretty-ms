@@ -429,6 +429,25 @@ test('derive the sub-millisecond fields within the exact integer range', t => {
 	}
 });
 
+test('keep the last decimal digit exact at high digit counts', t => {
+	// The rounding epsilon is added to the scaled value, where a ulp already exceeds 1e-7 from ~3.3e9 upward, so it became a no-op and the last digit was under-reported.
+	t.is(prettyMilliseconds(33_300, {secondsDecimalDigits: 8}), '33.30000000s');
+	t.is(prettyMilliseconds(33_300, {secondsDecimalDigits: 9}), '33.300000000s');
+	t.is(prettyMilliseconds(33_300, {secondsDecimalDigits: 11}), '33.30000000000s');
+
+	// A value that is a whole number of microseconds renders exactly at every digit count.
+	for (const milliseconds of [33_300, 1_603_300, 93_300, 12_345_600, 1234]) {
+		const exactSeconds = (milliseconds % 60_000) / 1000;
+		for (let digits = 1; digits <= 13; digits++) {
+			t.is(
+				prettyMilliseconds(milliseconds, {secondsDecimalDigits: digits}).split(' ').at(-1),
+				`${exactSeconds.toFixed(digits)}s`,
+				`${milliseconds}ms at ${digits} digits`,
+			);
+		}
+	}
+});
+
 test('throw on invalid', t => {
 	t.throws(() => {
 		prettyMilliseconds('foo');
