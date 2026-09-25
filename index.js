@@ -138,10 +138,7 @@ export default function prettyMilliseconds(milliseconds, options) {
 				add(microseconds, 'microsecond', 'µs');
 				add(nanoseconds, 'nanosecond', 'ns');
 			} else {
-				const millisecondsAndBelow
-					= milliseconds
-					+ (microseconds / 1000)
-					+ (nanoseconds / 1e6);
+				const millisecondsAndBelow = milliseconds + (totalNanoseconds / 1e6);
 
 				const millisecondsDecimalDigits
 					= decimalDigits(options.millisecondsDecimalDigits, 0);
