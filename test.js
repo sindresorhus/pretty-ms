@@ -479,6 +479,37 @@ test('keep the seconds when hiding them would leave no field', t => {
 	t.is(prettyMilliseconds(3_661_000, {colonNotation: true, hideSeconds: true}), '1:01');
 });
 
+test('agree on the seconds across every branch', t => {
+	// The whole-seconds field, taken from the first part that carries a bare `s` unit.
+	const secondsField = output => {
+		for (const part of output.split(' ')) {
+			if (/^[\d.]+s$/.test(part)) {
+				return Math.floor(Number.parseFloat(part.slice(0, -1)));
+			}
+		}
+
+		return 0;
+	};
+
+	// The separate-milliseconds branch took its seconds from `parse-ms`, which loses them at large magnitudes, so the same input rendered differently per branch.
+	t.is(prettyMilliseconds(Number.MAX_VALUE, {separateMilliseconds: true}), '5700447535712568547083700427941645003808085225292279557374304680873482979681895890593452082909683139015032646149857723394516742095667500822861020052921074432454921864096959420926519725467567456931340929884912090099277441972878147362726992943838905852030073647982034630974035871792165820638724934142y 218d 8h 8m 18s 368ms');
+	t.is(prettyMilliseconds(1e300, {separateMilliseconds: true}).split(' ').slice(-3).join(' '), '24m 20s 160ms');
+	t.is(prettyMilliseconds(123_456_789_012_345, {separateMilliseconds: true}), '3914y 288d 30m 12s 345ms');
+
+	for (const milliseconds of [1234, 59_999, 60_001, 3_600_000, 86_400_001, 1e13, 1e15, 9_007_199_254_740_991, 1e300, Number.MAX_VALUE]) {
+		t.is(
+			secondsField(prettyMilliseconds(milliseconds, {separateMilliseconds: true})),
+			secondsField(prettyMilliseconds(milliseconds, {formatSubMilliseconds: true})),
+			`${milliseconds}ms`,
+		);
+		t.is(
+			secondsField(prettyMilliseconds(milliseconds, {separateMilliseconds: true})),
+			secondsField(prettyMilliseconds(milliseconds)),
+			`${milliseconds}ms against the decimal-seconds branch`,
+		);
+	}
+});
+
 test('throw on invalid', t => {
 	t.throws(() => {
 		prettyMilliseconds('foo');

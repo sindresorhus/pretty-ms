@@ -122,16 +122,20 @@ export default function prettyMilliseconds(milliseconds, options) {
 	const microseconds = Math.floor(totalNanoseconds / 1000);
 	const nanoseconds = totalNanoseconds % 1000;
 
+	// The seconds within the minute, reduced before dividing so they stay exact at any magnitude. `parse-ms` takes them from `milliseconds / 1000 % 60`, which loses them once the quotient is large.
+	const secondsWithinMinute = (
+		isBigInt ? Number(milliseconds % ONE_MINUTE_IN_BIGINT_MILLISECONDS) : milliseconds % ONE_MINUTE_IN_MILLISECONDS
+	) / 1000;
+
 	if (!hideSeconds) {
 		if (
 			options.separateMilliseconds
 			|| options.formatSubMilliseconds
 			|| (!options.colonNotation && milliseconds < 1000 && !canShowAsDecimalSeconds)
 		) {
-			const seconds = Number(parsed.seconds);
 			const milliseconds = Number(parsed.milliseconds);
 
-			add(seconds, 'second', 's');
+			add(Math.floor(secondsWithinMinute), 'second', 's');
 
 			if (options.formatSubMilliseconds) {
 				add(milliseconds, 'millisecond', 'ms');
@@ -163,13 +167,9 @@ export default function prettyMilliseconds(milliseconds, options) {
 				);
 			}
 		} else {
-			// Reduce modulo a minute before dividing. Dividing first costs a ulp of the full magnitude, which at a day-scale value is already wider than a second decimal digit.
-			const seconds = (
-				isBigInt ? Number(milliseconds % ONE_MINUTE_IN_BIGINT_MILLISECONDS) : milliseconds % ONE_MINUTE_IN_MILLISECONDS
-			) / 1000;
 			// As for the milliseconds, the rounding epsilon must not carry the seconds into the next minute.
 			const maximumSeconds = 60 - (10 ** -secondsDecimalDigits);
-			const secondsFixed = floorDecimals(Math.min(seconds, maximumSeconds), secondsDecimalDigits);
+			const secondsFixed = floorDecimals(Math.min(secondsWithinMinute, maximumSeconds), secondsDecimalDigits);
 			const secondsString = options.keepDecimalsOnWholeSeconds
 				? secondsFixed
 				: secondsFixed.replace(/\.0+$/, '');
