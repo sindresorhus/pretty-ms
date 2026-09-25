@@ -4,8 +4,8 @@ const isZero = value => value === 0 || value === 0n;
 const pluralize = (word, count) => (count === 1 || count === 1n) ? word : `${word}s`;
 
 const SECOND_ROUNDING_EPSILON = 0.000_000_1;
-const ONE_DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
-const ONE_DAY_IN_BIGINT_MILLISECONDS = BigInt(ONE_DAY_IN_MILLISECONDS);
+const ONE_MINUTE_IN_MILLISECONDS = 60 * 1000;
+const ONE_MINUTE_IN_BIGINT_MILLISECONDS = BigInt(ONE_MINUTE_IN_MILLISECONDS);
 const MAX_DECIMAL_DIGITS = 100; // The most `Number#toFixed()` accepts.
 
 // `toFixed()` throws for anything outside 0-100, and a `NaN` count would leak into the output as `NaN`.
@@ -126,11 +126,10 @@ export default function prettyMilliseconds(milliseconds, options) {
 				);
 			}
 		} else {
-			// Reduce modulo a day before dividing, as `milliseconds / 1000` loses its sub-second precision at large magnitudes.
+			// Reduce modulo a minute before dividing. Dividing first costs a ulp of the full magnitude, which at a day-scale value is already wider than a second decimal digit.
 			const seconds = (
-				(isBigInt ? Number(milliseconds % ONE_DAY_IN_BIGINT_MILLISECONDS) : milliseconds % ONE_DAY_IN_MILLISECONDS)
-				/ 1000
-			) % 60;
+				isBigInt ? Number(milliseconds % ONE_MINUTE_IN_BIGINT_MILLISECONDS) : milliseconds % ONE_MINUTE_IN_MILLISECONDS
+			) / 1000;
 			const secondsDecimalDigits
 				= decimalDigits(options.secondsDecimalDigits, 1);
 			const secondsFixed = floorDecimals(seconds, secondsDecimalDigits);

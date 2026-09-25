@@ -306,6 +306,28 @@ test('keep the seconds component precise for large values', t => {
 	}
 });
 
+test('keep the seconds component exact at high decimal digit counts', t => {
+	// Reducing modulo 60 after dividing left a ulp-sized error that the fixed 1e-7 epsilon could not absorb from 6 digits up.
+	t.is(prettyMilliseconds(10_802_900, {secondsDecimalDigits: 6}), '3h 2.900000s');
+	t.is(prettyMilliseconds(10_802_900, {secondsDecimalDigits: 7}), '3h 2.9000000s');
+	t.is(prettyMilliseconds(3_607_700, {secondsDecimalDigits: 6}), '1h 7.700000s');
+	t.is(prettyMilliseconds(10_802_900n, {secondsDecimalDigits: 6}), '3h 2.900000s');
+	t.is(prettyMilliseconds(BigInt(Number.MAX_VALUE), {secondsDecimalDigits: 6}).split(' ').at(-1), '18.368000s');
+
+	// A whole number of seconds must never render a non-zero fraction at any digit count.
+	for (const seconds of [1, 2, 7, 13, 33, 59]) {
+		for (let digits = 0; digits <= 9; digits++) {
+			const milliseconds = (10_802_900 - 2900) + (seconds * 1000);
+			const fraction = digits > 0 ? `.${'0'.repeat(digits)}` : '';
+			t.is(
+				prettyMilliseconds(milliseconds, {secondsDecimalDigits: digits, keepDecimalsOnWholeSeconds: true}).split(' ').at(-1),
+				`${seconds}${fraction}s`,
+				`${seconds}s at ${digits} digits`,
+			);
+		}
+	}
+});
+
 test('throw on invalid', t => {
 	t.throws(() => {
 		prettyMilliseconds('foo');
