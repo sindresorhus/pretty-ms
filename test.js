@@ -371,8 +371,6 @@ test('never drop a nonzero duration to zero milliseconds', t => {
 test('never render a signed zero', t => {
 	// Rounding can leave nothing but zeros, and a signed zero reads as a negative duration.
 	t.is(prettyMilliseconds(-1, {colonNotation: true}), '0:00');
-	t.is(prettyMilliseconds(-1e-300), '0ms');
-	t.is(prettyMilliseconds(-5e-324), '0ms');
 
 	// The sign still applies to anything that renders as a nonzero value.
 	t.is(prettyMilliseconds(-1), '-1ms');
@@ -508,6 +506,38 @@ test('agree on the seconds across every branch', t => {
 			`${milliseconds}ms against the decimal-seconds branch`,
 		);
 	}
+});
+
+test('round the milliseconds normally when the seconds carry the value', t => {
+	// Float noise on a whole number of seconds must not add a millisecond.
+	t.is(prettyMilliseconds(0.1 * 3 * 10_000, {separateMilliseconds: true}), '3s');
+	t.is(prettyMilliseconds(1000.0000001, {separateMilliseconds: true}), '1s');
+	t.is(prettyMilliseconds(1000.4, {separateMilliseconds: true}), '1s');
+	t.is(prettyMilliseconds(1000.6, {separateMilliseconds: true}), '1s 1ms');
+	t.is(prettyMilliseconds(1000.0004, {separateMilliseconds: true}), '1s');
+	t.is(prettyMilliseconds(1000.0004, {separateMilliseconds: true, millisecondsDecimalDigits: 3}), '1s');
+});
+
+test('never drop a sub-nanosecond duration to zero', t => {
+	// The sub-millisecond sum is below one nanosecond, so it reaches the clamp as an exact zero even though the input is not.
+	t.is(prettyMilliseconds(1e-9), '1ms');
+	t.is(prettyMilliseconds(5e-7), '1ms');
+	t.is(prettyMilliseconds(5e-324), '1ms');
+	t.is(prettyMilliseconds(-1e-9), '-1ms');
+	t.is(prettyMilliseconds(1e-9, {millisecondsDecimalDigits: 3}), '0.001ms');
+	t.is(prettyMilliseconds(1e-9, {separateMilliseconds: true}), '1ms');
+	t.is(prettyMilliseconds(0, {millisecondsDecimalDigits: 3}), '0ms');
+	t.is(prettyMilliseconds(0n, {millisecondsDecimalDigits: 3}), '0ms');
+
+	// A whole number of seconds leaves the milliseconds a real zero.
+	t.is(prettyMilliseconds(1000, {separateMilliseconds: true}), '1s');
+	t.is(prettyMilliseconds(2000, {separateMilliseconds: true}), '2s');
+	t.is(prettyMilliseconds(1000, {formatSubMilliseconds: true}), '1s');
+	t.is(prettyMilliseconds(90_000, {separateMilliseconds: true}), '1m 30s');
+	t.is(prettyMilliseconds(180_000, {separateMilliseconds: true}), '3m');
+	t.is(prettyMilliseconds(180_000, {separateMilliseconds: true, millisecondsDecimalDigits: 3}), '3m');
+	t.is(prettyMilliseconds(1999.5, {separateMilliseconds: true}), '1s 999ms');
+	t.is(prettyMilliseconds(1000, {millisecondsDecimalDigits: 3}), '1s');
 });
 
 test('throw on invalid', t => {

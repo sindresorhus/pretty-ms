@@ -9,6 +9,7 @@ const EXACT_SCALING_RANGE = 2 ** 52;
 const ONE_MINUTE_IN_MILLISECONDS = 60 * 1000;
 const ONE_MINUTE_IN_BIGINT_MILLISECONDS = BigInt(ONE_MINUTE_IN_MILLISECONDS);
 const ONE_SECOND_IN_MILLISECONDS = 1000;
+const ONE_SECOND_IN_BIGINT_MILLISECONDS = BigInt(ONE_SECOND_IN_MILLISECONDS);
 const MAX_DECIMAL_DIGITS = 100; // The most `Number#toFixed()` accepts.
 
 // `toFixed()` throws for anything outside 0-100, and a `NaN` count would leak into the output as `NaN`.
@@ -116,7 +117,7 @@ export default function prettyMilliseconds(milliseconds, options) {
 		const reduceSubMilliseconds = !Number.isSafeInteger(Math.trunc(Number(milliseconds)) * 1e6);
 		const scaledNanoseconds = Number(
 			reduceSubMilliseconds
-				? (isBigInt ? milliseconds % 1000n : milliseconds % ONE_SECOND_IN_MILLISECONDS)
+				? (isBigInt ? milliseconds % ONE_SECOND_IN_BIGINT_MILLISECONDS : milliseconds % ONE_SECOND_IN_MILLISECONDS)
 				: milliseconds,
 		) * 1e6;
 		const totalNanoseconds = Math.trunc(scaledNanoseconds + scalingEpsilon(scaledNanoseconds)) % 1e6;
@@ -133,22 +134,22 @@ export default function prettyMilliseconds(milliseconds, options) {
 			|| options.formatSubMilliseconds
 			|| (!options.colonNotation && milliseconds < 1000 && !canShowAsDecimalSeconds)
 		) {
-			const milliseconds = Number(parsed.milliseconds);
+			const wholeMilliseconds = Number(parsed.milliseconds);
 
 			add(Math.floor(secondsWithinMinute), 'second', 's');
 
 			if (options.formatSubMilliseconds) {
-				add(milliseconds, 'millisecond', 'ms');
+				add(wholeMilliseconds, 'millisecond', 'ms');
 				add(microseconds, 'microsecond', 'µs');
 				add(nanoseconds, 'nanosecond', 'ns');
 			} else {
-				const millisecondsAndBelow = milliseconds + (totalNanoseconds / 1e6);
+				const millisecondsAndBelow = wholeMilliseconds + (totalNanoseconds / 1e6);
 
 				const millisecondsDecimalDigits
 					= decimalDigits(options.millisecondsDecimalDigits, 0);
 
-				// The zero field is dropped entirely, so a nonzero duration is clamped to the smallest representable value instead of rounding down onto it.
-				const minimumMilliseconds = millisecondsAndBelow > 0 ? 10 ** -millisecondsDecimalDigits : 0;
+				// Under a second, the zero field is dropped entirely, so a nonzero duration is clamped to the smallest representable value instead of rounding down onto it. The input is checked directly, as the sum above cannot represent a value below a nanosecond. From a second up, the seconds field carries the value, so the milliseconds round normally.
+				const minimumMilliseconds = milliseconds > 0 && milliseconds < ONE_SECOND_IN_MILLISECONDS ? 10 ** -millisecondsDecimalDigits : 0;
 				const maximumMilliseconds = 1000 - (10 ** -millisecondsDecimalDigits);
 				const clampedMilliseconds
 					= Math.min(Math.max(millisecondsAndBelow, minimumMilliseconds), maximumMilliseconds);
