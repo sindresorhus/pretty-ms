@@ -145,15 +145,16 @@ export default function prettyMilliseconds(milliseconds, options) {
 		}
 	}
 
-	if (result.length === 0) {
-		return sign + '0' + (options.verbose ? ' milliseconds' : 'ms');
-	}
-
 	const separator = options.colonNotation ? ':' : ' ';
 	if (typeof options.unitCount === 'number') {
 		// `Math.max()` propagates `NaN`, and `slice(0, NaN)` is an empty slice, which would drop every unit.
 		result = result.slice(0, Math.max(options.unitCount, 1) || Infinity);
 	}
 
-	return sign + result.join(separator);
+	const output = result.length === 0
+		? '0' + (options.verbose ? ' milliseconds' : 'ms')
+		: result.join(separator);
+
+	// Rounding can leave nothing but zeros behind, and a signed zero reads as a negative duration.
+	return /[1-9]/.test(output) ? sign + output : output;
 }

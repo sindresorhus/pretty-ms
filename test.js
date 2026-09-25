@@ -368,6 +368,25 @@ test('never drop a nonzero duration to zero milliseconds', t => {
 	t.is(prettyMilliseconds(0, {verbose: true, millisecondsDecimalDigits: 3}), '0 milliseconds');
 });
 
+test('never render a signed zero', t => {
+	// Rounding can leave nothing but zeros, and a signed zero reads as a negative duration.
+	t.is(prettyMilliseconds(-1, {subSecondsAsDecimals: true}), '0ms');
+	t.is(prettyMilliseconds(-0.5, {subSecondsAsDecimals: true}), '0ms');
+	t.is(prettyMilliseconds(-1, {subSecondsAsDecimals: true, verbose: true}), '0 milliseconds');
+	t.is(prettyMilliseconds(-1, {subSecondsAsDecimals: true, secondsDecimalDigits: 0}), '0ms');
+	t.is(prettyMilliseconds(-1, {colonNotation: true}), '0:00');
+	t.is(prettyMilliseconds(-1, {colonNotation: true, hideSeconds: true}), '0');
+	t.is(prettyMilliseconds(-1e-300), '0ms');
+	t.is(prettyMilliseconds(-5e-324), '0ms');
+
+	// The sign still applies to anything that renders as a nonzero value.
+	t.is(prettyMilliseconds(-1), '-1ms');
+	t.is(prettyMilliseconds(-1, {colonNotation: true, secondsDecimalDigits: 3}), '-0:00.001');
+	t.is(prettyMilliseconds(-999, {colonNotation: true}), '-0:00.9');
+	t.is(prettyMilliseconds(-1000), '-1s');
+	t.is(prettyMilliseconds(-0), '0ms');
+});
+
 test('throw on invalid', t => {
 	t.throws(() => {
 		prettyMilliseconds('foo');
