@@ -8,6 +8,7 @@ const SECOND_ROUNDING_EPSILON = 0.000_000_1;
 const EXACT_SCALING_RANGE = 2 ** 52;
 const ONE_MINUTE_IN_MILLISECONDS = 60 * 1000;
 const ONE_MINUTE_IN_BIGINT_MILLISECONDS = BigInt(ONE_MINUTE_IN_MILLISECONDS);
+const ONE_SECOND_IN_MILLISECONDS = 1000;
 const MAX_DECIMAL_DIGITS = 100; // The most `Number#toFixed()` accepts.
 
 // `toFixed()` throws for anything outside 0-100, and a `NaN` count would leak into the output as `NaN`.
@@ -15,13 +16,14 @@ const decimalDigits = (value, defaultValue) => typeof value === 'number' && !Num
 	? Math.min(Math.max(Math.trunc(value), 0), MAX_DECIMAL_DIGITS)
 	: defaultValue;
 
+// Scaling by a power of ten carries up to half a ulp of error, which under-reports the last digit once it outgrows the fixed epsilon. It can only be absorbed while a ulp of the scaled value stays below 1.
+const scalingEpsilon = scaledValue => Math.abs(scaledValue) < EXACT_SCALING_RANGE
+	? Math.max(SECOND_ROUNDING_EPSILON, (Math.abs(scaledValue) * Number.EPSILON) / 2)
+	: SECOND_ROUNDING_EPSILON;
+
 const floorDecimals = (value, decimalDigits) => {
 	const scaledValue = value * (10 ** decimalDigits);
-	// Scaling by a power of ten carries up to half a ulp of error, which under-reports the last digit once it outgrows the fixed epsilon. It can only be absorbed while a ulp of the scaled value stays below 1.
-	const epsilon = Math.abs(scaledValue) < EXACT_SCALING_RANGE
-		? Math.max(SECOND_ROUNDING_EPSILON, (Math.abs(scaledValue) * Number.EPSILON) / 2)
-		: SECOND_ROUNDING_EPSILON;
-	const flooredValue = Math.floor(scaledValue + epsilon);
+	const flooredValue = Math.floor(scaledValue + scalingEpsilon(scaledValue));
 
 	// Dividing the floored value back by the power of ten reintroduces the error the flooring just removed, so the digits are placed directly instead.
 	if (decimalDigits > 0 && Number.isSafeInteger(flooredValue)) {
@@ -109,15 +111,16 @@ export default function prettyMilliseconds(milliseconds, options) {
 		&& !hideSeconds
 		&& milliseconds >= minimumDecimalSeconds;
 
-	// `parse-ms` derives the sub-millisecond fields from `milliseconds * 1000` and `milliseconds * 1e6`, which leave the exact integer range above ~9e9ms and yield phantom microseconds and nanoseconds for what is really a whole number of milliseconds. Reducing modulo a second first keeps that arithmetic exact, but the reduction is less precise, so the parsed fields are kept wherever their scaling still fits an exact integer.
-	const reduceSubMilliseconds = !isBigInt && !Number.isSafeInteger(Math.trunc(milliseconds) * 1e6);
-	const subMilliseconds = reduceSubMilliseconds ? milliseconds % 1000 : 0;
-	const microseconds = reduceSubMilliseconds
-		? Math.trunc(subMilliseconds * 1000) % 1000
-		: Number(parsed.microseconds);
-	const nanoseconds = reduceSubMilliseconds
-		? Math.trunc(subMilliseconds * 1e6) % 1000
-		: Number(parsed.nanoseconds);
+	// The sub-millisecond fields come from scaling the value to nanoseconds. `parse-ms` derives them from `milliseconds * 1000` and `milliseconds * 1e6`, which truncates a product landing a hair below the integer and leaves the exact integer range above ~9e9ms. Scaling the whole value recovers the intended decimal best, so it is only reduced modulo a second where that scaling would overflow.
+	const reduceSubMilliseconds = !Number.isSafeInteger(Math.trunc(Number(milliseconds)) * 1e6);
+	const scaledNanoseconds = Number(
+		reduceSubMilliseconds
+			? (isBigInt ? milliseconds % 1000n : milliseconds % ONE_SECOND_IN_MILLISECONDS)
+			: milliseconds,
+	) * 1e6;
+	const totalNanoseconds = Math.trunc(scaledNanoseconds + scalingEpsilon(scaledNanoseconds)) % 1e6;
+	const microseconds = Math.floor(totalNanoseconds / 1000);
+	const nanoseconds = totalNanoseconds % 1000;
 
 	if (!hideSeconds) {
 		if (

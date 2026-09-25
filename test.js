@@ -410,14 +410,24 @@ test('keep the value when the seconds field cannot show it', t => {
 	t.is(prettyMilliseconds(1000, {subSecondsAsDecimals: true, keepDecimalsOnWholeSeconds: true}), '1.0s');
 });
 
-test('derive the sub-millisecond fields within the exact integer range', t => {
-	// `parse-ms` derives them from `milliseconds * 1000` and `milliseconds * 1e6`, which leave the exact integer range above ~9e12ms and yield phantom values.
+test('derive the sub-millisecond fields from the exact fractional part', t => {
+	// `parse-ms` derives them from `milliseconds * 1000` and `milliseconds * 1e6`, which truncates a product landing a hair below the integer and leaves the exact integer range above ~9e9ms.
+	t.is(prettyMilliseconds(0.003_97, {millisecondsDecimalDigits: 6}), '0.003970ms');
+	t.is(prettyMilliseconds(0.003_97, {millisecondsDecimalDigits: 9}), '0.003970000ms');
+	t.is(prettyMilliseconds(0.003_97, {separateMilliseconds: true, millisecondsDecimalDigits: 6}), '0.003970ms');
+	t.is(prettyMilliseconds(0.003_97, {formatSubMilliseconds: true}), '3µs 970ns');
+	t.is(prettyMilliseconds(0.003_99, {millisecondsDecimalDigits: 6}), '0.003990ms');
+	t.is(prettyMilliseconds(0.004_01, {formatSubMilliseconds: true}), '4µs 10ns');
+	t.is(prettyMilliseconds(0.007_85, {millisecondsDecimalDigits: 6}), '0.007850ms');
+	t.is(prettyMilliseconds(-0.003_97, {formatSubMilliseconds: true}), '-3µs 970ns');
+
 	t.is(prettyMilliseconds(1_234_567_890_123, {formatSubMilliseconds: true}), '39y 53d 23h 31m 30s 123ms');
 	t.is(prettyMilliseconds(1_234_567_890_123, {separateMilliseconds: true}), '39y 53d 23h 31m 30s 123ms');
 	t.is(prettyMilliseconds(123_456_789_012_345, {formatSubMilliseconds: true}), '3914y 288d 30m 12s 345ms');
 	t.is(prettyMilliseconds(123_456_789_012_345, {separateMilliseconds: true}), '3914y 288d 30m 12s 345ms');
 	t.is(prettyMilliseconds(9_007_199_254_740_991, {separateMilliseconds: true}), '285616y 151d 8h 59m 991ms');
 	t.is(prettyMilliseconds(9_007_199_254_740_991, {separateMilliseconds: true, millisecondsDecimalDigits: 3}), '285616y 151d 8h 59m 991.000ms');
+	t.is(prettyMilliseconds(1e13 + 0.5, {formatSubMilliseconds: true}), '317y 35d 17h 46m 40s 500µs');
 
 	// An exact integer millisecond value has no sub-millisecond part at any magnitude.
 	for (const milliseconds of [1, 1000, 1_000_000, 9_007_199_254_740, 9_007_199_254_740_991, 1e15]) {
