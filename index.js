@@ -132,7 +132,9 @@ export default function prettyMilliseconds(milliseconds, options) {
 			) / 1000;
 			const secondsDecimalDigits
 				= decimalDigits(options.secondsDecimalDigits, 1);
-			const secondsFixed = floorDecimals(seconds, secondsDecimalDigits);
+			// As for the milliseconds, the rounding epsilon must not carry the seconds into the next minute.
+			const maximumSeconds = 60 - (10 ** -secondsDecimalDigits);
+			const secondsFixed = floorDecimals(Math.min(seconds, maximumSeconds), secondsDecimalDigits);
 			const secondsString = options.keepDecimalsOnWholeSeconds
 				? secondsFixed
 				: secondsFixed.replace(/\.0+$/, '');

@@ -328,6 +328,28 @@ test('keep the seconds component exact at high decimal digit counts', t => {
 	}
 });
 
+test('never round the seconds component up to 60', t => {
+	// The rounding epsilon is added to the scaled value, so a value just under a minute was carried over into a `60` field.
+	t.is(prettyMilliseconds(59_999.999_99), '59.9s');
+	t.is(prettyMilliseconds(59_999.9999, {secondsDecimalDigits: 0}), '59s');
+	t.is(prettyMilliseconds(59_999.9999, {compact: true}), '59s');
+	t.is(prettyMilliseconds(59_999.9999, {colonNotation: true, secondsDecimalDigits: 0}), '0:59');
+	t.is(prettyMilliseconds(3_599_999.999_999_9), '59m 59.9s');
+	t.is(prettyMilliseconds(86_399_999.999_999_9), '23h 59m 59.9s');
+	t.is(prettyMilliseconds(59_999.999_999_9, {secondsDecimalDigits: 3}), '59.999s');
+	t.is(prettyMilliseconds(59_999.999_999_99, {secondsDecimalDigits: 4}), '59.9999s');
+	t.is(prettyMilliseconds(59_999.999_999_999, {secondsDecimalDigits: 5}), '59.99999s');
+	t.is(prettyMilliseconds(59_999.999_999_999_9, {secondsDecimalDigits: 6}), '59.999999s');
+
+	// The seconds field must never reach 60, whatever the digit count.
+	for (let digits = 0; digits <= 9; digits++) {
+		for (const milliseconds of [59_999.999_99, 59_999.999_999, 59_999.999_999_99, 59_999.999_999_999_9]) {
+			const seconds = Number(prettyMilliseconds(milliseconds, {secondsDecimalDigits: digits}).split(' ').at(-1).replace('s', ''));
+			t.true(seconds < 60, `${milliseconds}ms at ${digits} digits rendered ${seconds}s`);
+		}
+	}
+});
+
 test('throw on invalid', t => {
 	t.throws(() => {
 		prettyMilliseconds('foo');
