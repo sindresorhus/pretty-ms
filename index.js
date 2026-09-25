@@ -109,14 +109,17 @@ export default function prettyMilliseconds(milliseconds, options) {
 				const millisecondsDecimalDigits
 					= decimalDigits(options.millisecondsDecimalDigits, 0);
 
-				const roundedMilliseconds = millisecondsAndBelow >= 1
-					? Math.round(millisecondsAndBelow)
-					: Math.ceil(millisecondsAndBelow);
+				// The zero field is dropped entirely, so a nonzero duration is clamped to the smallest representable value instead of rounding down onto it.
+				const minimumMilliseconds = millisecondsAndBelow > 0 ? 10 ** -millisecondsDecimalDigits : 0;
 				const maximumMilliseconds = 1000 - (10 ** -millisecondsDecimalDigits);
+				const clampedMilliseconds
+					= Math.min(Math.max(millisecondsAndBelow, minimumMilliseconds), maximumMilliseconds);
 
-				const millisecondsString = millisecondsDecimalDigits
-					? Math.min(millisecondsAndBelow, maximumMilliseconds).toFixed(millisecondsDecimalDigits)
-					: Math.min(roundedMilliseconds, maximumMilliseconds);
+				const millisecondsString = (
+					millisecondsDecimalDigits
+						? clampedMilliseconds
+						: Math.round(clampedMilliseconds)
+				).toFixed(millisecondsDecimalDigits);
 
 				add(
 					Number.parseFloat(millisecondsString),

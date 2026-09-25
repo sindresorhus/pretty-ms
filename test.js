@@ -350,6 +350,24 @@ test('never round the seconds component up to 60', t => {
 	}
 });
 
+test('never drop a nonzero duration to zero milliseconds', t => {
+	// The zero field is dropped entirely, so a nonzero duration must never round down onto it.
+	t.is(prettyMilliseconds(0.0001), '1ms');
+	t.is(prettyMilliseconds(0.0001, {millisecondsDecimalDigits: 0}), '1ms');
+	t.is(prettyMilliseconds(0.0001, {millisecondsDecimalDigits: 1}), '0.1ms');
+	t.is(prettyMilliseconds(0.0001, {millisecondsDecimalDigits: 2}), '0.01ms');
+	t.is(prettyMilliseconds(0.0001, {millisecondsDecimalDigits: 3}), '0.001ms');
+	t.is(prettyMilliseconds(0.0001, {millisecondsDecimalDigits: 4}), '0.0001ms');
+	t.is(prettyMilliseconds(0.0001, {separateMilliseconds: true, millisecondsDecimalDigits: 3}), '0.001ms');
+	t.is(prettyMilliseconds(0.9994, {millisecondsDecimalDigits: 1}), '1.0ms');
+	t.is(prettyMilliseconds(0.9994, {separateMilliseconds: true, millisecondsDecimalDigits: 1}), '1.0ms');
+
+	// A real zero stays zero.
+	t.is(prettyMilliseconds(0, {millisecondsDecimalDigits: 3}), '0ms');
+	t.is(prettyMilliseconds(0n, {millisecondsDecimalDigits: 3}), '0ms');
+	t.is(prettyMilliseconds(0, {verbose: true, millisecondsDecimalDigits: 3}), '0 milliseconds');
+});
+
 test('throw on invalid', t => {
 	t.throws(() => {
 		prettyMilliseconds('foo');
