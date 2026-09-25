@@ -277,6 +277,20 @@ test('never drop every unit', t => {
 	t.is(prettyMilliseconds(1000 * 60 * 67, {unitCount: -1}), '1h');
 });
 
+test('clamp the decimal digit options to what toFixed accepts', t => {
+	// `toFixed()` throws a RangeError outside 0-100, and a NaN digit count leaked into the output as `NaNs`.
+	t.is(prettyMilliseconds(1500, {secondsDecimalDigits: -1}), '1s');
+	t.is(prettyMilliseconds(1500, {secondsDecimalDigits: Number.NaN}), '1.5s');
+	t.is(prettyMilliseconds(1500, {secondsDecimalDigits: Number.POSITIVE_INFINITY}), prettyMilliseconds(1500, {secondsDecimalDigits: 100}));
+	t.is(prettyMilliseconds(500, {millisecondsDecimalDigits: -1}), '500ms');
+	t.is(prettyMilliseconds(500, {millisecondsDecimalDigits: Number.NaN}), '500ms');
+	t.is(prettyMilliseconds(500, {millisecondsDecimalDigits: 101}), prettyMilliseconds(500, {millisecondsDecimalDigits: 100}));
+
+	// A fractional count is truncated, not rejected.
+	t.is(prettyMilliseconds(1500, {secondsDecimalDigits: 0.5}), '1s');
+	t.is(prettyMilliseconds(500, {millisecondsDecimalDigits: 0.5}), '500ms');
+});
+
 test('throw on invalid', t => {
 	t.throws(() => {
 		prettyMilliseconds('foo');

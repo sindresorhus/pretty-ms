@@ -5,6 +5,12 @@ const pluralize = (word, count) => (count === 1 || count === 1n) ? word : `${wor
 
 const SECOND_ROUNDING_EPSILON = 0.000_000_1;
 const ONE_DAY_IN_MILLISECONDS = 24n * 60n * 60n * 1000n;
+const MAX_DECIMAL_DIGITS = 100; // The most `Number#toFixed()` accepts.
+
+// `toFixed()` throws for anything outside 0-100, and a `NaN` count would leak into the output as `NaN`.
+const decimalDigits = (value, defaultValue) => typeof value === 'number' && !Number.isNaN(value)
+	? Math.min(Math.max(Math.trunc(value), 0), MAX_DECIMAL_DIGITS)
+	: defaultValue;
 
 export default function prettyMilliseconds(milliseconds, options) {
 	const isBigInt = typeof milliseconds === 'bigint';
@@ -100,9 +106,7 @@ export default function prettyMilliseconds(milliseconds, options) {
 					+ (nanoseconds / 1e6);
 
 				const millisecondsDecimalDigits
-					= typeof options.millisecondsDecimalDigits === 'number'
-						? options.millisecondsDecimalDigits
-						: 0;
+					= decimalDigits(options.millisecondsDecimalDigits, 0);
 
 				const roundedMilliseconds = millisecondsAndBelow >= 1
 					? Math.round(millisecondsAndBelow)
@@ -126,9 +130,7 @@ export default function prettyMilliseconds(milliseconds, options) {
 				/ 1000
 			) % 60;
 			const secondsDecimalDigits
-				= typeof options.secondsDecimalDigits === 'number'
-					? options.secondsDecimalDigits
-					: 1;
+				= decimalDigits(options.secondsDecimalDigits, 1);
 			const secondsFixed = floorDecimals(seconds, secondsDecimalDigits);
 			const secondsString = options.keepDecimalsOnWholeSeconds
 				? secondsFixed
