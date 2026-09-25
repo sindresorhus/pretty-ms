@@ -98,12 +98,15 @@ export default function prettyMilliseconds(milliseconds, options) {
 
 	const secondsDecimalDigits = decimalDigits(options.secondsDecimalDigits, 1);
 
+	// A duration under a minute has no coarser field, so hiding the seconds would leave nothing to carry its value.
+	const hideSeconds = options.hideSeconds && milliseconds >= ONE_MINUTE_IN_MILLISECONDS;
+
 	// The smallest value the seconds field can render, in milliseconds.
 	const minimumDecimalSeconds = (10 ** -secondsDecimalDigits) * 1000;
 
 	// `subSecondsAsDecimals` moves the value into the seconds field, so it only applies when that field is rendered and can represent the value. Otherwise the value is lost.
 	const canShowAsDecimalSeconds = options.subSecondsAsDecimals
-		&& !options.hideSeconds
+		&& !hideSeconds
 		&& milliseconds >= minimumDecimalSeconds;
 
 	// `parse-ms` derives the sub-millisecond fields from `milliseconds * 1000` and `milliseconds * 1e6`, which leave the exact integer range above ~9e9ms and yield phantom microseconds and nanoseconds for what is really a whole number of milliseconds. Reducing modulo a second first keeps that arithmetic exact, but the reduction is less precise, so the parsed fields are kept wherever their scaling still fits an exact integer.
@@ -116,7 +119,7 @@ export default function prettyMilliseconds(milliseconds, options) {
 		? Math.trunc(subMilliseconds * 1e6) % 1000
 		: Number(parsed.nanoseconds);
 
-	if (!options.hideSeconds) {
+	if (!hideSeconds) {
 		if (
 			options.separateMilliseconds
 			|| options.formatSubMilliseconds

@@ -371,7 +371,6 @@ test('never drop a nonzero duration to zero milliseconds', t => {
 test('never render a signed zero', t => {
 	// Rounding can leave nothing but zeros, and a signed zero reads as a negative duration.
 	t.is(prettyMilliseconds(-1, {colonNotation: true}), '0:00');
-	t.is(prettyMilliseconds(-1, {colonNotation: true, hideSeconds: true}), '0');
 	t.is(prettyMilliseconds(-1e-300), '0ms');
 	t.is(prettyMilliseconds(-5e-324), '0ms');
 
@@ -446,6 +445,28 @@ test('keep the last decimal digit exact at high digit counts', t => {
 			);
 		}
 	}
+});
+
+test('keep the seconds when hiding them would leave no field', t => {
+	// A duration under a minute has no coarser field, so hiding the seconds left nothing to carry the value.
+	t.is(prettyMilliseconds(45_000, {hideSeconds: true}), '45s');
+	t.is(prettyMilliseconds(59_999, {hideSeconds: true}), '59.9s');
+	t.is(prettyMilliseconds(1000, {hideSeconds: true}), '1s');
+	t.is(prettyMilliseconds(1000, {hideSeconds: true, compact: true}), '1s');
+	t.is(prettyMilliseconds(1, {hideSeconds: true}), '1ms');
+	t.is(prettyMilliseconds(0, {hideSeconds: true}), '0ms');
+	t.is(prettyMilliseconds(-1000, {hideSeconds: true}), '-1s');
+	t.is(prettyMilliseconds(900, {hideSeconds: true, subSecondsAsDecimals: true}), '0.9s');
+	t.is(prettyMilliseconds(1000, {colonNotation: true, hideSeconds: true}), '0:01');
+	t.is(prettyMilliseconds(45_000, {colonNotation: true, hideSeconds: true}), '0:45');
+	t.is(prettyMilliseconds(45_000, {hideSeconds: true, verbose: true}), '45 seconds');
+
+	// From a minute up, the seconds are still hidden.
+	t.is(prettyMilliseconds(60_000, {hideSeconds: true}), '1m');
+	t.is(prettyMilliseconds(66_500, {hideSeconds: true}), '1m');
+	t.is(prettyMilliseconds(60_000, {colonNotation: true, hideSeconds: true}), '1');
+	t.is(prettyMilliseconds(66_500, {colonNotation: true, hideSeconds: true}), '1');
+	t.is(prettyMilliseconds(3_661_000, {colonNotation: true, hideSeconds: true}), '1:01');
 });
 
 test('throw on invalid', t => {
