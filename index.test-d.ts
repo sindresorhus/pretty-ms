@@ -22,3 +22,16 @@ expectType<string>(
 expectType<string>(
 	prettyMilliseconds(1_335_669_000, {colonNotation: true}),
 );
+expectType<string>(prettyMilliseconds(1_335_669_000, {hideYear: true}));
+expectType<string>(prettyMilliseconds(1_335_669_000, {hideYearAndDays: true}));
+expectType<string>(prettyMilliseconds(1_335_669_000, {hideSeconds: true}));
+expectType<string>(
+	prettyMilliseconds(1_335_669_000, {subSecondsAsDecimals: true}),
+);
+expectType<string>(prettyMilliseconds(900, {subSecondsAsDecimals: true}));
+expectType<string>(prettyMilliseconds(1_335_669_000n, {hideYearAndDays: true}));
+expectType<string>(prettyMilliseconds(1_335_669_000n, {colonNotation: true}));
+
+// Options are readonly.
+const readonlyOptions = {secondsDecimalDigits: 2, unitCount: 2} as const;
+expectType<string>(prettyMilliseconds(1_335_669_000, readonlyOptions));

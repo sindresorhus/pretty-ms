@@ -742,10 +742,190 @@ test('Big numbers', t => {
 test('pure', t => {
 	const runTest = options => {
 		const copy = {...options};
-		prettyMilliseconds(1, options);
+		prettyMilliseconds(1337, options);
+		prettyMilliseconds(1337, options);
 		t.deepEqual(options, copy);
 	};
 
+	// Every option that overrides another, plus the numeric ones, must leave the caller's object alone.
 	runTest({colonNotation: true});
 	runTest({compact: true});
+	runTest({
+		colonNotation: true,
+		compact: true,
+		verbose: true,
+		formatSubMilliseconds: true,
+		separateMilliseconds: true,
+		unitCount: 3,
+	});
+	runTest({
+		compact: true,
+		unitCount: 5,
+		secondsDecimalDigits: 4,
+		millisecondsDecimalDigits: 4,
+	});
+	runTest({hideYear: true});
+	runTest({hideYearAndDays: true});
+	runTest({hideSeconds: true});
+	runTest({subSecondsAsDecimals: true});
+	runTest({
+		verbose: true,
+		keepDecimalsOnWholeSeconds: true,
+		secondsDecimalDigits: 3,
+		millisecondsDecimalDigits: 3,
+	});
+});
+
+test('reject anything that is not a finite number or bigint', t => {
+	const invalid = [
+		'foo',
+		'',
+		null,
+		undefined,
+		true,
+		false,
+		{},
+		[],
+		[1000],
+		Symbol('x'),
+		() => 1000,
+		new Object(1000),
+		Number.NaN,
+		Number.POSITIVE_INFINITY,
+		Number.NEGATIVE_INFINITY,
+		{valueOf: () => 1000},
+	];
+
+	for (const value of invalid) {
+		t.throws(
+			() => {
+				prettyMilliseconds(value);
+			},
+			{instanceOf: TypeError},
+			`${typeof value}`,
+		);
+	}
+});
+
+// The base each unit is counted against. `hideYear` and `hideYearAndDays` deliberately push the day and hour fields past theirs.
+const unitBases = [
+	['y', undefined],
+	['d', 365],
+	['h', 24],
+	['m', 60],
+	['s', 60],
+	['ms', 1000],
+	['µs', 1000],
+	['ns', 1000],
+];
+
+const assertUnitsInRange = (t, output, options) => {
+	for (const part of output.split(' ')) {
+		const match = /^([\d.]+)(ns|µs|ms|s|m|h|d|y)$/.exec(part);
+		if (!match) {
+			continue;
+		}
+
+		const [, value, unit] = match;
+		const base = unitBases.find(([name]) => name === unit)[1];
+		if (base === undefined) {
+			continue;
+		}
+
+		if (unit === 'd' && options.hideYear) {
+			continue;
+		}
+
+		if (unit === 'h' && options.hideYearAndDays) {
+			continue;
+		}
+
+		t.true(Number(value) < base, `${unit} field in ${output} for ${JSON.stringify(options)}`);
+	}
+};
+
+test('never let a unit reach its base', t => {
+	const flagSets = [
+		{},
+		{hideYear: true},
+		{hideYearAndDays: true},
+		{hideSeconds: true},
+		{formatSubMilliseconds: true},
+		{subSecondsAsDecimals: true},
+		{compact: true},
+	];
+	const optionSets = [];
+
+	for (const secondsDecimalDigits of [0, 3]) {
+		for (const millisecondsDecimalDigits of [undefined, 3]) {
+			for (const flags of flagSets) {
+				optionSets.push({
+					...flags,
+					secondsDecimalDigits,
+					...(millisecondsDecimalDigits === undefined ? {} : {millisecondsDecimalDigits}),
+				});
+			}
+		}
+	}
+
+	for (const options of optionSets) {
+		for (let milliseconds = 0; milliseconds < 4000; milliseconds += 41) {
+			assertUnitsInRange(t, prettyMilliseconds(milliseconds, options), options);
+		}
+	}
+});
+
+test('keep the sign symmetric and match the bigint path', t => {
+	const optionSets = [
+		{},
+		{verbose: true},
+		{compact: true},
+		{colonNotation: true},
+		{secondsDecimalDigits: 0},
+		{secondsDecimalDigits: 9},
+		{separateMilliseconds: true},
+		{formatSubMilliseconds: true},
+		{millisecondsDecimalDigits: 6},
+		{keepDecimalsOnWholeSeconds: true, secondsDecimalDigits: 3},
+		{unitCount: 2},
+		{hideYear: true},
+		{hideYearAndDays: true},
+		{hideSeconds: true},
+		{subSecondsAsDecimals: true},
+	];
+
+	for (const options of optionSets) {
+		for (let index = 0; index < 600; index++) {
+			const milliseconds = ((index * 4_996_408_911) % 1e12);
+			const positive = prettyMilliseconds(milliseconds, options);
+
+			t.is(positive, prettyMilliseconds(BigInt(milliseconds), options), `${milliseconds}ms`);
+
+			const expected = /[1-9]/.test(positive) ? `-${positive}` : positive;
+			t.is(prettyMilliseconds(-milliseconds, options), expected, `-${milliseconds}ms`);
+		}
+	}
+});
+
+test('render a whole number of microseconds exactly', t => {
+	// The exact sub-millisecond digits, computed with BigInt so the expectation carries no float error.
+	// The digits start at 6 so the value is exactly representable, leaving the documented rounding nothing to decide.
+	const exact = (nanoseconds, digits) => {
+		const floored = (nanoseconds * (10n ** BigInt(digits))) / 1_000_000n;
+		const text = floored.toString().padStart(digits + 1, '0');
+		return `${text.slice(0, -digits)}.${text.slice(-digits)}ms`;
+	};
+
+	for (let microseconds = 1n; microseconds < 3000n; microseconds++) {
+		const nanoseconds = microseconds * 1000n;
+		const milliseconds = Number(nanoseconds) / 1e6;
+
+		for (const digits of [6, 9, 12]) {
+			t.is(
+				prettyMilliseconds(milliseconds, {separateMilliseconds: true, millisecondsDecimalDigits: digits}).split(' ').at(-1),
+				exact(nanoseconds, digits),
+				`${milliseconds}ms at ${digits} digits`,
+			);
+		}
+	}
 });
