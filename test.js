@@ -411,6 +411,24 @@ test('keep the value when the seconds field cannot show it', t => {
 	t.is(prettyMilliseconds(1000, {subSecondsAsDecimals: true, keepDecimalsOnWholeSeconds: true}), '1.0s');
 });
 
+test('derive the sub-millisecond fields within the exact integer range', t => {
+	// `parse-ms` derives them from `milliseconds * 1000` and `milliseconds * 1e6`, which leave the exact integer range above ~9e12ms and yield phantom values.
+	t.is(prettyMilliseconds(1_234_567_890_123, {formatSubMilliseconds: true}), '39y 53d 23h 31m 30s 123ms');
+	t.is(prettyMilliseconds(1_234_567_890_123, {separateMilliseconds: true}), '39y 53d 23h 31m 30s 123ms');
+	t.is(prettyMilliseconds(123_456_789_012_345, {formatSubMilliseconds: true}), '3914y 288d 30m 12s 345ms');
+	t.is(prettyMilliseconds(123_456_789_012_345, {separateMilliseconds: true}), '3914y 288d 30m 12s 345ms');
+	t.is(prettyMilliseconds(9_007_199_254_740_991, {separateMilliseconds: true}), '285616y 151d 8h 59m 991ms');
+	t.is(prettyMilliseconds(9_007_199_254_740_991, {separateMilliseconds: true, millisecondsDecimalDigits: 3}), '285616y 151d 8h 59m 991.000ms');
+
+	// An exact integer millisecond value has no sub-millisecond part at any magnitude.
+	for (const milliseconds of [1, 1000, 1_000_000, 9_007_199_254_740, 9_007_199_254_740_991, 1e15]) {
+		const formatted = prettyMilliseconds(milliseconds, {formatSubMilliseconds: true});
+		t.false(formatted.includes('µs'), `${milliseconds}ms rendered ${formatted}`);
+		t.false(formatted.includes('ns'), `${milliseconds}ms rendered ${formatted}`);
+		t.is(prettyMilliseconds(milliseconds, {separateMilliseconds: true}), prettyMilliseconds(BigInt(milliseconds), {separateMilliseconds: true}), `${milliseconds}ms`);
+	}
+});
+
 test('throw on invalid', t => {
 	t.throws(() => {
 		prettyMilliseconds('foo');

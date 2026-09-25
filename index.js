@@ -91,6 +91,16 @@ export default function prettyMilliseconds(milliseconds, options) {
 		&& !options.hideSeconds
 		&& milliseconds >= minimumDecimalSeconds;
 
+	// `parse-ms` derives the sub-millisecond fields from `milliseconds * 1000` and `milliseconds * 1e6`, which leave the exact integer range above ~9e9ms and yield phantom microseconds and nanoseconds for what is really a whole number of milliseconds. Reducing modulo a second first keeps that arithmetic exact, but the reduction is less precise, so the parsed fields are kept wherever their scaling still fits an exact integer.
+	const reduceSubMilliseconds = !isBigInt && !Number.isSafeInteger(Math.trunc(milliseconds) * 1e6);
+	const subMilliseconds = reduceSubMilliseconds ? milliseconds % 1000 : 0;
+	const microseconds = reduceSubMilliseconds
+		? Math.trunc(subMilliseconds * 1000) % 1000
+		: Number(parsed.microseconds);
+	const nanoseconds = reduceSubMilliseconds
+		? Math.trunc(subMilliseconds * 1e6) % 1000
+		: Number(parsed.nanoseconds);
+
 	if (!options.hideSeconds) {
 		if (
 			options.separateMilliseconds
@@ -99,8 +109,6 @@ export default function prettyMilliseconds(milliseconds, options) {
 		) {
 			const seconds = Number(parsed.seconds);
 			const milliseconds = Number(parsed.milliseconds);
-			const microseconds = Number(parsed.microseconds);
-			const nanoseconds = Number(parsed.nanoseconds);
 
 			add(seconds, 'second', 's');
 
