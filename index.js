@@ -10,6 +10,10 @@ const ONE_MINUTE_IN_MILLISECONDS = 60 * 1000;
 const ONE_MINUTE_IN_BIGINT_MILLISECONDS = BigInt(ONE_MINUTE_IN_MILLISECONDS);
 const ONE_SECOND_IN_MILLISECONDS = 1000;
 const ONE_SECOND_IN_BIGINT_MILLISECONDS = BigInt(ONE_SECOND_IN_MILLISECONDS);
+const ONE_HOUR_IN_MILLISECONDS = 60 * ONE_MINUTE_IN_MILLISECONDS;
+const ONE_HOUR_IN_BIGINT_MILLISECONDS = BigInt(ONE_HOUR_IN_MILLISECONDS);
+const ONE_DAY_IN_MILLISECONDS = 24 * ONE_HOUR_IN_MILLISECONDS;
+const ONE_DAY_IN_BIGINT_MILLISECONDS = BigInt(ONE_DAY_IN_MILLISECONDS);
 const MAX_DECIMAL_DIGITS = 100; // The most `Number#toFixed()` accepts.
 
 // `toFixed()` throws for anything outside 0-100, and a `NaN` count would leak into the output as `NaN`.
@@ -82,10 +86,23 @@ export default function prettyMilliseconds(milliseconds, options) {
 	};
 
 	const parsed = parseMilliseconds(milliseconds);
-	const days = BigInt(parsed.days);
+	// The days come from the exact integer, as the `parse-ms` quotient can round up into the next day once it is large.
+	const days = (isBigInt ? milliseconds : BigInt(Math.trunc(milliseconds))) / ONE_DAY_IN_BIGINT_MILLISECONDS;
+
+	// The hours and minutes within the day, reduced before dividing so they stay exact at any magnitude. `parse-ms` takes them from `milliseconds / 3_600_000 % 24` and `milliseconds / 60_000 % 60`, which lose their low digits once the quotient is large.
+	const hoursWithinDay = Math.floor(
+		isBigInt
+			? Number(milliseconds % ONE_DAY_IN_BIGINT_MILLISECONDS) / ONE_HOUR_IN_MILLISECONDS
+			: milliseconds % ONE_DAY_IN_MILLISECONDS / ONE_HOUR_IN_MILLISECONDS,
+	);
+	const minutesWithinHour = Math.floor(
+		isBigInt
+			? Number(milliseconds % ONE_HOUR_IN_BIGINT_MILLISECONDS) / ONE_MINUTE_IN_MILLISECONDS
+			: milliseconds % ONE_HOUR_IN_MILLISECONDS / ONE_MINUTE_IN_MILLISECONDS,
+	);
 
 	if (options.hideYearAndDays) {
-		add((BigInt(days) * 24n) + BigInt(parsed.hours), 'hour', 'h');
+		add((days * 24n) + BigInt(hoursWithinDay), 'hour', 'h');
 	} else {
 		if (options.hideYear) {
 			add(days, 'day', 'd');
@@ -94,10 +111,10 @@ export default function prettyMilliseconds(milliseconds, options) {
 			add(days % 365n, 'day', 'd');
 		}
 
-		add(Number(parsed.hours), 'hour', 'h');
+		add(hoursWithinDay, 'hour', 'h');
 	}
 
-	add(Number(parsed.minutes), 'minute', 'm');
+	add(minutesWithinHour, 'minute', 'm');
 
 	const secondsDecimalDigits = decimalDigits(options.secondsDecimalDigits, 1);
 

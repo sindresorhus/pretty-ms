@@ -490,8 +490,8 @@ test('agree on the seconds across every branch', t => {
 	};
 
 	// The separate-milliseconds branch took its seconds from `parse-ms`, which loses them at large magnitudes, so the same input rendered differently per branch.
-	t.is(prettyMilliseconds(Number.MAX_VALUE, {separateMilliseconds: true}), '5700447535712568547083700427941645003808085225292279557374304680873482979681895890593452082909683139015032646149857723394516742095667500822861020052921074432454921864096959420926519725467567456931340929884912090099277441972878147362726992943838905852030073647982034630974035871792165820638724934142y 218d 8h 8m 18s 368ms');
-	t.is(prettyMilliseconds(1e300, {separateMilliseconds: true}).split(' ').slice(-3).join(' '), '24m 20s 160ms');
+	t.is(prettyMilliseconds(Number.MAX_VALUE, {separateMilliseconds: true}), '5700447535712568836077099940756733789893155997141203595856084373514626483384973958669126034778249561502424497511237394223564222694364034207523704550467323597984839883832803211448677387442583997465622415920063861691545637902816557209722493636863373550063350653353143175061459195234630260059944318435y 207d 22h 14m 18s 368ms');
+	t.is(prettyMilliseconds(1e300, {separateMilliseconds: true}).split(' ').slice(-3).join(' '), '42m 20s 160ms');
 	t.is(prettyMilliseconds(123_456_789_012_345, {separateMilliseconds: true}), '3914y 288d 30m 12s 345ms');
 
 	for (const milliseconds of [1234, 59_999, 60_001, 3_600_000, 86_400_001, 1e13, 1e15, 9_007_199_254_740_991, 1e300, Number.MAX_VALUE]) {
@@ -529,15 +529,35 @@ test('never drop a sub-nanosecond duration to zero', t => {
 	t.is(prettyMilliseconds(0, {millisecondsDecimalDigits: 3}), '0ms');
 	t.is(prettyMilliseconds(0n, {millisecondsDecimalDigits: 3}), '0ms');
 
-	// A whole number of seconds leaves the milliseconds a real zero.
+	// The whole seconds carry the value, so the milliseconds must stay a real zero.
 	t.is(prettyMilliseconds(1000, {separateMilliseconds: true}), '1s');
 	t.is(prettyMilliseconds(2000, {separateMilliseconds: true}), '2s');
 	t.is(prettyMilliseconds(1000, {formatSubMilliseconds: true}), '1s');
 	t.is(prettyMilliseconds(90_000, {separateMilliseconds: true}), '1m 30s');
-	t.is(prettyMilliseconds(180_000, {separateMilliseconds: true}), '3m');
-	t.is(prettyMilliseconds(180_000, {separateMilliseconds: true, millisecondsDecimalDigits: 3}), '3m');
 	t.is(prettyMilliseconds(1999.5, {separateMilliseconds: true}), '1s 999ms');
 	t.is(prettyMilliseconds(1000, {millisecondsDecimalDigits: 3}), '1s');
+});
+
+test('compute the hours and minutes from the exact remainder', t => {
+	// `parse-ms` takes them from `milliseconds / 60_000 % 60`, which loses the low digits once the quotient is large, so the fields disagreed with the seconds.
+	t.is(prettyMilliseconds(1e22), '317097919837y 235d 17h 46m 40s');
+	t.is(prettyMilliseconds(1e22), prettyMilliseconds(10n ** 22n));
+	t.is(prettyMilliseconds(2.71e20), prettyMilliseconds(271_000_000_000_000_000_000n));
+	t.is(prettyMilliseconds(1e23), prettyMilliseconds(BigInt(1e23)));
+	t.is(prettyMilliseconds(1e22, {hideYearAndDays: true}), prettyMilliseconds(10n ** 22n, {hideYearAndDays: true}));
+
+	// The `parse-ms` day quotient rounds up into the next day here, while the hours are exact, so the output was a whole day too long.
+	t.is(prettyMilliseconds(7.317_848_896_778_88e19), '2320474662y 311d 23h 59m 57.9s');
+
+	// The hours, minutes and seconds must always describe the same instant.
+	// The days come from the exact integer too, so even `Number.MAX_VALUE` matches the bigint path.
+	for (const milliseconds of [1, 1000, 59_999, 60_001, 3_600_000, 3_660_000, 86_400_000, 1e13, 1e18, 1e20, 1e22, 1e23, Number.MAX_VALUE]) {
+		t.is(
+			prettyMilliseconds(milliseconds),
+			prettyMilliseconds(BigInt(milliseconds)),
+			`${milliseconds}ms`,
+		);
+	}
 });
 
 test('throw on invalid', t => {
@@ -772,7 +792,7 @@ test('Big numbers', t => {
 	// The seconds are the exact remainder within the day: `BigInt(Number.MAX_VALUE) % 86_400_000n` is `80_058_368n`, so `18.3s`, not `48s`.
 	t.is(
 		prettyMilliseconds(Number.MAX_VALUE),
-		'5700447535712568547083700427941645003808085225292279557374304680873482979681895890593452082909683139015032646149857723394516742095667500822861020052921074432454921864096959420926519725467567456931340929884912090099277441972878147362726992943838905852030073647982034630974035871792165820638724934142y 218d 8h 8m 18.3s',
+		'5700447535712568836077099940756733789893155997141203595856084373514626483384973958669126034778249561502424497511237394223564222694364034207523704550467323597984839883832803211448677387442583997465622415920063861691545637902816557209722493636863373550063350653353143175061459195234630260059944318435y 207d 22h 14m 18.3s',
 	);
 	t.is(
 		prettyMilliseconds(BigInt(Number.MAX_VALUE)),
