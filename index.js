@@ -111,23 +111,23 @@ export default function prettyMilliseconds(milliseconds, options) {
 		&& !hideSeconds
 		&& milliseconds >= minimumDecimalSeconds;
 
-	// The sub-millisecond fields come from scaling the value to nanoseconds. `parse-ms` derives them from `milliseconds * 1000` and `milliseconds * 1e6`, which truncates a product landing a hair below the integer and leaves the exact integer range above ~9e9ms. Scaling the whole value recovers the intended decimal best, so it is only reduced modulo a second where that scaling would overflow.
-	const reduceSubMilliseconds = !Number.isSafeInteger(Math.trunc(Number(milliseconds)) * 1e6);
-	const scaledNanoseconds = Number(
-		reduceSubMilliseconds
-			? (isBigInt ? milliseconds % 1000n : milliseconds % ONE_SECOND_IN_MILLISECONDS)
-			: milliseconds,
-	) * 1e6;
-	const totalNanoseconds = Math.trunc(scaledNanoseconds + scalingEpsilon(scaledNanoseconds)) % 1e6;
-	const microseconds = Math.floor(totalNanoseconds / 1000);
-	const nanoseconds = totalNanoseconds % 1000;
-
-	// The seconds within the minute, reduced before dividing so they stay exact at any magnitude. `parse-ms` takes them from `milliseconds / 1000 % 60`, which loses them once the quotient is large.
-	const secondsWithinMinute = (
-		isBigInt ? Number(milliseconds % ONE_MINUTE_IN_BIGINT_MILLISECONDS) : milliseconds % ONE_MINUTE_IN_MILLISECONDS
-	) / 1000;
-
 	if (!hideSeconds) {
+		// The sub-millisecond fields come from scaling the value to nanoseconds. `parse-ms` derives them from `milliseconds * 1000` and `milliseconds * 1e6`, which truncates a product landing a hair below the integer and leaves the exact integer range above ~9e9ms. Scaling the whole value recovers the intended decimal best, so it is only reduced modulo a second where that scaling would overflow.
+		const reduceSubMilliseconds = !Number.isSafeInteger(Math.trunc(Number(milliseconds)) * 1e6);
+		const scaledNanoseconds = Number(
+			reduceSubMilliseconds
+				? (isBigInt ? milliseconds % 1000n : milliseconds % ONE_SECOND_IN_MILLISECONDS)
+				: milliseconds,
+		) * 1e6;
+		const totalNanoseconds = Math.trunc(scaledNanoseconds + scalingEpsilon(scaledNanoseconds)) % 1e6;
+		const microseconds = Math.floor(totalNanoseconds / 1000);
+		const nanoseconds = totalNanoseconds % 1000;
+
+		// The seconds within the minute, reduced before dividing so they stay exact at any magnitude. `parse-ms` takes them from `milliseconds / 1000 % 60`, which loses them once the quotient is large.
+		const secondsWithinMinute = (
+			isBigInt ? Number(milliseconds % ONE_MINUTE_IN_BIGINT_MILLISECONDS) : milliseconds % ONE_MINUTE_IN_MILLISECONDS
+		) / 1000;
+
 		if (
 			options.separateMilliseconds
 			|| options.formatSubMilliseconds
