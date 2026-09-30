@@ -5,11 +5,7 @@
 	"license": "MIT",
 	"repository": "sindresorhus/pretty-ms",
 	"funding": "https://github.com/sponsors/sindresorhus",
-	"author": {
-		"name": "Sindre Sorhus",
-		"email": "sindresorhus@gmail.com",
-		"url": "https://sindresorhus.com"
-	},
+	"author": "Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)",
 	"type": "module",
 	"exports": {
 		"types": "./index.d.ts",
@@ -17,10 +13,10 @@
 	},
 	"sideEffects": false,
 	"engines": {
-		"node": ">=18"
+		"node": ">=22"
 	},
 	"scripts": {
-		"test": "xo && ava && tsd"
+		"test": "xo && node --test && nz"
 	},
 	"files": [
 		"index.js",
@@ -48,8 +44,17 @@
 		"parse-ms": "^4.0.0"
 	},
 	"devDependencies": {
-		"ava": "^6.2.0",
-		"tsd": "^0.31.2",
-		"xo": "^0.59.3"
-	}
+		"@typescript/native": "npm:typescript@^7.0.2",
+		"nz": "^0.1.0",
+		"xo": "^5.0.1"
+	},
+	"xo": [
+		{
+			"files": ["test.js"],
+			"rules": {
+				"node-test/no-conditional-assertion": "off",
+				"node-test/require-assertion": "off"
+			}
+		}
+	]
 }

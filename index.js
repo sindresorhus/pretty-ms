@@ -3,7 +3,7 @@ import parseMilliseconds from 'parse-ms';
 const isZero = value => value === 0 || value === 0n;
 const pluralize = (word, count) => (count === 1 || count === 1n) ? word : `${word}s`;
 
-const SECOND_ROUNDING_EPSILON = 0.000_000_1;
+const SECOND_ROUNDING_EPSILON = 0.0000001;
 // The largest scaled value whose ulp is still below 1, so a relative rounding correction cannot cross into the next integer.
 const EXACT_SCALING_RANGE = 2 ** 52;
 const ONE_MINUTE_IN_MILLISECONDS = 60 * 1000;
@@ -26,17 +26,17 @@ const scalingEpsilon = scaledValue => Math.abs(scaledValue) < EXACT_SCALING_RANG
 	? Math.max(SECOND_ROUNDING_EPSILON, (Math.abs(scaledValue) * Number.EPSILON) / 2)
 	: SECOND_ROUNDING_EPSILON;
 
-const floorDecimals = (value, decimalDigits) => {
-	const scaledValue = value * (10 ** decimalDigits);
+const floorDecimals = (value, digits) => {
+	const scaledValue = value * (10 ** digits);
 	const flooredValue = Math.floor(scaledValue + scalingEpsilon(scaledValue));
 
 	// Dividing the floored value back by the power of ten reintroduces the error the flooring just removed, so the digits are placed directly instead.
-	if (decimalDigits > 0 && Number.isSafeInteger(flooredValue)) {
-		const digits = flooredValue.toFixed(0).padStart(decimalDigits + 1, '0');
-		return `${digits.slice(0, -decimalDigits)}.${digits.slice(-decimalDigits)}`;
+	if (digits > 0 && Number.isSafeInteger(flooredValue)) {
+		const padded = flooredValue.toFixed(0).padStart(digits + 1, '0');
+		return `${padded.slice(0, -digits)}.${padded.slice(-digits)}`;
 	}
 
-	return (flooredValue / (10 ** decimalDigits)).toFixed(decimalDigits);
+	return (flooredValue / (10 ** digits)).toFixed(digits);
 };
 
 export default function prettyMilliseconds(milliseconds, options) {
@@ -48,6 +48,7 @@ export default function prettyMilliseconds(milliseconds, options) {
 	options = {...options};
 
 	const sign = milliseconds < 0 ? '-' : '';
+	// eslint-disable-next-line unicorn/prefer-math-abs -- `Math.abs()` throws on a bigint, and the bigint path reaches here.
 	milliseconds = milliseconds < 0 ? -milliseconds : milliseconds; // Cannot use `Math.abs()` because of BigInt support.
 
 	if (options.colonNotation) {
@@ -69,13 +70,13 @@ export default function prettyMilliseconds(milliseconds, options) {
 		if (
 			(result.length === 0 || !options.colonNotation)
 			&& isZero(value)
-			&& !(options.colonNotation && short === 'm')) {
+			&& !(short === 'm' && options.colonNotation)) {
 			return;
 		}
 
 		valueString ??= String(value);
 		if (options.colonNotation) {
-			const wholeDigits = valueString.includes('.') ? valueString.split('.')[0].length : valueString.length;
+			const wholeDigits = valueString.includes('.') ? valueString.split('.', 1)[0].length : valueString.length;
 			const minLength = result.length > 0 ? 2 : 1;
 			valueString = '0'.repeat(Math.max(0, minLength - wholeDigits)) + valueString;
 		} else {
@@ -91,14 +92,12 @@ export default function prettyMilliseconds(milliseconds, options) {
 
 	// The hours and minutes within the day, reduced before dividing so they stay exact at any magnitude. `parse-ms` takes them from `milliseconds / 3_600_000 % 24` and `milliseconds / 60_000 % 60`, which lose their low digits once the quotient is large.
 	const hoursWithinDay = Math.floor(
-		isBigInt
-			? Number(milliseconds % ONE_DAY_IN_BIGINT_MILLISECONDS) / ONE_HOUR_IN_MILLISECONDS
-			: milliseconds % ONE_DAY_IN_MILLISECONDS / ONE_HOUR_IN_MILLISECONDS,
+		Number(milliseconds % (isBigInt ? ONE_DAY_IN_BIGINT_MILLISECONDS : ONE_DAY_IN_MILLISECONDS))
+		/ ONE_HOUR_IN_MILLISECONDS,
 	);
 	const minutesWithinHour = Math.floor(
-		isBigInt
-			? Number(milliseconds % ONE_HOUR_IN_BIGINT_MILLISECONDS) / ONE_MINUTE_IN_MILLISECONDS
-			: milliseconds % ONE_HOUR_IN_MILLISECONDS / ONE_MINUTE_IN_MILLISECONDS,
+		Number(milliseconds % (isBigInt ? ONE_HOUR_IN_BIGINT_MILLISECONDS : ONE_HOUR_IN_MILLISECONDS))
+		/ ONE_MINUTE_IN_MILLISECONDS,
 	);
 
 	if (options.hideYearAndDays) {
@@ -131,10 +130,10 @@ export default function prettyMilliseconds(milliseconds, options) {
 
 	if (!hideSeconds) {
 		// The sub-millisecond fields come from scaling the value to nanoseconds. `parse-ms` derives them from `milliseconds * 1000` and `milliseconds * 1e6`, which truncates a product landing a hair below the integer and leaves the exact integer range above ~9e9ms. Scaling the whole value recovers the intended decimal best, so it is only reduced modulo a second where that scaling would overflow.
-		const reduceSubMilliseconds = !Number.isSafeInteger(Math.trunc(Number(milliseconds)) * 1e6);
+		const isReduceSubMilliseconds = !Number.isSafeInteger(Math.trunc(Number(milliseconds)) * 1e6);
 		const scaledNanoseconds = Number(
-			reduceSubMilliseconds
-				? (isBigInt ? milliseconds % ONE_SECOND_IN_BIGINT_MILLISECONDS : milliseconds % ONE_SECOND_IN_MILLISECONDS)
+			isReduceSubMilliseconds
+				? milliseconds % (isBigInt ? ONE_SECOND_IN_BIGINT_MILLISECONDS : ONE_SECOND_IN_MILLISECONDS)
 				: milliseconds,
 		) * 1e6;
 		const totalNanoseconds = Math.trunc(scaledNanoseconds + scalingEpsilon(scaledNanoseconds)) % 1e6;
@@ -149,7 +148,7 @@ export default function prettyMilliseconds(milliseconds, options) {
 		if (
 			options.separateMilliseconds
 			|| options.formatSubMilliseconds
-			|| (!options.colonNotation && milliseconds < 1000 && !canShowAsDecimalSeconds)
+			|| (!canShowAsDecimalSeconds && !options.colonNotation && milliseconds < 1000)
 		) {
 			const wholeMilliseconds = Number(parsed.milliseconds);
 
@@ -178,7 +177,7 @@ export default function prettyMilliseconds(milliseconds, options) {
 				).toFixed(millisecondsDecimalDigits);
 
 				add(
-					Number.parseFloat(millisecondsString),
+					Number(millisecondsString),
 					'millisecond',
 					'ms',
 					millisecondsString,
@@ -190,8 +189,8 @@ export default function prettyMilliseconds(milliseconds, options) {
 			const secondsFixed = floorDecimals(Math.min(secondsWithinMinute, maximumSeconds), secondsDecimalDigits);
 			const secondsString = options.keepDecimalsOnWholeSeconds
 				? secondsFixed
-				: secondsFixed.replace(/\.0+$/, '');
-			add(Number.parseFloat(secondsString), 'second', 's', secondsString);
+				: secondsFixed.replace(/\.0+$/v, '');
+			add(Number(secondsString), 'second', 's', secondsString);
 		}
 	}
 
@@ -206,5 +205,5 @@ export default function prettyMilliseconds(milliseconds, options) {
 		: result.join(separator);
 
 	// Rounding can leave nothing but zeros behind, and a signed zero reads as a negative duration.
-	return /[1-9]/.test(output) ? sign + output : output;
+	return /[1-9]/v.test(output) ? sign + output : output;
 }

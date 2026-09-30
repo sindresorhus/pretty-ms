@@ -1,4 +1,5 @@
-import test from 'ava';
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
 import prettyMilliseconds from './index.js';
 
 const toBigInt = milliseconds => {
@@ -12,7 +13,7 @@ const toBigInt = milliseconds => {
 };
 
 function runTests({title, defaultOptions, cases}) {
-	test(title, t => {
+	test(title, () => {
 		const format = (milliseconds, options) =>
 			prettyMilliseconds(milliseconds, {...defaultOptions, ...options});
 
@@ -23,11 +24,11 @@ function runTests({title, defaultOptions, cases}) {
 				expected,
 			] = testCase.length === 3 ? testCase : [testCase[0], undefined, testCase[1]];
 
-			t.is(format(milliseconds, options), expected, `Number(${milliseconds})`);
+			assert.strictEqual(format(milliseconds, options), expected, `Number(${milliseconds})`);
 
 			const bigint = toBigInt(milliseconds);
 			if (typeof bigint === 'bigint') {
-				t.is(format(bigint, options), expected, `BigInt(${bigint}n)`);
+				assert.strictEqual(format(bigint, options), expected, `BigInt(${bigint}n)`);
 			}
 		}
 	});
@@ -110,7 +111,7 @@ runTests({
 	defaultOptions: {keepDecimalsOnWholeSeconds: true},
 	cases: [
 		[1000 * 33, {secondsDecimalDigits: 2}, '33.00s'],
-		[1000 * 33.000_04, {secondsDecimalDigits: 2}, '33.00s'],
+		[1000 * 33.00004, {secondsDecimalDigits: 2}, '33.00s'],
 	],
 });
 
@@ -149,7 +150,7 @@ runTests({
 	title: 'never round the milliseconds component to 1000',
 	cases: [
 		[999.5, '999ms'],
-		[999.999_999, '999ms'],
+		[999.999999, '999ms'],
 		[1999.5, {separateMilliseconds: true}, '1s 999ms'],
 		[59_999.5, {separateMilliseconds: true}, '59s 999ms'],
 		[86_399_999.5, {separateMilliseconds: true}, '23h 59m 59s 999ms'],
@@ -158,14 +159,14 @@ runTests({
 		[1999.95, {separateMilliseconds: true, millisecondsDecimalDigits: 1}, '1s 999.9ms'],
 		[59_999.996, {separateMilliseconds: true, millisecondsDecimalDigits: 2}, '59s 999.99ms'],
 		[86_399_999.9996, {separateMilliseconds: true, millisecondsDecimalDigits: 3}, '23h 59m 59s 999.999ms'],
-		[999.999_96, {millisecondsDecimalDigits: 4}, '999.9999ms'],
-		[1999.999_996, {separateMilliseconds: true, millisecondsDecimalDigits: 5}, '1s 999.99999ms'],
+		[999.99996, {millisecondsDecimalDigits: 4}, '999.9999ms'],
+		[1999.999996, {separateMilliseconds: true, millisecondsDecimalDigits: 5}, '1s 999.99999ms'],
 		[-1999.95, {separateMilliseconds: true, millisecondsDecimalDigits: 1}, '-1s 999.9ms'],
 		[1999.95, {separateMilliseconds: true, millisecondsDecimalDigits: 1, verbose: true}, '1 second 999.9 milliseconds'],
 		[998.96, {millisecondsDecimalDigits: 1}, '999.0ms'],
 		[999.9, {millisecondsDecimalDigits: 1}, '999.9ms'],
 		[1999, {separateMilliseconds: true, millisecondsDecimalDigits: 1}, '1s 999.0ms'],
-		[0.999_999, {millisecondsDecimalDigits: 3}, '1.000ms'],
+		[0.999999, {millisecondsDecimalDigits: 3}, '1.000ms'],
 		[1999.5, {formatSubMilliseconds: true}, '1s 999ms 500µs'],
 		[33.666, '34ms'],
 		[0.1, '1ms'],
@@ -177,9 +178,9 @@ runTests({
 	defaultOptions: {formatSubMilliseconds: true},
 	cases: [
 		[0.4, '400µs'],
-		[0.123_571, '123µs 571ns'],
-		[0.123_456_789, '123µs 456ns'],
-		[(60 * 60 * 1000) + (23 * 1000) + 433 + 0.123_456, '1h 23s 433ms 123µs 456ns'],
+		[0.123571, '123µs 571ns'],
+		[0.123456789, '123µs 456ns'],
+		[(60 * 60 * 1000) + (23 * 1000) + 433 + 0.123456, '1h 23s 433ms 123µs 456ns'],
 	],
 });
 
@@ -245,8 +246,8 @@ runTests({
 	defaultOptions: {formatSubMilliseconds: true, verbose: true},
 	cases: [
 		[0.4, '400 microseconds'],
-		[0.123_571, '123 microseconds 571 nanoseconds'],
-		[0.123_456_789, '123 microseconds 456 nanoseconds'],
+		[0.123571, '123 microseconds 571 nanoseconds'],
+		[0.123456789, '123 microseconds 456 nanoseconds'],
 		[0.001, '1 microsecond'],
 	],
 });
@@ -265,40 +266,40 @@ runTests({
 	title: 'work with separateMilliseconds and formatSubMilliseconds options',
 	defaultOptions: {separateMilliseconds: true, formatSubMilliseconds: true},
 	cases: [
-		[1010.340_067, '1s 10ms 340µs 67ns'],
-		[(60 * 1000) + 34 + 0.000_005, '1m 34ms 5ns'],
+		[1010.340067, '1s 10ms 340µs 67ns'],
+		[(60 * 1000) + 34 + 0.000005, '1m 34ms 5ns'],
 	],
 });
 
-test('never drop every unit', t => {
+test('never drop every unit', () => {
 	// `slice(0, NaN)` is an empty slice, which used to produce an empty string.
-	t.is(prettyMilliseconds(1000 * 60 * 67, {unitCount: Number.NaN}), '1h 7m');
-	t.is(prettyMilliseconds(1000 * 60 * 67, {unitCount: Number.POSITIVE_INFINITY}), '1h 7m');
-	t.is(prettyMilliseconds(1000 * 60 * 67, {unitCount: -1}), '1h');
+	assert.strictEqual(prettyMilliseconds(1000 * 60 * 67, {unitCount: NaN}), '1h 7m');
+	assert.strictEqual(prettyMilliseconds(1000 * 60 * 67, {unitCount: Infinity}), '1h 7m');
+	assert.strictEqual(prettyMilliseconds(1000 * 60 * 67, {unitCount: -1}), '1h');
 });
 
-test('clamp the decimal digit options to what toFixed accepts', t => {
+test('clamp the decimal digit options to what toFixed accepts', () => {
 	// `toFixed()` throws a RangeError outside 0-100, and a NaN digit count leaked into the output as `NaNs`.
-	t.is(prettyMilliseconds(1500, {secondsDecimalDigits: -1}), '1s');
-	t.is(prettyMilliseconds(1500, {secondsDecimalDigits: Number.NaN}), '1.5s');
-	t.is(prettyMilliseconds(1500, {secondsDecimalDigits: Number.POSITIVE_INFINITY}), prettyMilliseconds(1500, {secondsDecimalDigits: 100}));
-	t.is(prettyMilliseconds(500, {millisecondsDecimalDigits: -1}), '500ms');
-	t.is(prettyMilliseconds(500, {millisecondsDecimalDigits: Number.NaN}), '500ms');
-	t.is(prettyMilliseconds(500, {millisecondsDecimalDigits: 101}), prettyMilliseconds(500, {millisecondsDecimalDigits: 100}));
+	assert.strictEqual(prettyMilliseconds(1500, {secondsDecimalDigits: -1}), '1s');
+	assert.strictEqual(prettyMilliseconds(1500, {secondsDecimalDigits: NaN}), '1.5s');
+	assert.strictEqual(prettyMilliseconds(1500, {secondsDecimalDigits: Infinity}), prettyMilliseconds(1500, {secondsDecimalDigits: 100}));
+	assert.strictEqual(prettyMilliseconds(500, {millisecondsDecimalDigits: -1}), '500ms');
+	assert.strictEqual(prettyMilliseconds(500, {millisecondsDecimalDigits: NaN}), '500ms');
+	assert.strictEqual(prettyMilliseconds(500, {millisecondsDecimalDigits: 101}), prettyMilliseconds(500, {millisecondsDecimalDigits: 100}));
 
 	// A fractional count is truncated, not rejected.
-	t.is(prettyMilliseconds(1500, {secondsDecimalDigits: 0.5}), '1s');
-	t.is(prettyMilliseconds(500, {millisecondsDecimalDigits: 0.5}), '500ms');
+	assert.strictEqual(prettyMilliseconds(1500, {secondsDecimalDigits: 0.5}), '1s');
+	assert.strictEqual(prettyMilliseconds(500, {millisecondsDecimalDigits: 0.5}), '500ms');
 });
 
-test('keep the seconds component precise for large values', t => {
+test('keep the seconds component precise for large values', () => {
 	// `milliseconds / 1000` loses sub-second precision above ~2^22ms, so the same 2.9s used to render as `2.89s`.
-	t.is(prettyMilliseconds(2900, {secondsDecimalDigits: 2}), '2.90s');
-	t.is(prettyMilliseconds(40_176_002_900, {secondsDecimalDigits: 2}), '1y 100d 2.90s');
+	assert.strictEqual(prettyMilliseconds(2900, {secondsDecimalDigits: 2}), '2.90s');
+	assert.strictEqual(prettyMilliseconds(40_176_002_900, {secondsDecimalDigits: 2}), '1y 100d 2.90s');
 
 	// The seconds component must not depend on the magnitude it is embedded in.
 	for (const days of [0, 1, 100, 999, 10_000, 1_000_000]) {
-		t.is(
+		assert.strictEqual(
 			prettyMilliseconds((days * 86_400_000) + 2900, {secondsDecimalDigits: 2}).split(' ').at(-1),
 			'2.90s',
 			`${days} days`,
@@ -306,20 +307,20 @@ test('keep the seconds component precise for large values', t => {
 	}
 });
 
-test('keep the seconds component exact at high decimal digit counts', t => {
+test('keep the seconds component exact at high decimal digit counts', () => {
 	// Reducing modulo 60 after dividing left a ulp-sized error that the fixed 1e-7 epsilon could not absorb from 6 digits up.
-	t.is(prettyMilliseconds(10_802_900, {secondsDecimalDigits: 6}), '3h 2.900000s');
-	t.is(prettyMilliseconds(10_802_900, {secondsDecimalDigits: 7}), '3h 2.9000000s');
-	t.is(prettyMilliseconds(3_607_700, {secondsDecimalDigits: 6}), '1h 7.700000s');
-	t.is(prettyMilliseconds(10_802_900n, {secondsDecimalDigits: 6}), '3h 2.900000s');
-	t.is(prettyMilliseconds(BigInt(Number.MAX_VALUE), {secondsDecimalDigits: 6}).split(' ').at(-1), '18.368000s');
+	assert.strictEqual(prettyMilliseconds(10_802_900, {secondsDecimalDigits: 6}), '3h 2.900000s');
+	assert.strictEqual(prettyMilliseconds(10_802_900, {secondsDecimalDigits: 7}), '3h 2.9000000s');
+	assert.strictEqual(prettyMilliseconds(3_607_700, {secondsDecimalDigits: 6}), '1h 7.700000s');
+	assert.strictEqual(prettyMilliseconds(10_802_900n, {secondsDecimalDigits: 6}), '3h 2.900000s');
+	assert.strictEqual(prettyMilliseconds(BigInt(Number.MAX_VALUE), {secondsDecimalDigits: 6}).split(' ').at(-1), '18.368000s');
 
 	// A whole number of seconds must never render a non-zero fraction at any digit count.
 	for (const seconds of [1, 2, 7, 13, 33, 59]) {
 		for (let digits = 0; digits <= 9; digits++) {
 			const milliseconds = (10_802_900 - 2900) + (seconds * 1000);
 			const fraction = digits > 0 ? `.${'0'.repeat(digits)}` : '';
-			t.is(
+			assert.strictEqual(
 				prettyMilliseconds(milliseconds, {secondsDecimalDigits: digits, keepDecimalsOnWholeSeconds: true}).split(' ').at(-1),
 				`${seconds}${fraction}s`,
 				`${seconds}s at ${digits} digits`,
@@ -328,125 +329,125 @@ test('keep the seconds component exact at high decimal digit counts', t => {
 	}
 });
 
-test('never round the seconds component up to 60', t => {
+test('never round the seconds component up to 60', () => {
 	// The rounding epsilon is added to the scaled value, so a value just under a minute was carried over into a `60` field.
-	t.is(prettyMilliseconds(59_999.999_99), '59.9s');
-	t.is(prettyMilliseconds(59_999.9999, {secondsDecimalDigits: 0}), '59s');
-	t.is(prettyMilliseconds(59_999.9999, {compact: true}), '59s');
-	t.is(prettyMilliseconds(59_999.9999, {colonNotation: true, secondsDecimalDigits: 0}), '0:59');
-	t.is(prettyMilliseconds(3_599_999.999_999_9), '59m 59.9s');
-	t.is(prettyMilliseconds(86_399_999.999_999_9), '23h 59m 59.9s');
-	t.is(prettyMilliseconds(59_999.999_999_9, {secondsDecimalDigits: 3}), '59.999s');
-	t.is(prettyMilliseconds(59_999.999_999_99, {secondsDecimalDigits: 4}), '59.9999s');
-	t.is(prettyMilliseconds(59_999.999_999_999, {secondsDecimalDigits: 5}), '59.99999s');
-	t.is(prettyMilliseconds(59_999.999_999_999_9, {secondsDecimalDigits: 6}), '59.999999s');
+	assert.strictEqual(prettyMilliseconds(59_999.99999), '59.9s');
+	assert.strictEqual(prettyMilliseconds(59_999.9999, {secondsDecimalDigits: 0}), '59s');
+	assert.strictEqual(prettyMilliseconds(59_999.9999, {compact: true}), '59s');
+	assert.strictEqual(prettyMilliseconds(59_999.9999, {colonNotation: true, secondsDecimalDigits: 0}), '0:59');
+	assert.strictEqual(prettyMilliseconds(3_599_999.9999999), '59m 59.9s');
+	assert.strictEqual(prettyMilliseconds(86_399_999.9999999), '23h 59m 59.9s');
+	assert.strictEqual(prettyMilliseconds(59_999.9999999, {secondsDecimalDigits: 3}), '59.999s');
+	assert.strictEqual(prettyMilliseconds(59_999.99999999, {secondsDecimalDigits: 4}), '59.9999s');
+	assert.strictEqual(prettyMilliseconds(59_999.999999999, {secondsDecimalDigits: 5}), '59.99999s');
+	assert.strictEqual(prettyMilliseconds(59_999.9999999999, {secondsDecimalDigits: 6}), '59.999999s');
 
 	// The seconds field must never reach 60, whatever the digit count.
 	for (let digits = 0; digits <= 9; digits++) {
-		for (const milliseconds of [59_999.999_99, 59_999.999_999, 59_999.999_999_99, 59_999.999_999_999_9]) {
+		for (const milliseconds of [59_999.99999, 59_999.999999, 59_999.99999999, 59_999.9999999999]) {
 			const seconds = Number(prettyMilliseconds(milliseconds, {secondsDecimalDigits: digits}).split(' ').at(-1).replace('s', ''));
-			t.true(seconds < 60, `${milliseconds}ms at ${digits} digits rendered ${seconds}s`);
+			assert.ok(seconds < 60, `${milliseconds}ms at ${digits} digits rendered ${seconds}s`);
 		}
 	}
 });
 
-test('never drop a nonzero duration to zero milliseconds', t => {
+test('never drop a nonzero duration to zero milliseconds', () => {
 	// The zero field is dropped entirely, so a nonzero duration must never round down onto it.
-	t.is(prettyMilliseconds(0.0001), '1ms');
-	t.is(prettyMilliseconds(0.0001, {millisecondsDecimalDigits: 0}), '1ms');
-	t.is(prettyMilliseconds(0.0001, {millisecondsDecimalDigits: 1}), '0.1ms');
-	t.is(prettyMilliseconds(0.0001, {millisecondsDecimalDigits: 2}), '0.01ms');
-	t.is(prettyMilliseconds(0.0001, {millisecondsDecimalDigits: 3}), '0.001ms');
-	t.is(prettyMilliseconds(0.0001, {millisecondsDecimalDigits: 4}), '0.0001ms');
-	t.is(prettyMilliseconds(0.0001, {separateMilliseconds: true, millisecondsDecimalDigits: 3}), '0.001ms');
-	t.is(prettyMilliseconds(0.9994, {millisecondsDecimalDigits: 1}), '1.0ms');
-	t.is(prettyMilliseconds(0.9994, {separateMilliseconds: true, millisecondsDecimalDigits: 1}), '1.0ms');
+	assert.strictEqual(prettyMilliseconds(0.0001), '1ms');
+	assert.strictEqual(prettyMilliseconds(0.0001, {millisecondsDecimalDigits: 0}), '1ms');
+	assert.strictEqual(prettyMilliseconds(0.0001, {millisecondsDecimalDigits: 1}), '0.1ms');
+	assert.strictEqual(prettyMilliseconds(0.0001, {millisecondsDecimalDigits: 2}), '0.01ms');
+	assert.strictEqual(prettyMilliseconds(0.0001, {millisecondsDecimalDigits: 3}), '0.001ms');
+	assert.strictEqual(prettyMilliseconds(0.0001, {millisecondsDecimalDigits: 4}), '0.0001ms');
+	assert.strictEqual(prettyMilliseconds(0.0001, {separateMilliseconds: true, millisecondsDecimalDigits: 3}), '0.001ms');
+	assert.strictEqual(prettyMilliseconds(0.9994, {millisecondsDecimalDigits: 1}), '1.0ms');
+	assert.strictEqual(prettyMilliseconds(0.9994, {separateMilliseconds: true, millisecondsDecimalDigits: 1}), '1.0ms');
 
 	// A real zero stays zero.
-	t.is(prettyMilliseconds(0, {millisecondsDecimalDigits: 3}), '0ms');
-	t.is(prettyMilliseconds(0n, {millisecondsDecimalDigits: 3}), '0ms');
-	t.is(prettyMilliseconds(0, {verbose: true, millisecondsDecimalDigits: 3}), '0 milliseconds');
+	assert.strictEqual(prettyMilliseconds(0, {millisecondsDecimalDigits: 3}), '0ms');
+	assert.strictEqual(prettyMilliseconds(0n, {millisecondsDecimalDigits: 3}), '0ms');
+	assert.strictEqual(prettyMilliseconds(0, {verbose: true, millisecondsDecimalDigits: 3}), '0 milliseconds');
 });
 
-test('never render a signed zero', t => {
+test('never render a signed zero', () => {
 	// Rounding can leave nothing but zeros, and a signed zero reads as a negative duration.
-	t.is(prettyMilliseconds(-1, {colonNotation: true}), '0:00');
+	assert.strictEqual(prettyMilliseconds(-1, {colonNotation: true}), '0:00');
 
 	// The sign still applies to anything that renders as a nonzero value.
-	t.is(prettyMilliseconds(-1), '-1ms');
-	t.is(prettyMilliseconds(-1, {subSecondsAsDecimals: true}), '-1ms');
-	t.is(prettyMilliseconds(-0.5, {subSecondsAsDecimals: true}), '-1ms');
-	t.is(prettyMilliseconds(-1, {subSecondsAsDecimals: true, verbose: true}), '-1 millisecond');
-	t.is(prettyMilliseconds(-1, {subSecondsAsDecimals: true, secondsDecimalDigits: 0}), '-1ms');
-	t.is(prettyMilliseconds(-1, {colonNotation: true, secondsDecimalDigits: 3}), '-0:00.001');
-	t.is(prettyMilliseconds(-999, {colonNotation: true}), '-0:00.9');
-	t.is(prettyMilliseconds(-1000), '-1s');
-	t.is(prettyMilliseconds(-0), '0ms');
+	assert.strictEqual(prettyMilliseconds(-1), '-1ms');
+	assert.strictEqual(prettyMilliseconds(-1, {subSecondsAsDecimals: true}), '-1ms');
+	assert.strictEqual(prettyMilliseconds(-0.5, {subSecondsAsDecimals: true}), '-1ms');
+	assert.strictEqual(prettyMilliseconds(-1, {subSecondsAsDecimals: true, verbose: true}), '-1 millisecond');
+	assert.strictEqual(prettyMilliseconds(-1, {subSecondsAsDecimals: true, secondsDecimalDigits: 0}), '-1ms');
+	assert.strictEqual(prettyMilliseconds(-1, {colonNotation: true, secondsDecimalDigits: 3}), '-0:00.001');
+	assert.strictEqual(prettyMilliseconds(-999, {colonNotation: true}), '-0:00.9');
+	assert.strictEqual(prettyMilliseconds(-1000), '-1s');
+	assert.strictEqual(prettyMilliseconds(-0), '0ms');
 });
 
-test('keep the value when the seconds field cannot show it', t => {
+test('keep the value when the seconds field cannot show it', () => {
 	// `subSecondsAsDecimals` moves the value into the seconds field, so a field that floors to zero destroyed the value.
-	t.is(prettyMilliseconds(900, {subSecondsAsDecimals: true, secondsDecimalDigits: 0}), '900ms');
-	t.is(prettyMilliseconds(999, {subSecondsAsDecimals: true, secondsDecimalDigits: 0}), '999ms');
-	t.is(prettyMilliseconds(900, {subSecondsAsDecimals: true, compact: true}), '900ms');
-	t.is(prettyMilliseconds(50, {subSecondsAsDecimals: true, secondsDecimalDigits: 1}), '50ms');
+	assert.strictEqual(prettyMilliseconds(900, {subSecondsAsDecimals: true, secondsDecimalDigits: 0}), '900ms');
+	assert.strictEqual(prettyMilliseconds(999, {subSecondsAsDecimals: true, secondsDecimalDigits: 0}), '999ms');
+	assert.strictEqual(prettyMilliseconds(900, {subSecondsAsDecimals: true, compact: true}), '900ms');
+	assert.strictEqual(prettyMilliseconds(50, {subSecondsAsDecimals: true, secondsDecimalDigits: 1}), '50ms');
 
 	// A nonzero duration never renders as a bare zero at any digit count.
 	for (const milliseconds of [1, 5, 50, 500, 900, 999]) {
 		for (let digits = 0; digits <= 3; digits++) {
 			const formatted = prettyMilliseconds(milliseconds, {subSecondsAsDecimals: true, secondsDecimalDigits: digits});
-			t.not(formatted, '0ms', `${milliseconds}ms at ${digits} digits`);
-			t.not(formatted, '0s', `${milliseconds}ms at ${digits} digits`);
+			assert.notStrictEqual(formatted, '0ms', `${milliseconds}ms at ${digits} digits`);
+			assert.notStrictEqual(formatted, '0s', `${milliseconds}ms at ${digits} digits`);
 		}
 	}
 
 	// The seconds field still wins whenever it can represent the value.
-	t.is(prettyMilliseconds(100, {subSecondsAsDecimals: true}), '0.1s');
-	t.is(prettyMilliseconds(500, {subSecondsAsDecimals: true}), '0.5s');
-	t.is(prettyMilliseconds(900, {subSecondsAsDecimals: true}), '0.9s');
-	t.is(prettyMilliseconds(0, {subSecondsAsDecimals: true}), '0ms');
-	t.is(prettyMilliseconds(1000, {subSecondsAsDecimals: true, keepDecimalsOnWholeSeconds: true}), '1.0s');
+	assert.strictEqual(prettyMilliseconds(100, {subSecondsAsDecimals: true}), '0.1s');
+	assert.strictEqual(prettyMilliseconds(500, {subSecondsAsDecimals: true}), '0.5s');
+	assert.strictEqual(prettyMilliseconds(900, {subSecondsAsDecimals: true}), '0.9s');
+	assert.strictEqual(prettyMilliseconds(0, {subSecondsAsDecimals: true}), '0ms');
+	assert.strictEqual(prettyMilliseconds(1000, {subSecondsAsDecimals: true, keepDecimalsOnWholeSeconds: true}), '1.0s');
 });
 
-test('derive the sub-millisecond fields from the exact fractional part', t => {
+test('derive the sub-millisecond fields from the exact fractional part', () => {
 	// `parse-ms` derives them from `milliseconds * 1000` and `milliseconds * 1e6`, which truncates a product landing a hair below the integer and leaves the exact integer range above ~9e9ms.
-	t.is(prettyMilliseconds(0.003_97, {millisecondsDecimalDigits: 6}), '0.003970ms');
-	t.is(prettyMilliseconds(0.003_97, {millisecondsDecimalDigits: 9}), '0.003970000ms');
-	t.is(prettyMilliseconds(0.003_97, {separateMilliseconds: true, millisecondsDecimalDigits: 6}), '0.003970ms');
-	t.is(prettyMilliseconds(0.003_97, {formatSubMilliseconds: true}), '3µs 970ns');
-	t.is(prettyMilliseconds(0.003_99, {millisecondsDecimalDigits: 6}), '0.003990ms');
-	t.is(prettyMilliseconds(0.004_01, {formatSubMilliseconds: true}), '4µs 10ns');
-	t.is(prettyMilliseconds(0.007_85, {millisecondsDecimalDigits: 6}), '0.007850ms');
-	t.is(prettyMilliseconds(-0.003_97, {formatSubMilliseconds: true}), '-3µs 970ns');
+	assert.strictEqual(prettyMilliseconds(0.00397, {millisecondsDecimalDigits: 6}), '0.003970ms');
+	assert.strictEqual(prettyMilliseconds(0.00397, {millisecondsDecimalDigits: 9}), '0.003970000ms');
+	assert.strictEqual(prettyMilliseconds(0.00397, {separateMilliseconds: true, millisecondsDecimalDigits: 6}), '0.003970ms');
+	assert.strictEqual(prettyMilliseconds(0.00397, {formatSubMilliseconds: true}), '3µs 970ns');
+	assert.strictEqual(prettyMilliseconds(0.00399, {millisecondsDecimalDigits: 6}), '0.003990ms');
+	assert.strictEqual(prettyMilliseconds(0.00401, {formatSubMilliseconds: true}), '4µs 10ns');
+	assert.strictEqual(prettyMilliseconds(0.00785, {millisecondsDecimalDigits: 6}), '0.007850ms');
+	assert.strictEqual(prettyMilliseconds(-0.00397, {formatSubMilliseconds: true}), '-3µs 970ns');
 
-	t.is(prettyMilliseconds(1_234_567_890_123, {formatSubMilliseconds: true}), '39y 53d 23h 31m 30s 123ms');
-	t.is(prettyMilliseconds(1_234_567_890_123, {separateMilliseconds: true}), '39y 53d 23h 31m 30s 123ms');
-	t.is(prettyMilliseconds(123_456_789_012_345, {formatSubMilliseconds: true}), '3914y 288d 30m 12s 345ms');
-	t.is(prettyMilliseconds(123_456_789_012_345, {separateMilliseconds: true}), '3914y 288d 30m 12s 345ms');
-	t.is(prettyMilliseconds(9_007_199_254_740_991, {separateMilliseconds: true}), '285616y 151d 8h 59m 991ms');
-	t.is(prettyMilliseconds(9_007_199_254_740_991, {separateMilliseconds: true, millisecondsDecimalDigits: 3}), '285616y 151d 8h 59m 991.000ms');
-	t.is(prettyMilliseconds(1e13 + 0.5, {formatSubMilliseconds: true}), '317y 35d 17h 46m 40s 500µs');
+	assert.strictEqual(prettyMilliseconds(1_234_567_890_123, {formatSubMilliseconds: true}), '39y 53d 23h 31m 30s 123ms');
+	assert.strictEqual(prettyMilliseconds(1_234_567_890_123, {separateMilliseconds: true}), '39y 53d 23h 31m 30s 123ms');
+	assert.strictEqual(prettyMilliseconds(123_456_789_012_345, {formatSubMilliseconds: true}), '3914y 288d 30m 12s 345ms');
+	assert.strictEqual(prettyMilliseconds(123_456_789_012_345, {separateMilliseconds: true}), '3914y 288d 30m 12s 345ms');
+	assert.strictEqual(prettyMilliseconds(9_007_199_254_740_991, {separateMilliseconds: true}), '285616y 151d 8h 59m 991ms');
+	assert.strictEqual(prettyMilliseconds(9_007_199_254_740_991, {separateMilliseconds: true, millisecondsDecimalDigits: 3}), '285616y 151d 8h 59m 991.000ms');
+	assert.strictEqual(prettyMilliseconds(1e13 + 0.5, {formatSubMilliseconds: true}), '317y 35d 17h 46m 40s 500µs');
 
 	// An exact integer millisecond value has no sub-millisecond part at any magnitude.
 	for (const milliseconds of [1, 1000, 1_000_000, 9_007_199_254_740, 9_007_199_254_740_991, 1e15]) {
 		const formatted = prettyMilliseconds(milliseconds, {formatSubMilliseconds: true});
-		t.false(formatted.includes('µs'), `${milliseconds}ms rendered ${formatted}`);
-		t.false(formatted.includes('ns'), `${milliseconds}ms rendered ${formatted}`);
-		t.is(prettyMilliseconds(milliseconds, {separateMilliseconds: true}), prettyMilliseconds(BigInt(milliseconds), {separateMilliseconds: true}), `${milliseconds}ms`);
+		assert.ok(!formatted.includes('µs'), `${milliseconds}ms rendered ${formatted}`);
+		assert.ok(!formatted.includes('ns'), `${milliseconds}ms rendered ${formatted}`);
+		assert.strictEqual(prettyMilliseconds(milliseconds, {separateMilliseconds: true}), prettyMilliseconds(BigInt(milliseconds), {separateMilliseconds: true}), `${milliseconds}ms`);
 	}
 });
 
-test('keep the last decimal digit exact at high digit counts', t => {
+test('keep the last decimal digit exact at high digit counts', () => {
 	// The rounding epsilon is added to the scaled value, where a ulp already exceeds 1e-7 from ~3.3e9 upward, so it became a no-op and the last digit was under-reported.
-	t.is(prettyMilliseconds(33_300, {secondsDecimalDigits: 8}), '33.30000000s');
-	t.is(prettyMilliseconds(33_300, {secondsDecimalDigits: 9}), '33.300000000s');
-	t.is(prettyMilliseconds(33_300, {secondsDecimalDigits: 11}), '33.30000000000s');
+	assert.strictEqual(prettyMilliseconds(33_300, {secondsDecimalDigits: 8}), '33.30000000s');
+	assert.strictEqual(prettyMilliseconds(33_300, {secondsDecimalDigits: 9}), '33.300000000s');
+	assert.strictEqual(prettyMilliseconds(33_300, {secondsDecimalDigits: 11}), '33.30000000000s');
 
 	// A value that is a whole number of microseconds renders exactly at every digit count.
 	for (const milliseconds of [33_300, 1_603_300, 93_300, 12_345_600, 1234]) {
 		const exactSeconds = (milliseconds % 60_000) / 1000;
 		for (let digits = 1; digits <= 13; digits++) {
-			t.is(
+			assert.strictEqual(
 				prettyMilliseconds(milliseconds, {secondsDecimalDigits: digits}).split(' ').at(-1),
 				`${exactSeconds.toFixed(digits)}s`,
 				`${milliseconds}ms at ${digits} digits`,
@@ -455,34 +456,34 @@ test('keep the last decimal digit exact at high digit counts', t => {
 	}
 });
 
-test('keep the seconds when hiding them would leave no field', t => {
+test('keep the seconds when hiding them would leave no field', () => {
 	// A duration under a minute has no coarser field, so hiding the seconds left nothing to carry the value.
-	t.is(prettyMilliseconds(45_000, {hideSeconds: true}), '45s');
-	t.is(prettyMilliseconds(59_999, {hideSeconds: true}), '59.9s');
-	t.is(prettyMilliseconds(1000, {hideSeconds: true}), '1s');
-	t.is(prettyMilliseconds(1000, {hideSeconds: true, compact: true}), '1s');
-	t.is(prettyMilliseconds(1, {hideSeconds: true}), '1ms');
-	t.is(prettyMilliseconds(0, {hideSeconds: true}), '0ms');
-	t.is(prettyMilliseconds(-1000, {hideSeconds: true}), '-1s');
-	t.is(prettyMilliseconds(900, {hideSeconds: true, subSecondsAsDecimals: true}), '0.9s');
-	t.is(prettyMilliseconds(1000, {colonNotation: true, hideSeconds: true}), '0:01');
-	t.is(prettyMilliseconds(45_000, {colonNotation: true, hideSeconds: true}), '0:45');
-	t.is(prettyMilliseconds(45_000, {hideSeconds: true, verbose: true}), '45 seconds');
+	assert.strictEqual(prettyMilliseconds(45_000, {hideSeconds: true}), '45s');
+	assert.strictEqual(prettyMilliseconds(59_999, {hideSeconds: true}), '59.9s');
+	assert.strictEqual(prettyMilliseconds(1000, {hideSeconds: true}), '1s');
+	assert.strictEqual(prettyMilliseconds(1000, {hideSeconds: true, compact: true}), '1s');
+	assert.strictEqual(prettyMilliseconds(1, {hideSeconds: true}), '1ms');
+	assert.strictEqual(prettyMilliseconds(0, {hideSeconds: true}), '0ms');
+	assert.strictEqual(prettyMilliseconds(-1000, {hideSeconds: true}), '-1s');
+	assert.strictEqual(prettyMilliseconds(900, {hideSeconds: true, subSecondsAsDecimals: true}), '0.9s');
+	assert.strictEqual(prettyMilliseconds(1000, {colonNotation: true, hideSeconds: true}), '0:01');
+	assert.strictEqual(prettyMilliseconds(45_000, {colonNotation: true, hideSeconds: true}), '0:45');
+	assert.strictEqual(prettyMilliseconds(45_000, {hideSeconds: true, verbose: true}), '45 seconds');
 
 	// From a minute up, the seconds are still hidden.
-	t.is(prettyMilliseconds(60_000, {hideSeconds: true}), '1m');
-	t.is(prettyMilliseconds(66_500, {hideSeconds: true}), '1m');
-	t.is(prettyMilliseconds(60_000, {colonNotation: true, hideSeconds: true}), '1');
-	t.is(prettyMilliseconds(66_500, {colonNotation: true, hideSeconds: true}), '1');
-	t.is(prettyMilliseconds(3_661_000, {colonNotation: true, hideSeconds: true}), '1:01');
+	assert.strictEqual(prettyMilliseconds(60_000, {hideSeconds: true}), '1m');
+	assert.strictEqual(prettyMilliseconds(66_500, {hideSeconds: true}), '1m');
+	assert.strictEqual(prettyMilliseconds(60_000, {colonNotation: true, hideSeconds: true}), '1');
+	assert.strictEqual(prettyMilliseconds(66_500, {colonNotation: true, hideSeconds: true}), '1');
+	assert.strictEqual(prettyMilliseconds(3_661_000, {colonNotation: true, hideSeconds: true}), '1:01');
 });
 
-test('agree on the seconds across every branch', t => {
+test('agree on the seconds across every branch', () => {
 	// The whole-seconds field, taken from the first part that carries a bare `s` unit.
 	const secondsField = output => {
 		for (const part of output.split(' ')) {
-			if (/^[\d.]+s$/.test(part)) {
-				return Math.floor(Number.parseFloat(part.slice(0, -1)));
+			if (/^[\d.]+s$/v.test(part)) {
+				return Math.floor(Number(part.slice(0, -1)));
 			}
 		}
 
@@ -490,17 +491,17 @@ test('agree on the seconds across every branch', t => {
 	};
 
 	// The separate-milliseconds branch took its seconds from `parse-ms`, which loses them at large magnitudes, so the same input rendered differently per branch.
-	t.is(prettyMilliseconds(Number.MAX_VALUE, {separateMilliseconds: true}), '5700447535712568836077099940756733789893155997141203595856084373514626483384973958669126034778249561502424497511237394223564222694364034207523704550467323597984839883832803211448677387442583997465622415920063861691545637902816557209722493636863373550063350653353143175061459195234630260059944318435y 207d 22h 14m 18s 368ms');
-	t.is(prettyMilliseconds(1e300, {separateMilliseconds: true}).split(' ').slice(-3).join(' '), '42m 20s 160ms');
-	t.is(prettyMilliseconds(123_456_789_012_345, {separateMilliseconds: true}), '3914y 288d 30m 12s 345ms');
+	assert.strictEqual(prettyMilliseconds(Number.MAX_VALUE, {separateMilliseconds: true}), '5700447535712568836077099940756733789893155997141203595856084373514626483384973958669126034778249561502424497511237394223564222694364034207523704550467323597984839883832803211448677387442583997465622415920063861691545637902816557209722493636863373550063350653353143175061459195234630260059944318435y 207d 22h 14m 18s 368ms');
+	assert.strictEqual(prettyMilliseconds(1e300, {separateMilliseconds: true}).split(' ').slice(-3).join(' '), '42m 20s 160ms');
+	assert.strictEqual(prettyMilliseconds(123_456_789_012_345, {separateMilliseconds: true}), '3914y 288d 30m 12s 345ms');
 
 	for (const milliseconds of [1234, 59_999, 60_001, 3_600_000, 86_400_001, 1e13, 1e15, 9_007_199_254_740_991, 1e300, Number.MAX_VALUE]) {
-		t.is(
+		assert.strictEqual(
 			secondsField(prettyMilliseconds(milliseconds, {separateMilliseconds: true})),
 			secondsField(prettyMilliseconds(milliseconds, {formatSubMilliseconds: true})),
 			`${milliseconds}ms`,
 		);
-		t.is(
+		assert.strictEqual(
 			secondsField(prettyMilliseconds(milliseconds, {separateMilliseconds: true})),
 			secondsField(prettyMilliseconds(milliseconds)),
 			`${milliseconds}ms against the decimal-seconds branch`,
@@ -508,51 +509,52 @@ test('agree on the seconds across every branch', t => {
 	}
 });
 
-test('round the milliseconds normally when the seconds carry the value', t => {
+test('round the milliseconds normally when the seconds carry the value', () => {
 	// Float noise on a whole number of seconds must not add a millisecond.
-	t.is(prettyMilliseconds(0.1 * 3 * 10_000, {separateMilliseconds: true}), '3s');
-	t.is(prettyMilliseconds(1000.0000001, {separateMilliseconds: true}), '1s');
-	t.is(prettyMilliseconds(1000.4, {separateMilliseconds: true}), '1s');
-	t.is(prettyMilliseconds(1000.6, {separateMilliseconds: true}), '1s 1ms');
-	t.is(prettyMilliseconds(1000.0004, {separateMilliseconds: true}), '1s');
-	t.is(prettyMilliseconds(1000.0004, {separateMilliseconds: true, millisecondsDecimalDigits: 3}), '1s');
+	assert.strictEqual(prettyMilliseconds(0.1 * 3 * 10_000, {separateMilliseconds: true}), '3s');
+	assert.strictEqual(prettyMilliseconds(1000.0000001, {separateMilliseconds: true}), '1s');
+	assert.strictEqual(prettyMilliseconds(1000.4, {separateMilliseconds: true}), '1s');
+	assert.strictEqual(prettyMilliseconds(1000.6, {separateMilliseconds: true}), '1s 1ms');
+	assert.strictEqual(prettyMilliseconds(1000.0004, {separateMilliseconds: true}), '1s');
+	assert.strictEqual(prettyMilliseconds(1000.0004, {separateMilliseconds: true, millisecondsDecimalDigits: 3}), '1s');
 });
 
-test('never drop a sub-nanosecond duration to zero', t => {
+test('never drop a sub-nanosecond duration to zero', () => {
 	// The sub-millisecond sum is below one nanosecond, so it reaches the clamp as an exact zero even though the input is not.
-	t.is(prettyMilliseconds(1e-9), '1ms');
-	t.is(prettyMilliseconds(5e-7), '1ms');
-	t.is(prettyMilliseconds(5e-324), '1ms');
-	t.is(prettyMilliseconds(-1e-9), '-1ms');
-	t.is(prettyMilliseconds(1e-9, {millisecondsDecimalDigits: 3}), '0.001ms');
-	t.is(prettyMilliseconds(1e-9, {separateMilliseconds: true}), '1ms');
-	t.is(prettyMilliseconds(0, {millisecondsDecimalDigits: 3}), '0ms');
-	t.is(prettyMilliseconds(0n, {millisecondsDecimalDigits: 3}), '0ms');
+	assert.strictEqual(prettyMilliseconds(1e-9), '1ms');
+	assert.strictEqual(prettyMilliseconds(5e-7), '1ms');
+	assert.strictEqual(prettyMilliseconds(5e-324), '1ms');
+	assert.strictEqual(prettyMilliseconds(-1e-9), '-1ms');
+	assert.strictEqual(prettyMilliseconds(1e-9, {millisecondsDecimalDigits: 3}), '0.001ms');
+	assert.strictEqual(prettyMilliseconds(1e-9, {separateMilliseconds: true}), '1ms');
+	assert.strictEqual(prettyMilliseconds(0, {millisecondsDecimalDigits: 3}), '0ms');
+	assert.strictEqual(prettyMilliseconds(0n, {millisecondsDecimalDigits: 3}), '0ms');
 
 	// The whole seconds carry the value, so the milliseconds must stay a real zero.
-	t.is(prettyMilliseconds(1000, {separateMilliseconds: true}), '1s');
-	t.is(prettyMilliseconds(2000, {separateMilliseconds: true}), '2s');
-	t.is(prettyMilliseconds(1000, {formatSubMilliseconds: true}), '1s');
-	t.is(prettyMilliseconds(90_000, {separateMilliseconds: true}), '1m 30s');
-	t.is(prettyMilliseconds(1999.5, {separateMilliseconds: true}), '1s 999ms');
-	t.is(prettyMilliseconds(1000, {millisecondsDecimalDigits: 3}), '1s');
+	assert.strictEqual(prettyMilliseconds(1000, {separateMilliseconds: true}), '1s');
+	assert.strictEqual(prettyMilliseconds(2000, {separateMilliseconds: true}), '2s');
+	assert.strictEqual(prettyMilliseconds(1000, {formatSubMilliseconds: true}), '1s');
+	assert.strictEqual(prettyMilliseconds(90_000, {separateMilliseconds: true}), '1m 30s');
+	assert.strictEqual(prettyMilliseconds(1999.5, {separateMilliseconds: true}), '1s 999ms');
+	assert.strictEqual(prettyMilliseconds(1000, {millisecondsDecimalDigits: 3}), '1s');
 });
 
-test('compute the hours and minutes from the exact remainder', t => {
+test('compute the hours and minutes from the exact remainder', () => {
 	// `parse-ms` takes them from `milliseconds / 60_000 % 60`, which loses the low digits once the quotient is large, so the fields disagreed with the seconds.
-	t.is(prettyMilliseconds(1e22), '317097919837y 235d 17h 46m 40s');
-	t.is(prettyMilliseconds(1e22), prettyMilliseconds(10n ** 22n));
-	t.is(prettyMilliseconds(2.71e20), prettyMilliseconds(271_000_000_000_000_000_000n));
-	t.is(prettyMilliseconds(1e23), prettyMilliseconds(BigInt(1e23)));
-	t.is(prettyMilliseconds(1e22, {hideYearAndDays: true}), prettyMilliseconds(10n ** 22n, {hideYearAndDays: true}));
+	assert.strictEqual(prettyMilliseconds(1e22), '317097919837y 235d 17h 46m 40s');
+	assert.strictEqual(prettyMilliseconds(1e22), prettyMilliseconds(10n ** 22n));
+	assert.strictEqual(prettyMilliseconds(2.71e20), prettyMilliseconds(271_000_000_000_000_000_000n));
+	// eslint-disable-next-line unicorn/prefer-bigint-literals -- the exact double 1e23 is 99999999999999991611392n, so a decimal literal would compare two different durations.
+	assert.strictEqual(prettyMilliseconds(1e23), prettyMilliseconds(BigInt(1e23)));
+	assert.strictEqual(prettyMilliseconds(1e22, {hideYearAndDays: true}), prettyMilliseconds(10n ** 22n, {hideYearAndDays: true}));
 
 	// The `parse-ms` day quotient rounds up into the next day here, while the hours are exact, so the output was a whole day too long.
-	t.is(prettyMilliseconds(7.317_848_896_778_88e19), '2320474662y 311d 23h 59m 57.9s');
+	assert.strictEqual(prettyMilliseconds(7.31784889677888e19), '2320474662y 311d 23h 59m 57.9s');
 
 	// The hours, minutes and seconds must always describe the same instant.
 	// The days come from the exact integer too, so even `Number.MAX_VALUE` matches the bigint path.
 	for (const milliseconds of [1, 1000, 59_999, 60_001, 3_600_000, 3_660_000, 86_400_000, 1e13, 1e18, 1e20, 1e22, 1e23, Number.MAX_VALUE]) {
-		t.is(
+		assert.strictEqual(
 			prettyMilliseconds(milliseconds),
 			prettyMilliseconds(BigInt(milliseconds)),
 			`${milliseconds}ms`,
@@ -560,18 +562,18 @@ test('compute the hours and minutes from the exact remainder', t => {
 	}
 });
 
-test('throw on invalid', t => {
-	t.throws(() => {
+test('throw on invalid', () => {
+	assert.throws(() => {
 		prettyMilliseconds('foo');
-	});
+	}, TypeError);
 
-	t.throws(() => {
-		prettyMilliseconds(Number.NaN);
-	});
+	assert.throws(() => {
+		prettyMilliseconds(NaN);
+	}, TypeError);
 
-	t.throws(() => {
-		prettyMilliseconds(Number.POSITIVE_INFINITY);
-	});
+	assert.throws(() => {
+		prettyMilliseconds(Infinity);
+	}, TypeError);
 });
 
 runTests({
@@ -621,7 +623,7 @@ runTests({
 		[-1001, {separateMilliseconds: true}, '-1s 1ms'],
 		[-1234, {separateMilliseconds: true}, '-1s 234ms'],
 		// With formatSubMilliseconds option
-		[-1.234_567, {formatSubMilliseconds: true}, '-1ms 234µs 567ns'],
+		[-1.234567, {formatSubMilliseconds: true}, '-1ms 234µs 567ns'],
 		[-1234.567, {formatSubMilliseconds: true}, '-1s 234ms 567µs'],
 	],
 });
@@ -774,7 +776,7 @@ runTests({
 		[900, {colonNotation: true}, '0:00.9'],
 
 		// Doesn't interfere with these options (they take precedence)
-		[900.123_456, {formatSubMilliseconds: true}, '900ms 123µs 456ns'],
+		[900.123456, {formatSubMilliseconds: true}, '900ms 123µs 456ns'],
 		[1500, {separateMilliseconds: true}, '1s 500ms'],
 	],
 });
@@ -788,13 +790,13 @@ runTests({
 	],
 });
 
-test('Big numbers', t => {
+test('Big numbers', () => {
 	// The seconds are the exact remainder within the day: `BigInt(Number.MAX_VALUE) % 86_400_000n` is `80_058_368n`, so `18.3s`, not `48s`.
-	t.is(
+	assert.strictEqual(
 		prettyMilliseconds(Number.MAX_VALUE),
 		'5700447535712568836077099940756733789893155997141203595856084373514626483384973958669126034778249561502424497511237394223564222694364034207523704550467323597984839883832803211448677387442583997465622415920063861691545637902816557209722493636863373550063350653353143175061459195234630260059944318435y 207d 22h 14m 18.3s',
 	);
-	t.is(
+	assert.strictEqual(
 		prettyMilliseconds(BigInt(Number.MAX_VALUE)),
 		'5700447535712568836077099940756733789893155997141203595856084373514626483384973958669126034778249561502424497511237394223564222694364034207523704550467323597984839883832803211448677387442583997465622415920063861691545637902816557209722493636863373550063350653353143175061459195234630260059944318435y 207d 22h 14m 18.3s',
 	);
@@ -810,22 +812,22 @@ test('Big numbers', t => {
 		+ (4n * 1000n * 60n * 60n)
 		// Days
 		+ (BigInt(Number.MAX_VALUE) * 1000n * 60n * 60n * 24n);
-	t.is(
+	assert.strictEqual(
 		prettyMilliseconds(duration),
 		'492518667085565947437061434881381799446768678152999990681965689871663728164461750029012489404840762113809476584970910860915948840793052555530048073160376758865890165963154197469165726275039257381029776735493517650149543114803350542920023450224995474725473496449711570325310074468272054469179189112833218790y 18d 4h 3m 2s',
 	);
-	t.is(
+	assert.strictEqual(
 		prettyMilliseconds(duration, {colonNotation: true}),
 		'492518667085565947437061434881381799446768678152999990681965689871663728164461750029012489404840762113809476584970910860915948840793052555530048073160376758865890165963154197469165726275039257381029776735493517650149543114803350542920023450224995474725473496449711570325310074468272054469179189112833218790:18:04:03:02',
 	);
 });
 
-test('pure', t => {
+test('pure', () => {
 	const runTest = options => {
 		const copy = {...options};
 		prettyMilliseconds(1337, options);
 		prettyMilliseconds(1337, options);
-		t.deepEqual(options, copy);
+		assert.deepStrictEqual(options, copy);
 	};
 
 	// Every option that overrides another, plus the numeric ones, must leave the caller's object alone.
@@ -857,7 +859,7 @@ test('pure', t => {
 	});
 });
 
-test('reject anything that is not a finite number or bigint', t => {
+test('reject anything that is not a finite number or bigint', () => {
 	const invalid = [
 		'foo',
 		'',
@@ -871,19 +873,19 @@ test('reject anything that is not a finite number or bigint', t => {
 		Symbol('x'),
 		() => 1000,
 		new Object(1000),
-		Number.NaN,
-		Number.POSITIVE_INFINITY,
-		Number.NEGATIVE_INFINITY,
+		NaN,
+		Infinity,
+		-Infinity,
 		{valueOf: () => 1000},
 	];
 
 	for (const value of invalid) {
-		t.throws(
+		assert.throws(
 			() => {
 				prettyMilliseconds(value);
 			},
-			{instanceOf: TypeError},
-			`${typeof value}`,
+			TypeError,
+			typeof value,
 		);
 	}
 });
@@ -900,32 +902,26 @@ const unitBases = [
 	['ns', 1000],
 ];
 
-const assertUnitsInRange = (t, output, options) => {
+const assertUnitsInRange = (output, options) => {
 	for (const part of output.split(' ')) {
-		const match = /^([\d.]+)(ns|µs|ms|s|m|h|d|y)$/.exec(part);
+		// The units are alternatives of different lengths, so a character class would drop every multi-character one and silently match nothing.
+		// eslint-disable-next-line regexp/prefer-character-class
+		const match = /^(?<value>[\d.]+)(?<unit>ns|µs|ms|s|m|h|d|y)$/v.exec(part);
 		if (!match) {
 			continue;
 		}
 
-		const [, value, unit] = match;
+		const {value, unit} = match.groups;
 		const base = unitBases.find(([name]) => name === unit)[1];
-		if (base === undefined) {
+		if ((base === undefined) || (unit === 'd' && options.hideYear) || (unit === 'h' && options.hideYearAndDays)) {
 			continue;
 		}
 
-		if (unit === 'd' && options.hideYear) {
-			continue;
-		}
-
-		if (unit === 'h' && options.hideYearAndDays) {
-			continue;
-		}
-
-		t.true(Number(value) < base, `${unit} field in ${output} for ${JSON.stringify(options)}`);
+		assert.ok(Number(value) < base, `${unit} field in ${output} for ${JSON.stringify(options)}`);
 	}
 };
 
-test('never let a unit reach its base', t => {
+test('never let a unit reach its base', () => {
 	const flagSets = [
 		{},
 		{hideYear: true},
@@ -943,7 +939,7 @@ test('never let a unit reach its base', t => {
 				optionSets.push({
 					...flags,
 					secondsDecimalDigits,
-					...(millisecondsDecimalDigits === undefined ? {} : {millisecondsDecimalDigits}),
+					...(millisecondsDecimalDigits !== undefined && {millisecondsDecimalDigits}),
 				});
 			}
 		}
@@ -951,12 +947,12 @@ test('never let a unit reach its base', t => {
 
 	for (const options of optionSets) {
 		for (let milliseconds = 0; milliseconds < 4000; milliseconds += 41) {
-			assertUnitsInRange(t, prettyMilliseconds(milliseconds, options), options);
+			assertUnitsInRange(prettyMilliseconds(milliseconds, options), options);
 		}
 	}
 });
 
-test('keep the sign symmetric and match the bigint path', t => {
+test('keep the sign symmetric and match the bigint path', () => {
 	const optionSets = [
 		{},
 		{verbose: true},
@@ -980,15 +976,15 @@ test('keep the sign symmetric and match the bigint path', t => {
 			const milliseconds = ((index * 4_996_408_911) % 1e12);
 			const positive = prettyMilliseconds(milliseconds, options);
 
-			t.is(positive, prettyMilliseconds(BigInt(milliseconds), options), `${milliseconds}ms`);
+			assert.strictEqual(positive, prettyMilliseconds(BigInt(milliseconds), options), `${milliseconds}ms`);
 
-			const expected = /[1-9]/.test(positive) ? `-${positive}` : positive;
-			t.is(prettyMilliseconds(-milliseconds, options), expected, `-${milliseconds}ms`);
+			const expected = /[1-9]/v.test(positive) ? `-${positive}` : positive;
+			assert.strictEqual(prettyMilliseconds(-milliseconds, options), expected, `-${milliseconds}ms`);
 		}
 	}
 });
 
-test('render a whole number of microseconds exactly', t => {
+test('render a whole number of microseconds exactly', () => {
 	// The exact sub-millisecond digits, computed with BigInt so the expectation carries no float error.
 	// The digits start at 6 so the value is exactly representable, leaving the documented rounding nothing to decide.
 	const exact = (nanoseconds, digits) => {
@@ -1002,7 +998,7 @@ test('render a whole number of microseconds exactly', t => {
 		const milliseconds = Number(nanoseconds) / 1e6;
 
 		for (const digits of [6, 9, 12]) {
-			t.is(
+			assert.strictEqual(
 				prettyMilliseconds(milliseconds, {separateMilliseconds: true, millisecondsDecimalDigits: digits}).split(' ').at(-1),
 				exact(nanoseconds, digits),
 				`${milliseconds}ms at ${digits} digits`,
