@@ -136,7 +136,12 @@ export default function prettyMilliseconds(milliseconds, options) {
 				? milliseconds % (isBigInt ? ONE_SECOND_IN_BIGINT_MILLISECONDS : ONE_SECOND_IN_MILLISECONDS)
 				: milliseconds,
 		) * 1e6;
-		const totalNanoseconds = Math.trunc(scaledNanoseconds + scalingEpsilon(scaledNanoseconds)) % 1e6;
+		const flooredNanoseconds = Math.trunc(scaledNanoseconds + scalingEpsilon(scaledNanoseconds));
+		const wholeMilliseconds = Number(parsed.milliseconds);
+		// The scaling and its correction can round the value up into the next whole millisecond, which `parse-ms` does not count. Wrapping to zero would lose that millisecond, so the value is held at the last nanosecond instead.
+		const totalNanoseconds = Math.floor(flooredNanoseconds / 1e6) % 1000 === wholeMilliseconds
+			? flooredNanoseconds % 1e6
+			: 999_999;
 		const microseconds = Math.floor(totalNanoseconds / 1000);
 		const nanoseconds = totalNanoseconds % 1000;
 
@@ -150,8 +155,6 @@ export default function prettyMilliseconds(milliseconds, options) {
 			|| options.formatSubMilliseconds
 			|| (!canShowAsDecimalSeconds && !options.colonNotation && milliseconds < 1000)
 		) {
-			const wholeMilliseconds = Number(parsed.milliseconds);
-
 			add(Math.floor(secondsWithinMinute), 'second', 's');
 
 			if (options.formatSubMilliseconds) {

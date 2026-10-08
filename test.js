@@ -539,6 +539,17 @@ test('never drop a sub-nanosecond duration to zero', () => {
 	assert.strictEqual(prettyMilliseconds(1000, {millisecondsDecimalDigits: 3}), '1s');
 });
 
+test('never lose a millisecond to the sub-millisecond rounding correction', () => {
+	// `(0.7 + 0.1) * 10` is 7.999999999999999, which the correction rounds up to the next whole millisecond, but `parse-ms` still counts 7.
+	const milliseconds = (0.7 + 0.1) * 10;
+	assert.strictEqual(prettyMilliseconds(milliseconds), '8ms');
+	assert.strictEqual(prettyMilliseconds(milliseconds, {millisecondsDecimalDigits: 2}), '8.00ms');
+	assert.strictEqual(prettyMilliseconds(milliseconds, {formatSubMilliseconds: true}), '7ms 999µs 999ns');
+	assert.strictEqual(prettyMilliseconds(99.99999999999999, {subSecondsAsDecimals: true}), '100ms');
+	assert.strictEqual(prettyMilliseconds(999.9999999999999), '999ms');
+	assert.strictEqual(prettyMilliseconds(999.9999999999999, {formatSubMilliseconds: true}), '999ms 999µs 999ns');
+});
+
 test('compute the hours and minutes from the exact remainder', () => {
 	// `parse-ms` takes them from `milliseconds / 60_000 % 60`, which loses the low digits once the quotient is large, so the fields disagreed with the seconds.
 	assert.strictEqual(prettyMilliseconds(1e22), '317097919837y 235d 17h 46m 40s');
