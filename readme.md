@@ -196,9 +196,9 @@ A duration too small for the seconds field to show, like `50ms` at the default `
 
 ## FAQ
 
-### Why doesn't this package support months or years?
+### Why doesn't this package support months?
 
-This package formats time durations, not calendar dates. Months (28-31 days) and years (365-366 days) have variable lengths, making duration calculations ambiguous. Days are the largest unit since they're always exactly 24 hours. For calendar-based formatting, use [Temporal API](https://tc39.es/proposal-temporal/docs/) or a date library like [date-fns](https://github.com/date-fns/date-fns).
+This package formats time durations, not calendar dates. Months (28-31 days) have variable lengths, making duration calculations ambiguous. Years are shown as a fixed 365 days, so they do not account for leap years. Use the [`hideYear`](#hideyear) option to show days as the largest unit, since days are always exactly 24 hours. For calendar-based formatting, use [Temporal API](https://tc39.es/proposal-temporal/docs/) or a date library like [date-fns](https://github.com/date-fns/date-fns).
 
 ### Why doesn't the formatted difference of two values match the formatted values?
 
