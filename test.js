@@ -1270,3 +1270,44 @@ test('round the milliseconds half up exactly', () => {
 
 	assert.strictEqual(prettyMilliseconds(999.95, {millisecondsDecimalDigits: 1}), '999.9ms');
 });
+
+test('round every thousandth of a millisecond exactly', () => {
+	// Thousandths are exact in the 15 significant digits a fractional number is read to, so the rounding can be checked against integer arithmetic.
+	for (let thousandths = 0; thousandths < 3_000_000; thousandths += 997) {
+		const milliseconds = thousandths / 1000;
+		const withinSecond = thousandths % 1_000_000;
+
+		for (const digits of [0, 1, 2]) {
+			const stepSize = 10 ** (3 - digits);
+			let steps = Math.floor((withinSecond + (stepSize / 2)) / stepSize);
+			if (steps === 0 && thousandths > 0 && thousandths < 1_000_000) {
+				steps = 1;
+			}
+
+			steps = Math.min(steps, (1000 * (10 ** digits)) - 1);
+
+			const expected = (steps / (10 ** digits)).toFixed(digits);
+			const actual = prettyMilliseconds(milliseconds, {separateMilliseconds: true, millisecondsDecimalDigits: digits}).split(' ').at(-1);
+			if (Number(expected) !== 0) {
+				assert.strictEqual(actual, `${expected}ms`, `${milliseconds}ms at ${digits} digits`);
+			}
+		}
+	}
+});
+
+test('show a bigint with decimal milliseconds', () => {
+	assert.strictEqual(prettyMilliseconds(1500n, {separateMilliseconds: true, millisecondsDecimalDigits: 2}), '1s 500.00ms');
+	assert.strictEqual(prettyMilliseconds(5n, {millisecondsDecimalDigits: 2}), '5.00ms');
+	assert.strictEqual(prettyMilliseconds(-5n, {millisecondsDecimalDigits: 2, verbose: true}), '-5.00 milliseconds');
+	assert.strictEqual(prettyMilliseconds(999n, {millisecondsDecimalDigits: 1}), '999.0ms');
+});
+
+test('show a year as a fixed 365 days', () => {
+	const year = 365 * 24 * 60 * 60 * 1000;
+	assert.strictEqual(prettyMilliseconds(year), '1y');
+	assert.strictEqual(prettyMilliseconds(year + (24 * 60 * 60 * 1000)), '1y 1d');
+	assert.strictEqual(prettyMilliseconds(year, {hideYear: true}), '365d');
+	assert.strictEqual(prettyMilliseconds(year * 2, {hideYear: true}), '730d');
+	assert.strictEqual(prettyMilliseconds(BigInt(year) * 4n), '4y');
+	assert.strictEqual(prettyMilliseconds(year, {hideYearAndDays: true}), '8760h');
+});
