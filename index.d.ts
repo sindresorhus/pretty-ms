@@ -38,7 +38,7 @@ export type Options = {
 	readonly compact?: boolean;
 
 	/**
-	Number of units to show. Setting `compact` to `true` overrides this option.
+	Number of units to show. Setting `compact` to `true` overrides this option. It is ignored with `colonNotation`.
 
 	@default Infinity
 	*/
@@ -77,6 +77,8 @@ export type Options = {
 	- `formatSubMilliseconds`
 	- `separateMilliseconds`
 	- `verbose`
+
+	It also ignores `unitCount`, as dropping a field would change what the remaining fields mean: `1:01:01` would become `1:01`, which reads as 1 minute.
 
 	@default false
 	*/

@@ -698,13 +698,19 @@ runTests({
 		[1000 * 90, {secondsDecimalDigits: 3, keepDecimalsOnWholeSeconds: true}, '1:30.000'],
 		[1000 * 60 * 10, {secondsDecimalDigits: 3, keepDecimalsOnWholeSeconds: true}, '10:00.000'],
 
-		// Together with `unitCount`
-		[1000 * 90, {secondsDecimalDigits: 0, unitCount: 1}, '1'],
+		// `unitCount` is ignored, as dropping a field from the right would change what the remaining fields mean: `1h 1m 1s` would read as `1:01`, 1 minute and 1 second.
+		[1000 * 90, {secondsDecimalDigits: 0, unitCount: 1}, '1:30'],
 		[1000 * 90, {secondsDecimalDigits: 0, unitCount: 2}, '1:30'],
 		[1000 * 60 * 90, {secondsDecimalDigits: 0, unitCount: 3}, '1:30:00'],
-		[95_543, {secondsDecimalDigits: 1, unitCount: 1}, '1'],
+		[95_543, {secondsDecimalDigits: 1, unitCount: 1}, '1:35.5'],
 		[95_543, {secondsDecimalDigits: 1, unitCount: 2}, '1:35.5'],
 		[95_543 + (1000 * 60 * 60), {secondsDecimalDigits: 1, unitCount: 3}, '1:01:35.5'],
+		[3_661_000, {unitCount: 1}, '1:01:01'],
+		[3_661_000, {unitCount: 2}, '1:01:01'],
+		[1000, {unitCount: 1}, '0:01'],
+		[30_000, {unitCount: 1}, '0:30'],
+		[(1000 * 60 * 60 * 24) + 1000, {unitCount: 1}, '1:00:00:01'],
+		[3_661_000, {unitCount: 1, compact: true}, '1:01:01'],
 
 		// Make sure incompatible options fall back to `colonNotation`
 		[(1000 * 60 * 59) + (1000 * 59) + 543, {formatSubMilliseconds: true}, '59:59.5'],

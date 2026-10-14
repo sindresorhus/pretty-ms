@@ -58,6 +58,8 @@ export default function prettyMilliseconds(milliseconds, options) {
 		options.formatSubMilliseconds = false;
 		options.separateMilliseconds = false;
 		options.verbose = false;
+		// Dropping a field from the right would change what the remaining fields mean: `1:01:01` would become `1:01`, which reads as 1 minute.
+		options.unitCount = undefined;
 	}
 
 	if (options.compact) {

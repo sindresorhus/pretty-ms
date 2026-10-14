@@ -118,7 +118,7 @@ Also ensures that `millisecondsDecimalDigits` and `secondsDecimalDigits` are bot
 Type: `number`\
 Default: `Infinity`
 
-Number of units to show. Setting `compact` to `true` overrides this option.
+Number of units to show. Setting `compact` to `true` overrides this option. It is ignored with `colonNotation`.
 
 ##### verbose
 
@@ -157,6 +157,8 @@ Setting `colonNotation` to `true` overrides the following options to `false`:
 - `formatSubMilliseconds`
 - `separateMilliseconds`
 - `verbose`
+
+It also ignores `unitCount`, as dropping a field would change what the remaining fields mean: `1:01:01` would become `1:01`, which reads as 1 minute.
 
 ##### hideYear
 
