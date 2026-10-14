@@ -71,10 +71,13 @@ export default function prettyMilliseconds(milliseconds, options) {
 	let result = [];
 
 	const add = (value, long, short, valueString) => {
+		// Colon notation always shows the minutes, and the hours too when the seconds are hidden, so the last fields read as `m:ss`, or as `h:mm` without the seconds. A duration under a minute keeps its seconds, so it reads as `h:mm:ss` there.
+		const isAlwaysShown = options.colonNotation && (short === 'm' || (short === 'h' && options.hideSeconds));
+
 		if (
-			(result.length === 0 || !options.colonNotation)
-			&& isZero(value)
-			&& !(short === 'm' && options.colonNotation)) {
+			!isAlwaysShown
+			&& (result.length === 0 || !options.colonNotation)
+			&& isZero(value)) {
 			return;
 		}
 

@@ -68,7 +68,7 @@ export type Options = {
 	readonly formatSubMilliseconds?: boolean;
 
 	/**
-	Display time using colon notation: `5h 1m 45s` → `5:01:45`. Always shows time in at least minutes: `1s` → `0:01`
+	Display time using colon notation: `5h 1m 45s` → `5:01:45`. Always shows time in at least minutes: `1s` → `0:01`, or in at least hours with `hideSeconds`: `1m` → `0:01`.
 
 	Useful when you want to display time without the time units, similar to a digital watch.
 
@@ -101,7 +101,7 @@ export type Options = {
 	/**
 	Hides the seconds: `1y 3d 5h 1m 45s` → `1y 3d 5h 1m`.
 
-	A duration under a minute has no coarser unit, so it keeps its seconds rather than showing nothing.
+	A duration under a minute has no coarser unit, so it keeps its seconds rather than showing nothing. With `colonNotation`, the hours are always shown, so the fields read as `h:mm`: `60000` → `0:01`, and `45000` → `0:00:45`.
 
 	@default false
 	*/

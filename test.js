@@ -466,16 +466,40 @@ test('keep the seconds when hiding them would leave no field', () => {
 	assert.strictEqual(prettyMilliseconds(0, {hideSeconds: true}), '0ms');
 	assert.strictEqual(prettyMilliseconds(-1000, {hideSeconds: true}), '-1s');
 	assert.strictEqual(prettyMilliseconds(900, {hideSeconds: true, subSecondsAsDecimals: true}), '0.9s');
-	assert.strictEqual(prettyMilliseconds(1000, {colonNotation: true, hideSeconds: true}), '0:01');
-	assert.strictEqual(prettyMilliseconds(45_000, {colonNotation: true, hideSeconds: true}), '0:45');
+	assert.strictEqual(prettyMilliseconds(1000, {colonNotation: true, hideSeconds: true}), '0:00:01');
+	assert.strictEqual(prettyMilliseconds(45_000, {colonNotation: true, hideSeconds: true}), '0:00:45');
 	assert.strictEqual(prettyMilliseconds(45_000, {hideSeconds: true, verbose: true}), '45 seconds');
 
 	// From a minute up, the seconds are still hidden.
 	assert.strictEqual(prettyMilliseconds(60_000, {hideSeconds: true}), '1m');
 	assert.strictEqual(prettyMilliseconds(66_500, {hideSeconds: true}), '1m');
-	assert.strictEqual(prettyMilliseconds(60_000, {colonNotation: true, hideSeconds: true}), '1');
-	assert.strictEqual(prettyMilliseconds(66_500, {colonNotation: true, hideSeconds: true}), '1');
+	assert.strictEqual(prettyMilliseconds(60_000, {colonNotation: true, hideSeconds: true}), '0:01');
+	assert.strictEqual(prettyMilliseconds(66_500, {colonNotation: true, hideSeconds: true}), '0:01');
 	assert.strictEqual(prettyMilliseconds(3_661_000, {colonNotation: true, hideSeconds: true}), '1:01');
+});
+
+test('show the hours with colonNotation and hideSeconds', () => {
+	// Without the seconds, the last two fields are the hours and minutes, so a bare minutes field like `1` or `59` was not readable as a duration, and `1:00` meant 1 hour, not 1 minute.
+	const options = {colonNotation: true, hideSeconds: true};
+	assert.strictEqual(prettyMilliseconds(60_000, options), '0:01');
+	assert.strictEqual(prettyMilliseconds(59 * 60_000, options), '0:59');
+	assert.strictEqual(prettyMilliseconds(3_599_999, options), '0:59');
+	assert.strictEqual(prettyMilliseconds(3_600_000, options), '1:00');
+	assert.strictEqual(prettyMilliseconds(36_000_000 + 60_000, options), '10:01');
+	assert.strictEqual(prettyMilliseconds(86_400_000 + 60_000, options), '1:00:01');
+	assert.strictEqual(prettyMilliseconds(60_000n, options), '0:01');
+	assert.strictEqual(prettyMilliseconds(-60_000, options), '-0:01');
+	assert.strictEqual(prettyMilliseconds(60_000, {...options, hideYearAndDays: true}), '0:01');
+	assert.strictEqual(prettyMilliseconds(60_000, {...options, hideYear: true}), '0:01');
+
+	// Under a minute, the seconds are kept, so the hours make it read as `h:mm:ss`.
+	assert.strictEqual(prettyMilliseconds(0, options), '0:00:00');
+	assert.strictEqual(prettyMilliseconds(59_999, options), '0:00:59.9');
+	assert.strictEqual(prettyMilliseconds(-1000, options), '-0:00:01');
+
+	// Without `hideSeconds`, the hours are still only shown when needed.
+	assert.strictEqual(prettyMilliseconds(60_000, {colonNotation: true}), '1:00');
+	assert.strictEqual(prettyMilliseconds(60_000, {hideSeconds: true}), '1m');
 });
 
 test('agree on the seconds across every branch', () => {
