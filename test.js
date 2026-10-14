@@ -549,6 +549,11 @@ test('read a fractional number to 15 significant digits', () => {
 	assert.strictEqual(prettyMilliseconds(999.9999999999999), '1s');
 	assert.strictEqual(prettyMilliseconds(999.9999999999999, {formatSubMilliseconds: true}), '1s');
 
+	// From `1e14` up, the 15 digits end at the decimal point, so the fraction is rounded to whole milliseconds.
+	assert.strictEqual(prettyMilliseconds(99_999_999_999_999.4, {formatSubMilliseconds: true}).split(' ').slice(-2).join(' '), '999ms 400µs');
+	assert.strictEqual(prettyMilliseconds(100_000_000_000_000.4, {formatSubMilliseconds: true}).split(' ').at(-1), '40s');
+	assert.strictEqual(prettyMilliseconds(100_000_000_000_000.6, {formatSubMilliseconds: true}).split(' ').at(-1), '1ms');
+
 	// From `1e15` up, the 15 digits do not reach the decimal point.
 	assert.strictEqual(prettyMilliseconds(1_234_567_890_123_456.5, {separateMilliseconds: true}).split(' ').slice(-2).join(' '), '3s 460ms');
 });

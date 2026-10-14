@@ -13,7 +13,7 @@ export type Options = {
 
 	The milliseconds are rounded, not floored, but they never round up to `1000ms`, and a nonzero duration under a second never rounds down to `0ms`: `999.6ms` is `999ms`, and `0.2ms` is `1ms`. This does not apply with `formatSubMilliseconds`, which floors instead.
 
-	Useful in combination with [`process.hrtime()`](https://nodejs.org/api/process.html#process_process_hrtime).
+	Useful in combination with [`process.hrtime()`](https://nodejs.org/api/process.html#process_process_hrtime_time).
 
 	@default 0
 	*/
@@ -131,7 +131,7 @@ A fractional number is first rounded to 15 significant digits, the precision of 
 - `0.57 * 100_000` (`56999.99999999999`) is `57s`.
 - `999.9999999999999` (16 digits) is `1s`, but `999.99999999999` (14 digits) is `999ms`.
 
-From `1e15` milliseconds (about 31,700 years) up, no digits are left for the fraction, so the duration is rounded to the nearest 10 milliseconds.
+From `1e14` milliseconds (about 3,170 years) up, no digits are left for the fraction, so the duration is rounded to whole milliseconds, and from `1e15` (about 31,700 years) up, to the nearest 10 milliseconds.
 
 @example
 ```
