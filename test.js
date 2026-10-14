@@ -1017,3 +1017,215 @@ test('render a whole number of microseconds exactly', () => {
 		}
 	}
 });
+
+// An exact reference for the floored fields. A number stands for the shortest decimal it prints as, so that decimal is parsed into a BigInt numerator over a power of ten, which carries no float error.
+const exactFields = milliseconds => {
+	const [integerPart, fractionPart = ''] = String(milliseconds).split('.', 2);
+	const millisecond = 10n ** BigInt(fractionPart.length);
+	const numerator = BigInt(integerPart + fractionPart);
+	const second = 1000n * millisecond;
+	const minute = 60n * second;
+	const hour = 60n * minute;
+	const day = 24n * hour;
+
+	return {
+		numerator,
+		second,
+		years: numerator / (365n * day),
+		days: (numerator / day) % 365n,
+		hours: (numerator % day) / hour,
+		minutes: (numerator % hour) / minute,
+		withinMinute: numerator % minute,
+		totalNanoseconds: (numerator * 1_000_000n) / millisecond,
+	};
+};
+
+// The seconds within the minute floored to the given digits, as an integer count of steps, and how far the value sits below the next step.
+const exactSeconds = (fields, digits) => {
+	const scaledRemainder = fields.withinMinute * (10n ** BigInt(digits));
+	const steps = scaledRemainder / fields.second;
+	const stepMilliseconds = 1000 * (10 ** -digits);
+	const distanceMilliseconds = (Number(((steps + 1n) * fields.second) - scaledRemainder) / Number(fields.second)) * stepMilliseconds;
+	const text = steps.toString().padStart(digits + 1, '0');
+
+	return {
+		text: digits === 0 ? text : `${text.slice(0, -digits)}.${text.slice(-digits)}`,
+		stepMilliseconds,
+		distanceMilliseconds,
+	};
+};
+
+// A number is only an approximation of its decimal, so the expectation is only decidable when the next step clears that error. A step finer than the input's precision cannot be told apart at all.
+const isDecidable = (milliseconds, {stepMilliseconds, distanceMilliseconds}) => {
+	const unitInLastPlace = 2 ** (Math.floor(Math.log2(milliseconds)) - 52);
+	return stepMilliseconds >= 64 * unitInLastPlace && distanceMilliseconds >= 16 * unitInLastPlace;
+};
+
+// Seeded, so a failure always reproduces.
+const sampleDurations = () => {
+	let seed = 76;
+	const random = () => {
+		seed = ((seed * 1_103_515_245) + 12_345) % 2_147_483_648;
+		return seed / 2_147_483_648;
+	};
+
+	const durations = [];
+
+	for (let index = 0; index < 4000; index++) {
+		const magnitude = [1e3, 1e4, 1e6, 1e8, 1e11][Math.floor(random() * 5)];
+		const decimals = Math.floor(random() * 7);
+		durations.push(Number((random() * magnitude).toFixed(decimals)));
+	}
+
+	// Just below and above whole tenths of a second, seconds, minutes, and hours, where a rounding correction can carry the value into the next unit.
+	for (const unit of [100, 1000, 60_000, 3_600_000]) {
+		for (const count of [1, 2, 7, 59, 61, 1000]) {
+			for (const offset of [1, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9]) {
+				durations.push((count * unit) - offset, (count * unit) + offset);
+			}
+		}
+	}
+
+	return durations.filter(duration => duration > 0 && !String(duration).includes('e'));
+};
+
+const durations = sampleDurations();
+const subSecondDurations = durations.filter(duration => duration < 1000);
+const secondDurations = durations.filter(duration => duration >= 1000);
+
+const parseUnits = output => Object.fromEntries(output.split(' ').map(part => {
+	const {value, unit} = /^(?<value>[\d.]+)(?<unit>[a-zµ]+)$/v.exec(part).groups;
+	return [unit, value];
+}));
+
+const nonZeroString = value => value === 0n ? undefined : String(value);
+
+// Every decidable pair of a duration and a seconds digit count.
+function * secondsCases(milliseconds, digitCounts) {
+	const fields = exactFields(milliseconds);
+	for (const digits of digitCounts) {
+		const seconds = exactSeconds(fields, digits);
+		if (isDecidable(milliseconds, seconds)) {
+			yield {digits, fields, seconds};
+		}
+	}
+}
+
+const digitRange = (minimum, maximum) => Array.from({length: maximum - minimum + 1}, (_, index) => minimum + index);
+
+test('floor the seconds field exactly at every digit count', () => {
+	for (const milliseconds of secondDurations) {
+		for (const {digits, fields, seconds} of secondsCases(milliseconds, digitRange(0, 9))) {
+			const options = {secondsDecimalDigits: digits, keepDecimalsOnWholeSeconds: true};
+			const message = `${milliseconds}ms at ${digits} digits`;
+			const output = prettyMilliseconds(milliseconds, options);
+
+			const units = parseUnits(output);
+			assert.deepStrictEqual(
+				[units.y, units.d, units.h, units.m, units.s],
+				[
+					nonZeroString(fields.years),
+					nonZeroString(fields.days),
+					nonZeroString(fields.hours),
+					nonZeroString(fields.minutes),
+					/[1-9]/v.test(seconds.text) ? seconds.text : undefined,
+				],
+				message,
+			);
+
+			const colon = prettyMilliseconds(milliseconds, {...options, colonNotation: true}).split(':');
+			assert.strictEqual(colon.at(-1).replace(/^0(?=\d)/v, ''), seconds.text, `${message} with colonNotation`);
+			assert.strictEqual(BigInt(colon.at(-2)), fields.minutes, `${message} with colonNotation`);
+
+			assert.strictEqual(prettyMilliseconds(-milliseconds, options), `-${output}`, `-${message}`);
+		}
+	}
+});
+
+test('floor the sub-second decimals exactly', () => {
+	for (const milliseconds of subSecondDurations) {
+		for (const {digits, seconds} of secondsCases(milliseconds, digitRange(1, 9))) {
+			// Below one step, the value is not shown as seconds at all.
+			if (milliseconds >= seconds.stepMilliseconds) {
+				assert.strictEqual(
+					prettyMilliseconds(milliseconds, {subSecondsAsDecimals: true, secondsDecimalDigits: digits, keepDecimalsOnWholeSeconds: true}),
+					`${seconds.text}s`,
+					`${milliseconds}ms at ${digits} digits`,
+				);
+			}
+		}
+	}
+});
+
+test('floor the sub-millisecond fields exactly', () => {
+	for (const milliseconds of durations) {
+		const fields = exactFields(milliseconds);
+		const nanoseconds = fields.totalNanoseconds;
+		const distanceMilliseconds = (Number(((nanoseconds + 1n) * fields.second) - (fields.numerator * 1_000_000_000n)) / Number(fields.second)) * 1e-6;
+		if (!isDecidable(milliseconds, {stepMilliseconds: 1e-6, distanceMilliseconds})) {
+			continue;
+		}
+
+		const units = parseUnits(prettyMilliseconds(milliseconds, {formatSubMilliseconds: true}));
+		assert.deepStrictEqual(
+			[units.y, units.d, units.h, units.m, units.s, units.ms, units['µs'], units.ns],
+			[
+				fields.years,
+				fields.days,
+				fields.hours,
+				fields.minutes,
+				(nanoseconds / 1_000_000_000n) % 60n,
+				(nanoseconds / 1_000_000n) % 1000n,
+				(nanoseconds / 1000n) % 1000n,
+				nanoseconds % 1000n,
+			].map(value => nonZeroString(value)),
+			`${milliseconds}ms`,
+		);
+	}
+});
+
+test('render an exactly representable fractional duration exactly', () => {
+	const wholes = [1000, 123_456, 98_765_432, 100_000_000_000, 7_654_321_098_765];
+	const fractions = [0.5, 0.25, 0.125, 0.0625, 0.75];
+
+	for (const milliseconds of wholes.flatMap(whole => fractions.map(fraction => whole + fraction))) {
+		for (const {digits, seconds} of secondsCases(milliseconds, digitRange(0, 12))) {
+			assert.strictEqual(
+				prettyMilliseconds(milliseconds, {secondsDecimalDigits: digits, keepDecimalsOnWholeSeconds: true}).split(' ').at(-1),
+				`${seconds.text}s`,
+				`${milliseconds}ms at ${digits} digits`,
+			);
+		}
+	}
+});
+
+test('never round fractional seconds up across a step', () => {
+	assert.strictEqual(prettyMilliseconds(1999.999999), '1.9s');
+	assert.strictEqual(prettyMilliseconds(59_999.999999), '59.9s');
+	assert.strictEqual(prettyMilliseconds(59_999.999999, {colonNotation: true}), '0:59.9');
+	assert.strictEqual(prettyMilliseconds(999.999999, {subSecondsAsDecimals: true}), '0.9s');
+	assert.strictEqual(prettyMilliseconds(1999.9999, {secondsDecimalDigits: 0}), '1s');
+	assert.strictEqual(prettyMilliseconds(1999.9999, {compact: true}), '1s');
+	assert.strictEqual(prettyMilliseconds(59_999.9999999, {secondsDecimalDigits: 2}), '59.99s');
+	assert.strictEqual(prettyMilliseconds(3_599_999.999999), '59m 59.9s');
+	assert.strictEqual(prettyMilliseconds(-1999.999999), '-1.9s');
+
+	// The error of a large fractional input outgrew the fixed epsilon at high digit counts.
+	assert.strictEqual(prettyMilliseconds(930_089.1, {secondsDecimalDigits: 7}), '15m 30.0891000s');
+	assert.strictEqual(prettyMilliseconds(17_010_569.5724, {secondsDecimalDigits: 7}), '4h 43m 30.5695724s');
+
+	// The float error of the input itself is still absorbed.
+	assert.strictEqual(prettyMilliseconds(2000 - (2 ** -42)), '2s');
+	assert.strictEqual(prettyMilliseconds(0.57 * 100_000), '57s');
+	assert.strictEqual(prettyMilliseconds(1.005 * 1000, {secondsDecimalDigits: 3}), '1.005s');
+	assert.strictEqual(prettyMilliseconds(0.29 * 100_000), '29s');
+
+	// An integer keeps the half-ulp correction of the scaling up to the exact scaling range.
+	assert.strictEqual(prettyMilliseconds(44_919, {secondsDecimalDigits: 14}), '44.91900000000000s');
+	assert.strictEqual(prettyMilliseconds(7_297_105, {secondsDecimalDigits: 14}).split(' ').at(-1), '37.10500000000000s');
+
+	// Past the input's precision, an exactly representable value keeps its digits.
+	assert.strictEqual(prettyMilliseconds(996_486_111_545.5, {secondsDecimalDigits: 7}).split(' ').at(-1), '51.5455000s');
+	assert.strictEqual(prettyMilliseconds(87_454_524_017_526.5, {secondsDecimalDigits: 5}).split(' ').at(-1), '17.52650s');
+	assert.strictEqual(prettyMilliseconds(100_000_000_000.5, {secondsDecimalDigits: 12}).split(' ').at(-1), '40.000500000000s');
+});

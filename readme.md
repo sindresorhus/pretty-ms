@@ -75,6 +75,8 @@ Number of digits to appear after the seconds decimal point.
 
 Digits are floored rather than rounded, so the seconds field never shows more time than the duration has. `1.9s` at `0` digits is `1s`, never `2s`.
 
+A number holds about 15 significant digits, so digits past that, counting the whole duration, are not exact.
+
 ##### millisecondsDecimalDigits
 
 Type: `number`\

@@ -26,9 +26,13 @@ const scalingEpsilon = scaledValue => Math.abs(scaledValue) < EXACT_SCALING_RANG
 	? Math.max(SECOND_ROUNDING_EPSILON, (Math.abs(scaledValue) * Number.EPSILON) / 2)
 	: SECOND_ROUNDING_EPSILON;
 
-const floorDecimals = (value, digits) => {
+// The value carries the float error of its own scaling, up to half a ulp, and of the input it was reduced from, which is proportional to that input rather than to the value. A fixed epsilon is too coarse for the first and too fine for the second. Each is only corrected while it stays below half a step. Past that, the digits are beyond what that error allows, so correcting them would only move them further off.
+const floorDecimals = (value, digits, inputSeconds) => {
 	const scaledValue = value * (10 ** digits);
-	const flooredValue = Math.floor(scaledValue + scalingEpsilon(scaledValue));
+	const correction = tolerance => tolerance < 0.5 ? tolerance : 0;
+	const scalingTolerance = (scaledValue / 2) * Number.EPSILON;
+	const inputTolerance = inputSeconds * (10 ** digits) * Number.EPSILON;
+	const flooredValue = Math.floor(scaledValue + correction(scalingTolerance) + correction(inputTolerance));
 
 	// Dividing the floored value back by the power of ten reintroduces the error the flooring just removed, so the digits are placed directly instead.
 	if (digits > 0 && Number.isSafeInteger(flooredValue)) {
@@ -189,7 +193,10 @@ export default function prettyMilliseconds(milliseconds, options) {
 		} else {
 			// As for the milliseconds, the rounding epsilon must not carry the seconds into the next minute.
 			const maximumSeconds = 60 - (10 ** -secondsDecimalDigits);
-			const secondsFixed = floorDecimals(Math.min(secondsWithinMinute, maximumSeconds), secondsDecimalDigits);
+			// An integer reduces modulo a minute exactly, so only a fractional input carries error into the seconds.
+			// eslint-disable-next-line unicorn/prefer-number-is-safe-integer -- Any integral number reduces exactly, including one past the safe range.
+			const inputSeconds = isBigInt || Number.isInteger(milliseconds) ? 0 : milliseconds / 1000;
+			const secondsFixed = floorDecimals(Math.min(secondsWithinMinute, maximumSeconds), secondsDecimalDigits, inputSeconds);
 			const secondsString = options.keepDecimalsOnWholeSeconds
 				? secondsFixed
 				: secondsFixed.replace(/\.0+$/v, '');
