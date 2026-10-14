@@ -62,6 +62,15 @@ Type: `number | bigint`
 
 Milliseconds to humanize.
 
+An integer (`number` or `bigint`) is exact at any size.
+
+A fractional number is first rounded to 15 significant digits, the precision of a number, which removes float noise:
+
+- `0.57 * 100_000` (`56999.99999999999`) is `57s`.
+- `999.9999999999999` (16 digits) is `1s`, but `999.99999999999` (14 digits) is `999ms`.
+
+From `1e15` milliseconds (about 31,700 years) up, no digits are left for the fraction, so the duration is rounded to the nearest 10 milliseconds.
+
 #### options
 
 Type: `object`
@@ -73,9 +82,7 @@ Default: `1`
 
 Number of digits to appear after the seconds decimal point.
 
-Digits are floored rather than rounded, so the seconds field never shows more time than the duration has. `1.9s` at `0` digits is `1s`, never `2s`.
-
-A number holds about 15 significant digits, so digits past that, counting the whole duration, are not exact.
+Digits are floored, not rounded, so the seconds never round up into the next step: `1999ms` is `1.9s`, and at `0` digits it is `1s`, never `2s`. The flooring applies to the duration after it is read (see `milliseconds` for how a fractional number is read).
 
 ##### millisecondsDecimalDigits
 
@@ -83,6 +90,8 @@ Type: `number`\
 Default: `0`
 
 Number of digits to appear after the milliseconds decimal point.
+
+The milliseconds are rounded, not floored, but they never round up to `1000ms`, and a nonzero duration under a second never rounds down to `0ms`: `999.6ms` is `999ms`, and `0.2ms` is `1ms`. This does not apply with `formatSubMilliseconds`, which floors instead.
 
 Useful in combination with [`process.hrtime()`](https://nodejs.org/api/process.html#process_process_hrtime_time).
 
@@ -131,6 +140,8 @@ Type: `boolean`\
 Default: `false`
 
 Show microseconds and nanoseconds.
+
+The values are floored to whole nanoseconds, so a duration under 1 nanosecond is `0ms`.
 
 ##### colonNotation
 
@@ -181,7 +192,7 @@ Useful for progress indicators where you want consistent unit format to prevent 
 
 Also floored, so `999ms` is `0.9s`.
 
-A duration too small for the seconds field to show, like `50ms` at the default `secondsDecimalDigits` of `1`, stays in milliseconds rather than showing as zero.
+A duration too small for the seconds field to show, like `50ms` at the default `secondsDecimalDigits` of `1`, stays in milliseconds rather than showing as zero. With `compact`, the seconds have no decimals, so a duration under a second stays in milliseconds.
 
 ## FAQ
 

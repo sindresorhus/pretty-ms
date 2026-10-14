@@ -1,19 +1,10 @@
-import parseMilliseconds from 'parse-ms';
-
 const isZero = value => value === 0 || value === 0n;
 const pluralize = (word, count) => (count === 1 || count === 1n) ? word : `${word}s`;
 
-const SECOND_ROUNDING_EPSILON = 0.0000001;
-// The largest scaled value whose ulp is still below 1, so a relative rounding correction cannot cross into the next integer.
-const EXACT_SCALING_RANGE = 2 ** 52;
-const ONE_MINUTE_IN_MILLISECONDS = 60 * 1000;
-const ONE_MINUTE_IN_BIGINT_MILLISECONDS = BigInt(ONE_MINUTE_IN_MILLISECONDS);
-const ONE_SECOND_IN_MILLISECONDS = 1000;
-const ONE_SECOND_IN_BIGINT_MILLISECONDS = BigInt(ONE_SECOND_IN_MILLISECONDS);
-const ONE_HOUR_IN_MILLISECONDS = 60 * ONE_MINUTE_IN_MILLISECONDS;
-const ONE_HOUR_IN_BIGINT_MILLISECONDS = BigInt(ONE_HOUR_IN_MILLISECONDS);
-const ONE_DAY_IN_MILLISECONDS = 24 * ONE_HOUR_IN_MILLISECONDS;
-const ONE_DAY_IN_BIGINT_MILLISECONDS = BigInt(ONE_DAY_IN_MILLISECONDS);
+const ONE_SECOND_IN_MILLISECONDS = 1000n;
+const ONE_MINUTE_IN_MILLISECONDS = 60n * ONE_SECOND_IN_MILLISECONDS;
+const ONE_HOUR_IN_MILLISECONDS = 60n * ONE_MINUTE_IN_MILLISECONDS;
+const ONE_DAY_IN_MILLISECONDS = 24n * ONE_HOUR_IN_MILLISECONDS;
 const MAX_DECIMAL_DIGITS = 100; // The most `Number#toFixed()` accepts.
 
 // `toFixed()` throws for anything outside 0-100, and a `NaN` count would leak into the output as `NaN`.
@@ -21,26 +12,33 @@ const decimalDigits = (value, defaultValue) => typeof value === 'number' && !Num
 	? Math.min(Math.max(Math.trunc(value), 0), MAX_DECIMAL_DIGITS)
 	: defaultValue;
 
-// Scaling by a power of ten carries up to half a ulp of error, which under-reports the last digit once it outgrows the fixed epsilon. It can only be absorbed while a ulp of the scaled value stays below 1.
-const scalingEpsilon = scaledValue => Math.abs(scaledValue) < EXACT_SCALING_RANGE
-	? Math.max(SECOND_ROUNDING_EPSILON, (Math.abs(scaledValue) * Number.EPSILON) / 2)
-	: SECOND_ROUNDING_EPSILON;
-
-// The value carries the float error of its own scaling, up to half a ulp, and of the input it was reduced from, which is proportional to that input rather than to the value. A fixed epsilon is too coarse for the first and too fine for the second. Each is only corrected while it stays below half a step. Past that, the digits are beyond what that error allows, so correcting them would only move them further off.
-const floorDecimals = (value, digits, inputSeconds) => {
-	const scaledValue = value * (10 ** digits);
-	const correction = tolerance => tolerance < 0.5 ? tolerance : 0;
-	const scalingTolerance = (scaledValue / 2) * Number.EPSILON;
-	const inputTolerance = inputSeconds * (10 ** digits) * Number.EPSILON;
-	const flooredValue = Math.floor(scaledValue + correction(scalingTolerance) + correction(inputTolerance));
-
-	// Dividing the floored value back by the power of ten reintroduces the error the flooring just removed, so the digits are placed directly instead.
-	if (digits > 0 && Number.isSafeInteger(flooredValue)) {
-		const padded = flooredValue.toFixed(0).padStart(digits + 1, '0');
-		return `${padded.slice(0, -digits)}.${padded.slice(-digits)}`;
+// The duration as the exact fraction `value / scale` milliseconds, so every field can be derived with exact BigInt arithmetic.
+// An integer is exact at any size, including a number past the safe range. A fractional number is rounded to 15 significant digits, counting the whole duration, as that is all the precision a double has. This turns float noise back into the intended value: `0.57 * 100_000` is `56999.99999999999`, which is read as `57000`, and `999.9999999999999` is read as `1000`. Digits past the 15th are rounded away, so they are not exact.
+const toExactMilliseconds = milliseconds => {
+	// eslint-disable-next-line unicorn/prefer-number-is-safe-integer -- An integer past the safe range is still exact.
+	if (typeof milliseconds === 'bigint' || Number.isInteger(milliseconds)) {
+		return {value: BigInt(milliseconds), scale: 1n};
 	}
 
-	return (flooredValue / (10 ** digits)).toFixed(digits);
+	const [significand, exponent = '0'] = milliseconds.toPrecision(15).split('e', 2);
+	const [whole, fraction = ''] = significand.split('.', 2);
+	const digits = BigInt(whole + fraction);
+	const decimals = fraction.length - Number(exponent);
+
+	// From `1e15` up, the 15 digits end before the decimal point, so the exponent is positive. The fraction is then dropped and the duration is rounded to the nearest 10 milliseconds. A number from `2 ** 52` up is always an integer, so this only applies below that.
+	return decimals < 0
+		? {value: digits * (10n ** BigInt(-decimals)), scale: 1n}
+		: {value: digits, scale: 10n ** BigInt(decimals)};
+};
+
+// Places the decimal point in a count of steps of `10 ** -digits`.
+const formatSteps = (steps, digits) => {
+	if (digits === 0) {
+		return String(steps);
+	}
+
+	const padded = String(steps).padStart(digits + 1, '0');
+	return `${padded.slice(0, -digits)}.${padded.slice(-digits)}`;
 };
 
 export default function prettyMilliseconds(milliseconds, options) {
@@ -90,22 +88,19 @@ export default function prettyMilliseconds(milliseconds, options) {
 		result.push(valueString);
 	};
 
-	const parsed = parseMilliseconds(milliseconds);
-	// The days come from the exact integer, as the `parse-ms` quotient can round up into the next day once it is large.
-	const days = (isBigInt ? milliseconds : BigInt(Math.trunc(milliseconds))) / ONE_DAY_IN_BIGINT_MILLISECONDS;
+	const {value, scale} = toExactMilliseconds(milliseconds);
+	const second = ONE_SECOND_IN_MILLISECONDS * scale;
+	const minute = ONE_MINUTE_IN_MILLISECONDS * scale;
+	const hour = ONE_HOUR_IN_MILLISECONDS * scale;
+	const day = ONE_DAY_IN_MILLISECONDS * scale;
 
-	// The hours and minutes within the day, reduced before dividing so they stay exact at any magnitude. `parse-ms` takes them from `milliseconds / 3_600_000 % 24` and `milliseconds / 60_000 % 60`, which lose their low digits once the quotient is large.
-	const hoursWithinDay = Math.floor(
-		Number(milliseconds % (isBigInt ? ONE_DAY_IN_BIGINT_MILLISECONDS : ONE_DAY_IN_MILLISECONDS))
-		/ ONE_HOUR_IN_MILLISECONDS,
-	);
-	const minutesWithinHour = Math.floor(
-		Number(milliseconds % (isBigInt ? ONE_HOUR_IN_BIGINT_MILLISECONDS : ONE_HOUR_IN_MILLISECONDS))
-		/ ONE_MINUTE_IN_MILLISECONDS,
-	);
+	// The days, hours, minutes, seconds, and sub-millisecond fields are floored from the exact value, so none of them can round up into the next unit. Only the milliseconds, when they are the last unit, are rounded (see below).
+	const days = value / day;
+	const hoursWithinDay = (value % day) / hour;
+	const minutesWithinHour = (value % hour) / minute;
 
 	if (options.hideYearAndDays) {
-		add((days * 24n) + BigInt(hoursWithinDay), 'hour', 'h');
+		add((days * 24n) + hoursWithinDay, 'hour', 'h');
 	} else {
 		if (options.hideYear) {
 			add(days, 'day', 'd');
@@ -120,59 +115,43 @@ export default function prettyMilliseconds(milliseconds, options) {
 	add(minutesWithinHour, 'minute', 'm');
 
 	const secondsDecimalDigits = decimalDigits(options.secondsDecimalDigits, 1);
+	const secondsStepsPerSecond = 10n ** BigInt(secondsDecimalDigits);
 
 	// A duration under a minute has no coarser field, so hiding the seconds would leave nothing to carry its value.
-	const hideSeconds = options.hideSeconds && milliseconds >= ONE_MINUTE_IN_MILLISECONDS;
+	const hideSeconds = options.hideSeconds && value >= minute;
 
-	// The smallest value the seconds field can render, in milliseconds.
-	const minimumDecimalSeconds = (10 ** -secondsDecimalDigits) * 1000;
-
-	// `subSecondsAsDecimals` moves the value into the seconds field, so it only applies when that field is rendered and can represent the value. Otherwise the value is lost.
+	// `subSecondsAsDecimals` moves the value into the seconds field, so it only applies when that field is rendered and can represent the value, at least one step of the seconds digits. Otherwise the value is lost.
 	const canShowAsDecimalSeconds = options.subSecondsAsDecimals
 		&& !hideSeconds
-		&& milliseconds >= minimumDecimalSeconds;
+		&& value * secondsStepsPerSecond >= second;
 
 	if (!hideSeconds) {
-		// The sub-millisecond fields come from scaling the value to nanoseconds. `parse-ms` derives them from `milliseconds * 1000` and `milliseconds * 1e6`, which truncates a product landing a hair below the integer and leaves the exact integer range above ~9e9ms. Scaling the whole value recovers the intended decimal best, so it is only reduced modulo a second where that scaling would overflow.
-		const isReduceSubMilliseconds = !Number.isSafeInteger(Math.trunc(Number(milliseconds)) * 1e6);
-		const scaledNanoseconds = Number(
-			isReduceSubMilliseconds
-				? milliseconds % (isBigInt ? ONE_SECOND_IN_BIGINT_MILLISECONDS : ONE_SECOND_IN_MILLISECONDS)
-				: milliseconds,
-		) * 1e6;
-		const flooredNanoseconds = Math.trunc(scaledNanoseconds + scalingEpsilon(scaledNanoseconds));
-		const wholeMilliseconds = Number(parsed.milliseconds);
-		// The scaling and its correction can round the value up into the next whole millisecond, which `parse-ms` does not count. Wrapping to zero would lose that millisecond, so the value is held at the last nanosecond instead.
-		const totalNanoseconds = Math.floor(flooredNanoseconds / 1e6) % 1000 === wholeMilliseconds
-			? flooredNanoseconds % 1e6
-			: 999_999;
-		const microseconds = Math.floor(totalNanoseconds / 1000);
-		const nanoseconds = totalNanoseconds % 1000;
-
-		// The seconds within the minute, reduced before dividing so they stay exact at any magnitude. `parse-ms` takes them from `milliseconds / 1000 % 60`, which loses them once the quotient is large.
-		const secondsWithinMinute = (
-			isBigInt ? Number(milliseconds % ONE_MINUTE_IN_BIGINT_MILLISECONDS) : milliseconds % ONE_MINUTE_IN_MILLISECONDS
-		) / 1000;
+		const withinMinute = value % minute;
 
 		if (
 			options.separateMilliseconds
 			|| options.formatSubMilliseconds
-			|| (!canShowAsDecimalSeconds && !options.colonNotation && milliseconds < 1000)
+			|| (!canShowAsDecimalSeconds && !options.colonNotation && value < second)
 		) {
-			add(Math.floor(secondsWithinMinute), 'second', 's');
+			add(withinMinute / second, 'second', 's');
+
+			const wholeMilliseconds = (value % second) / scale;
+			// Floored to whole nanoseconds, the smallest unit shown. `formatSubMilliseconds` shows these as they are, so a duration under 1 nanosecond is `0ms` there.
+			const subMillisecondNanoseconds = ((value % scale) * 1_000_000n) / scale;
 
 			if (options.formatSubMilliseconds) {
 				add(wholeMilliseconds, 'millisecond', 'ms');
-				add(microseconds, 'microsecond', 'µs');
-				add(nanoseconds, 'nanosecond', 'ns');
+				add(subMillisecondNanoseconds / 1000n, 'microsecond', 'µs');
+				add(subMillisecondNanoseconds % 1000n, 'nanosecond', 'ns');
 			} else {
-				const millisecondsAndBelow = wholeMilliseconds + (totalNanoseconds / 1e6);
+				const millisecondsAndBelow = Number(wholeMilliseconds) + (Number(subMillisecondNanoseconds) / 1e6);
 
 				const millisecondsDecimalDigits
 					= decimalDigits(options.millisecondsDecimalDigits, 0);
 
-				// Under a second, the zero field is dropped entirely, so a nonzero duration is clamped to the smallest representable value instead of rounding down onto it. The input is checked directly, as the sum above cannot represent a value below a nanosecond. From a second up, the seconds field carries the value, so the milliseconds round normally.
-				const minimumMilliseconds = milliseconds > 0 && milliseconds < ONE_SECOND_IN_MILLISECONDS ? 10 ** -millisecondsDecimalDigits : 0;
+				// Under a second, the zero field is dropped entirely, so a nonzero duration is clamped to the smallest representable value instead of rounding down onto it. The exact value is checked, as the sum above cannot represent a value below a nanosecond. From a second up, the seconds field carries the value, so the milliseconds round normally.
+				const minimumMilliseconds = value > 0n && value < second ? 10 ** -millisecondsDecimalDigits : 0;
+				// The milliseconds are rounded, not floored, but never up to a full second, which would need the seconds field.
 				const maximumMilliseconds = 1000 - (10 ** -millisecondsDecimalDigits);
 				const clampedMilliseconds
 					= Math.min(Math.max(millisecondsAndBelow, minimumMilliseconds), maximumMilliseconds);
@@ -191,12 +170,8 @@ export default function prettyMilliseconds(milliseconds, options) {
 				);
 			}
 		} else {
-			// As for the milliseconds, the rounding epsilon must not carry the seconds into the next minute.
-			const maximumSeconds = 60 - (10 ** -secondsDecimalDigits);
-			// An integer reduces modulo a minute exactly, so only a fractional input carries error into the seconds.
-			// eslint-disable-next-line unicorn/prefer-number-is-safe-integer -- Any integral number reduces exactly, including one past the safe range.
-			const inputSeconds = isBigInt || Number.isInteger(milliseconds) ? 0 : milliseconds / 1000;
-			const secondsFixed = floorDecimals(Math.min(secondsWithinMinute, maximumSeconds), secondsDecimalDigits, inputSeconds);
+			// Floored to the digit count, so the seconds never round up into the next step, or to `60s`.
+			const secondsFixed = formatSteps((withinMinute * secondsStepsPerSecond) / second, secondsDecimalDigits);
 			const secondsString = options.keepDecimalsOnWholeSeconds
 				? secondsFixed
 				: secondsFixed.replace(/\.0+$/v, '');

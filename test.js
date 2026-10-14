@@ -330,7 +330,7 @@ test('keep the seconds component exact at high decimal digit counts', () => {
 });
 
 test('never round the seconds component up to 60', () => {
-	// The rounding epsilon is added to the scaled value, so a value just under a minute was carried over into a `60` field.
+	// The old rounding epsilon carried a value just under a minute over into a `60` field.
 	assert.strictEqual(prettyMilliseconds(59_999.99999), '59.9s');
 	assert.strictEqual(prettyMilliseconds(59_999.9999, {secondsDecimalDigits: 0}), '59s');
 	assert.strictEqual(prettyMilliseconds(59_999.9999, {compact: true}), '59s');
@@ -410,7 +410,7 @@ test('keep the value when the seconds field cannot show it', () => {
 });
 
 test('derive the sub-millisecond fields from the exact fractional part', () => {
-	// `parse-ms` derives them from `milliseconds * 1000` and `milliseconds * 1e6`, which truncates a product landing a hair below the integer and leaves the exact integer range above ~9e9ms.
+	// The old `parse-ms` based code derived them from `milliseconds * 1000` and `milliseconds * 1e6`, which truncated a product landing a hair below the integer and left the exact integer range above ~9e9ms.
 	assert.strictEqual(prettyMilliseconds(0.00397, {millisecondsDecimalDigits: 6}), '0.003970ms');
 	assert.strictEqual(prettyMilliseconds(0.00397, {millisecondsDecimalDigits: 9}), '0.003970000ms');
 	assert.strictEqual(prettyMilliseconds(0.00397, {separateMilliseconds: true, millisecondsDecimalDigits: 6}), '0.003970ms');
@@ -438,7 +438,7 @@ test('derive the sub-millisecond fields from the exact fractional part', () => {
 });
 
 test('keep the last decimal digit exact at high digit counts', () => {
-	// The rounding epsilon is added to the scaled value, where a ulp already exceeds 1e-7 from ~3.3e9 upward, so it became a no-op and the last digit was under-reported.
+	// The old rounding epsilon was a no-op where a ulp exceeds 1e-7, from ~3.3e9 upward, so the last digit was under-reported.
 	assert.strictEqual(prettyMilliseconds(33_300, {secondsDecimalDigits: 8}), '33.30000000s');
 	assert.strictEqual(prettyMilliseconds(33_300, {secondsDecimalDigits: 9}), '33.300000000s');
 	assert.strictEqual(prettyMilliseconds(33_300, {secondsDecimalDigits: 11}), '33.30000000000s');
@@ -539,19 +539,22 @@ test('never drop a sub-nanosecond duration to zero', () => {
 	assert.strictEqual(prettyMilliseconds(1000, {millisecondsDecimalDigits: 3}), '1s');
 });
 
-test('never lose a millisecond to the sub-millisecond rounding correction', () => {
-	// `(0.7 + 0.1) * 10` is 7.999999999999999, which the correction rounds up to the next whole millisecond, but `parse-ms` still counts 7.
+test('read a fractional number to 15 significant digits', () => {
+	// `(0.7 + 0.1) * 10` is 7.999999999999999, float noise for 8.
 	const milliseconds = (0.7 + 0.1) * 10;
 	assert.strictEqual(prettyMilliseconds(milliseconds), '8ms');
 	assert.strictEqual(prettyMilliseconds(milliseconds, {millisecondsDecimalDigits: 2}), '8.00ms');
-	assert.strictEqual(prettyMilliseconds(milliseconds, {formatSubMilliseconds: true}), '7ms 999µs 999ns');
-	assert.strictEqual(prettyMilliseconds(99.99999999999999, {subSecondsAsDecimals: true}), '100ms');
-	assert.strictEqual(prettyMilliseconds(999.9999999999999), '999ms');
-	assert.strictEqual(prettyMilliseconds(999.9999999999999, {formatSubMilliseconds: true}), '999ms 999µs 999ns');
+	assert.strictEqual(prettyMilliseconds(milliseconds, {formatSubMilliseconds: true}), '8ms');
+	assert.strictEqual(prettyMilliseconds(99.99999999999999, {subSecondsAsDecimals: true}), '0.1s');
+	assert.strictEqual(prettyMilliseconds(999.9999999999999), '1s');
+	assert.strictEqual(prettyMilliseconds(999.9999999999999, {formatSubMilliseconds: true}), '1s');
+
+	// From `1e15` up, the 15 digits do not reach the decimal point.
+	assert.strictEqual(prettyMilliseconds(1_234_567_890_123_456.5, {separateMilliseconds: true}).split(' ').slice(-2).join(' '), '3s 460ms');
 });
 
 test('compute the hours and minutes from the exact remainder', () => {
-	// `parse-ms` takes them from `milliseconds / 60_000 % 60`, which loses the low digits once the quotient is large, so the fields disagreed with the seconds.
+	// The old `parse-ms` based code took them from `milliseconds / 60_000 % 60`, which lost the low digits once the quotient was large, so the fields disagreed with the seconds.
 	assert.strictEqual(prettyMilliseconds(1e22), '317097919837y 235d 17h 46m 40s');
 	assert.strictEqual(prettyMilliseconds(1e22), prettyMilliseconds(10n ** 22n));
 	assert.strictEqual(prettyMilliseconds(2.71e20), prettyMilliseconds(271_000_000_000_000_000_000n));
@@ -559,7 +562,7 @@ test('compute the hours and minutes from the exact remainder', () => {
 	assert.strictEqual(prettyMilliseconds(1e23), prettyMilliseconds(BigInt(1e23)));
 	assert.strictEqual(prettyMilliseconds(1e22, {hideYearAndDays: true}), prettyMilliseconds(10n ** 22n, {hideYearAndDays: true}));
 
-	// The `parse-ms` day quotient rounds up into the next day here, while the hours are exact, so the output was a whole day too long.
+	// The old `parse-ms` day quotient rounded up into the next day here, while the hours were exact, so the output was a whole day too long.
 	assert.strictEqual(prettyMilliseconds(7.31784889677888e19), '2320474662y 311d 23h 59m 57.9s');
 
 	// The hours, minutes and seconds must always describe the same instant.
@@ -1077,7 +1080,7 @@ const sampleDurations = () => {
 		durations.push(Number((random() * magnitude).toFixed(decimals)));
 	}
 
-	// Just below and above whole tenths of a second, seconds, minutes, and hours, where a rounding correction can carry the value into the next unit.
+	// Just below and above whole tenths of a second, seconds, minutes, and hours, where a rounding step would carry the value into the next unit.
 	for (const unit of [100, 1000, 60_000, 3_600_000]) {
 		for (const count of [1, 2, 7, 59, 61, 1000]) {
 			for (const offset of [1, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9]) {
@@ -1188,7 +1191,12 @@ test('render an exactly representable fractional duration exactly', () => {
 	const wholes = [1000, 123_456, 98_765_432, 100_000_000_000, 7_654_321_098_765];
 	const fractions = [0.5, 0.25, 0.125, 0.0625, 0.75];
 
-	for (const milliseconds of wholes.flatMap(whole => fractions.map(fraction => whole + fraction))) {
+	// A fractional number is read to 15 significant digits, so only the durations within that are exact.
+	const representableDurations = wholes
+		.flatMap(whole => fractions.map(fraction => whole + fraction))
+		.filter(milliseconds => String(milliseconds).replace('.', '').length <= 15);
+
+	for (const milliseconds of representableDurations) {
 		for (const {digits, seconds} of secondsCases(milliseconds, digitRange(0, 12))) {
 			assert.strictEqual(
 				prettyMilliseconds(milliseconds, {secondsDecimalDigits: digits, keepDecimalsOnWholeSeconds: true}).split(' ').at(-1),
@@ -1220,7 +1228,7 @@ test('never round fractional seconds up across a step', () => {
 	assert.strictEqual(prettyMilliseconds(1.005 * 1000, {secondsDecimalDigits: 3}), '1.005s');
 	assert.strictEqual(prettyMilliseconds(0.29 * 100_000), '29s');
 
-	// An integer keeps the half-ulp correction of the scaling up to the exact scaling range.
+	// An integer is exact at every digit count.
 	assert.strictEqual(prettyMilliseconds(44_919, {secondsDecimalDigits: 14}), '44.91900000000000s');
 	assert.strictEqual(prettyMilliseconds(7_297_105, {secondsDecimalDigits: 14}).split(' ').at(-1), '37.10500000000000s');
 
