@@ -867,7 +867,7 @@ test('Big numbers', () => {
 	);
 	assert.strictEqual(
 		prettyMilliseconds(duration, {colonNotation: true}),
-		'492518667085565947437061434881381799446768678152999990681965689871663728164461750029012489404840762113809476584970910860915948840793052555530048073160376758865890165963154197469165726275039257381029776735493517650149543114803350542920023450224995474725473496449711570325310074468272054469179189112833218790:18:04:03:02',
+		'492518667085565947437061434881381799446768678152999990681965689871663728164461750029012489404840762113809476584970910860915948840793052555530048073160376758865890165963154197469165726275039257381029776735493517650149543114803350542920023450224995474725473496449711570325310074468272054469179189112833218790:018:04:03:02',
 	);
 });
 
@@ -1340,4 +1340,26 @@ test('show a year as a fixed 365 days', () => {
 	assert.strictEqual(prettyMilliseconds(year * 2, {hideYear: true}), '730d');
 	assert.strictEqual(prettyMilliseconds(BigInt(year) * 4n), '4y');
 	assert.strictEqual(prettyMilliseconds(year, {hideYearAndDays: true}), '8760h');
+});
+
+test('pad the days to 3 digits with colonNotation after a year', () => {
+	// The days after a year go up to 364, so 2 digits made the width change, and `1:05:...` and `1:100:...` were not aligned.
+	const day = 24 * 60 * 60 * 1000;
+	const year = 365 * day;
+	assert.strictEqual(prettyMilliseconds(year, {colonNotation: true}), '1:000:00:00:00');
+	assert.strictEqual(prettyMilliseconds(year + (5 * day), {colonNotation: true}), '1:005:00:00:00');
+	assert.strictEqual(prettyMilliseconds(year + (100 * day), {colonNotation: true}), '1:100:00:00:00');
+	assert.strictEqual(prettyMilliseconds(year + (364 * day) + 1000, {colonNotation: true}), '1:364:00:00:01');
+	assert.strictEqual(prettyMilliseconds(BigInt(year + (5 * day)), {colonNotation: true}), '1:005:00:00:00');
+	assert.strictEqual(prettyMilliseconds(-(year + (5 * day)), {colonNotation: true}), '-1:005:00:00:00');
+	assert.strictEqual(prettyMilliseconds(year + (5 * day), {colonNotation: true, hideSeconds: true}), '1:005:00:00');
+	assert.strictEqual(prettyMilliseconds(Number.MAX_SAFE_INTEGER, {colonNotation: true}), '285616:151:08:59:00.9');
+
+	// Days are not padded when they are the first field.
+	assert.strictEqual(prettyMilliseconds(5 * day, {colonNotation: true}), '5:00:00:00');
+	assert.strictEqual(prettyMilliseconds(year + (5 * day), {colonNotation: true, hideYear: true}), '370:00:00:00');
+
+	// The other units are not affected.
+	assert.strictEqual(prettyMilliseconds(year + (5 * day), {hideYearAndDays: true, colonNotation: true}), '8880:00:00');
+	assert.strictEqual(prettyMilliseconds(year + (5 * day)), '1y 5d');
 });

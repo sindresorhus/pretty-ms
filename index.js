@@ -84,7 +84,12 @@ export default function prettyMilliseconds(milliseconds, options) {
 		valueString ??= String(value);
 		if (options.colonNotation) {
 			const wholeDigits = valueString.includes('.') ? valueString.split('.', 1)[0].length : valueString.length;
-			const minLength = result.length > 0 ? 2 : 1;
+			// The first field is not padded. The days after a year go up to 364, so they get 3 digits to keep the width.
+			let minLength = 1;
+			if (result.length > 0) {
+				minLength = short === 'd' ? 3 : 2;
+			}
+
 			valueString = '0'.repeat(Math.max(0, minLength - wholeDigits)) + valueString;
 		} else {
 			valueString += options.verbose ? ' ' + pluralize(long, value) : short;

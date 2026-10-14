@@ -158,6 +158,8 @@ Setting `colonNotation` to `true` overrides the following options to `false`:
 - `separateMilliseconds`
 - `verbose`
 
+Days after a year are padded to 3 digits to keep the width: `1:005:00:00:00`.
+
 It also ignores `unitCount`, as dropping a field would change what the remaining fields mean: `1:01:01` would become `1:01`, which reads as 1 minute.
 
 ##### hideYear
