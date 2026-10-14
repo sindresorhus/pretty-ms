@@ -5,9 +5,9 @@ const ONE_SECOND_IN_MILLISECONDS = 1000n;
 const ONE_MINUTE_IN_MILLISECONDS = 60n * ONE_SECOND_IN_MILLISECONDS;
 const ONE_HOUR_IN_MILLISECONDS = 60n * ONE_MINUTE_IN_MILLISECONDS;
 const ONE_DAY_IN_MILLISECONDS = 24n * ONE_HOUR_IN_MILLISECONDS;
-const MAX_DECIMAL_DIGITS = 100; // The most `Number#toFixed()` accepts.
+const MAX_DECIMAL_DIGITS = 100; // The same limit as `Number#toFixed()`, which keeps the output a sensible size.
 
-// `toFixed()` throws for anything outside 0-100, and a `NaN` count would leak into the output as `NaN`.
+// A negative or fractional count is not a digit count, and a `NaN` count would leak into the output as `NaN`.
 const decimalDigits = (value, defaultValue) => typeof value === 'number' && !Number.isNaN(value)
 	? Math.min(Math.max(Math.trunc(value), 0), MAX_DECIMAL_DIGITS)
 	: defaultValue;
@@ -135,32 +135,33 @@ export default function prettyMilliseconds(milliseconds, options) {
 		) {
 			add(withinMinute / second, 'second', 's');
 
-			const wholeMilliseconds = (value % second) / scale;
-			// Floored to whole nanoseconds, the smallest unit shown. `formatSubMilliseconds` shows these as they are, so a duration under 1 nanosecond is `0ms` there.
-			const subMillisecondNanoseconds = ((value % scale) * 1_000_000n) / scale;
-
 			if (options.formatSubMilliseconds) {
-				add(wholeMilliseconds, 'millisecond', 'ms');
+				// Floored to whole nanoseconds, the smallest unit shown. `formatSubMilliseconds` shows these as they are, so a duration under 1 nanosecond is `0ms` there.
+				const subMillisecondNanoseconds = ((value % scale) * 1_000_000n) / scale;
+
+				add((value % second) / scale, 'millisecond', 'ms');
 				add(subMillisecondNanoseconds / 1000n, 'microsecond', 'µs');
 				add(subMillisecondNanoseconds % 1000n, 'nanosecond', 'ns');
 			} else {
-				const millisecondsAndBelow = Number(wholeMilliseconds) + (Number(subMillisecondNanoseconds) / 1e6);
-
 				const millisecondsDecimalDigits
 					= decimalDigits(options.millisecondsDecimalDigits, 0);
+				const stepsPerMillisecond = 10n ** BigInt(millisecondsDecimalDigits);
 
-				// Under a second, the zero field is dropped entirely, so a nonzero duration is clamped to the smallest representable value instead of rounding down onto it. The exact value is checked, as the sum above cannot represent a value below a nanosecond. From a second up, the seconds field carries the value, so the milliseconds round normally.
-				const minimumMilliseconds = value > 0n && value < second ? 10 ** -millisecondsDecimalDigits : 0;
+				// Rounded half up in exact steps of the last digit, as a float sum of the parts can land a midpoint like `1.005` below it.
+				let steps = ((2n * (value % second) * stepsPerMillisecond) + scale) / (2n * scale);
+
+				// Under a second, the zero field is dropped entirely, so a nonzero duration is clamped to the smallest representable value instead of rounding down onto it. From a second up, the seconds field carries the value, so the milliseconds round normally.
+				if (steps === 0n && value > 0n && value < second) {
+					steps = 1n;
+				}
+
 				// The milliseconds are rounded, not floored, but never up to a full second, which would need the seconds field.
-				const maximumMilliseconds = 1000 - (10 ** -millisecondsDecimalDigits);
-				const clampedMilliseconds
-					= Math.min(Math.max(millisecondsAndBelow, minimumMilliseconds), maximumMilliseconds);
+				const maximumSteps = (1000n * stepsPerMillisecond) - 1n;
+				if (steps > maximumSteps) {
+					steps = maximumSteps;
+				}
 
-				const millisecondsString = (
-					millisecondsDecimalDigits
-						? clampedMilliseconds
-						: Math.round(clampedMilliseconds)
-				).toFixed(millisecondsDecimalDigits);
+				const millisecondsString = formatSteps(steps, millisecondsDecimalDigits);
 
 				add(
 					Number(millisecondsString),

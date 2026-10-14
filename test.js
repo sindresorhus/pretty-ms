@@ -1237,3 +1237,31 @@ test('never round fractional seconds up across a step', () => {
 	assert.strictEqual(prettyMilliseconds(87_454_524_017_526.5, {secondsDecimalDigits: 5}).split(' ').at(-1), '17.52650s');
 	assert.strictEqual(prettyMilliseconds(100_000_000_000.5, {secondsDecimalDigits: 12}).split(' ').at(-1), '40.000500000000s');
 });
+
+test('round the milliseconds half up exactly', () => {
+	// The float sum of the parts made a half step land below the midpoint: `1.005` was `1.00ms`.
+	assert.strictEqual(prettyMilliseconds(1.005, {millisecondsDecimalDigits: 2}), '1.01ms');
+	assert.strictEqual(prettyMilliseconds(1.45, {millisecondsDecimalDigits: 1}), '1.5ms');
+	assert.strictEqual(prettyMilliseconds(2.675, {millisecondsDecimalDigits: 2}), '2.68ms');
+	assert.strictEqual(prettyMilliseconds(8.345, {millisecondsDecimalDigits: 2}), '8.35ms');
+	assert.strictEqual(prettyMilliseconds(1.0005, {millisecondsDecimalDigits: 3}), '1.001ms');
+	assert.strictEqual(prettyMilliseconds(-1.005, {millisecondsDecimalDigits: 2}), '-1.01ms');
+	assert.strictEqual(prettyMilliseconds(1001.005, {separateMilliseconds: true, millisecondsDecimalDigits: 2}), '1s 1.01ms');
+	assert.strictEqual(prettyMilliseconds(1.005, {millisecondsDecimalDigits: 2, verbose: true}), '1.01 milliseconds');
+
+	// Just below the midpoint still rounds down.
+	assert.strictEqual(prettyMilliseconds(1.004999, {millisecondsDecimalDigits: 2}), '1.00ms');
+	assert.strictEqual(prettyMilliseconds(1.449999, {millisecondsDecimalDigits: 1}), '1.4ms');
+
+	// The digits past a nanosecond are rounded too, not floored.
+	assert.strictEqual(prettyMilliseconds(0.00000015, {millisecondsDecimalDigits: 7}), '0.0000002ms');
+	assert.strictEqual(prettyMilliseconds(1.23456785, {millisecondsDecimalDigits: 7}), '1.2345679ms');
+
+	// Every midpoint between two tenths rounds up, except the last one, which would reach `1000ms`.
+	for (let tenths = 0; tenths < 9999; tenths++) {
+		const milliseconds = (tenths + 0.5) / 10;
+		assert.strictEqual(prettyMilliseconds(milliseconds, {millisecondsDecimalDigits: 1}), `${((tenths + 1) / 10).toFixed(1)}ms`, `${milliseconds}ms`);
+	}
+
+	assert.strictEqual(prettyMilliseconds(999.95, {millisecondsDecimalDigits: 1}), '999.9ms');
+});
